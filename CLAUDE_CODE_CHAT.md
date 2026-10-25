@@ -336,3 +336,17 @@ Kept as is.  No change.
   columns for the switch options; QR moved to the other side; URL with https://.
 - **Log pots.**  Answered below: yes for P and especially I, but no log trimmers exist in
   this package; the useful I range sits in the first 10 % of the 1M trimmer.
+
+## Prompt 10
+
+> Do the log-pot stock check. I'll go in and tune one up with my breadboarded version and measure the pots to know what a good "center of the range" should be. I want students to be able to go too far in either direction to see what happens, but I don't want even "too far in either direction" to only take up less than 10% of the range.
+
+## Response 7
+
+*2026-10-25 PDT.*  JLCPCB has no log pot in stock in any value, and no shaft pot above
+50k at all.  Log trimmers do not exist in the 3362 size.  Bourns PTV09A (9 mm) comes in
+audio taper up to 1M, but would be hand-soldered and its stock is unconfirmed.  With a
+linear trimmer plus a series resistor, reaching k× too far each way puts the good point at
+1/(k+1) of the turn, so linear meets the 10 % rule only for about k ≤ 3.  Waiting on the
+breadboard measurements (R at sluggish / right / too much for P, D, I).  Recorded in
+DESIGN_NOTES under "The trimmers' ranges".

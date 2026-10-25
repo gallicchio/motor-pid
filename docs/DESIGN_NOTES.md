@@ -177,6 +177,32 @@ them and settle whether the 0.35 A fuse is right:
    slider is pushed slowly by hand with 10 V across the track, looking for
    dropouts.  Says whether POSITION needs the 100 nF it has and nothing more.
 
+## The trimmers' ranges: log or linear (2026-10-25, open)
+
+Jason wants each gain trimmer's good setting near the middle of its travel,
+with "too far" reachable both ways and neither "too far" squeezed into less
+than 10 % of the turn.  Today's linear 1M trimmers miss that: P's ringing
+gain of 22 sits at 21 % of the turn and gain 5 at 4 %; I's useful 5k-100k is
+the first 0.5-10 %.
+
+Stock check, 2026-10-25: JLCPCB has no log (audio, "A") potentiometer in
+stock in any value, and no shaft pot of any taper above 50k.  Log trimmers
+are not made in the 3362 size.  Bourns' PTV09A (9 mm panel pot) is listed in
+linear and audio tapers, 1k to 1M; it would be hand-soldered (or consigned),
+and distributor stock for a 1M audio part was not confirmed.
+
+With a linear trimmer Rp after a fixed Rs (R = Rs + turn × Rp), reaching k
+times too far each way means Rs = Rg/k and Rp = Rg (k - 1/k), and the good
+value Rg sits at 1/(k + 1) of the turn: 25 % for k = 3, 10 % for k = 9.  So
+linear can meet the 10 % rule only for about k <= 3, and even then the "too
+low" side is short.  An audio taper puts Rg near the middle for k up to ~10.
+
+Jason will tune his breadboard and measure, for each of P, D and I, the
+resistance at: sluggish / about right / too much (rings, hunts or buzzes).
+From those: audio-taper PTV09A pots for P and I if he wants true log
+(D's good point is already at 61 % on linear), or 3362 trimmers resized with
+a series resistor if k <= 3 is enough.
+
 Put them in `sim/pid_sim.py` (the constants at the top), rerun `./make.py`,
 and the handbook's numbers (ringing gain, the D rule's trimmer position)
 follow.
