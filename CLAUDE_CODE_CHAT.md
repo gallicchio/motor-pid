@@ -279,3 +279,11 @@ section "The square wave" uses it.  The switch was kept over a direct tap becaus
 generator then sees only the 100k input, with no knob-position offset (a direct tap
 would see the wiper's 2.5–5.9 kΩ, about 1–2 % loading and up to ~50 mV of offset
 from the knob with a 50 Ω generator; workable, and Jason's call if he prefers it).
+
+## Prompt 8
+
+> No, your switch is great. Keep it. If you didn't already have it, I was suggesting something that would need fewer changes.
+
+## Response 5
+
+Kept as is.  No change.
