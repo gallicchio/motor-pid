@@ -159,13 +159,14 @@ PARTS = {
         footprint="Diode_SMD:D_SOD-123", symbol="Device:D",
         desc="the current limit's steering diodes, as on the op-amp board"),
     "PTC": dict(
-        value="0.5A", mpn="1812L050/60GR", lcsc="C19078719", jlc_type="extended",
-        process="SMT", stock=98933, price=0.0642,
+        value="0.35A", mpn="1812L035/30GR", lcsc="C18198328", jlc_type="extended",
+        process="SMT", stock=40708, price=0.046,
         footprint="Fuse:Fuse_1812_4532Metric", symbol="Device:Polyfuse",
-        desc="resettable fuse in the motor lead: 0.5 A hold, 1 A trip, 60 V, 0.15-1.4 ohm. "
-             "A stalled motor (0.65-0.8 A) trips it in about 10-30 s and it resets when "
-             "the drive stops; it never sees the running current (0.1-0.3 A)",
-        alt=["SMD1812P050TF/30 / C12559 (123k, 30 V)", "MF-MSMF050-2 / C17313 (Bourns, 15 V)"]),
+        desc="resettable fuse in the motor lead: 0.35 A hold, 0.7 A trip, 30 V, 0.2-1.7 ohm. "
+             "A stalled motor (0.6 A at full drive, 1.7 x hold) trips it in 5-10 s and it "
+             "resets when the drive stops; the loop's running current is 50-150 mA rms "
+             "even when it rings (sim/pid_sim.py)",
+        alt=["1812L035/60GR / C18198330 (9k, 60 V)", "1812L050/60GR / C19078719 (0.5 A hold: trips a stall in a minute)"]),
     "LED": dict(
         value="GREEN", mpn="KT-0805G", lcsc="C2297", jlc_type="basic",
         process="SMT", stock=2420908, price=0.0164,
@@ -207,8 +208,8 @@ PASSIVES = {
                   price=0.0313, stock=73941, note="2512, 1 W: the current limit's sense resistors, 0.65 A"),
     "100nF": dict(lcsc="C49678", mpn="CC0805KRX7R9BB104", jlc_type="basic",
                   price=0.0205, stock=22485395, note="X7R 50V 0805"),
-    "10nF":  dict(lcsc="C1710", mpn="CL21B103KBANNNC", jlc_type="basic",
-                  price=0.0122, stock=1435738, note="X7R 50V 0805: the D capacitor for the slide pot"),
+    "22nF":  dict(lcsc="C1729", mpn="CL21B223KBANNNC", jlc_type="basic",
+                  price=0.0084, stock=478982, note="X7R 50V 0805: the D capacitor for the slide pot"),
     "470pF": dict(lcsc="C1743", mpn="0805B471K500NT", jlc_type="basic",
                   price=0.0075, stock=438251, note="X7R 50V 0805: rolls the differentiator off"),
     "330nF": dict(lcsc="C1740", mpn="0805B334K500NT", jlc_type="preferred",
@@ -242,7 +243,7 @@ JLC_ROTATION = {
     "C84256": (0, (0, 0), "read", "NCD0805R1 on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1"),
     "C8678": (0, (0, 0), "predicted", "SS34 SMA: cathode (pad 1) at -x in both drawings"),
     "C81598": (0, (0, 0), "predicted", "1N4148W SOD-123: as the op-amp board"),
-    "C19078719": (0, (0, 0), "predicted", "1812 fuse: two pads along x, not polarised"),
+    "C18198328": (0, (0, 0), "predicted", "1812 fuse: two pads along x, not polarised"),
     "C46550402": (0, (0, 0), "predicted", "SMD electrolytic: pads along x, pad 1 (+) at -x in both drawings"),
     "C474882": (0, (0, 0), "predicted", "KF301-3P: pins along x at -5/0/+5, as drawn here"),
     "C5199800": (0, (0, 0), "predicted", "RH-5019 test loop: one 4.0 x 2.2 pad, as drawn here; the loop lies along x"),

@@ -1,0 +1,171 @@
+{
+ "big_step": {
+  "drive_peak_v": 13.34,
+  "i_peak_a": 0.79,
+  "overshoot_pct": 0.4,
+  "settle_s": 0.31
+ },
+ "date": "2026-10-24",
+ "f_nat_hz": 11.3,
+ "g_nat": 100,
+ "i_supply_ma": 3.6,
+ "op": {
+  "+15V": 14.785,
+  "-15V": -14.736,
+  "BASES": -0.829,
+  "D": -0.0,
+  "DRIVE": -0.199,
+  "ERROR": -0.02,
+  "I": 0.0,
+  "MOTOR": -0.195,
+  "P": 0.02,
+  "POSITION": 0.02,
+  "SUM": -0.199,
+  "TARGET": 0.0
+ },
+ "p_only": {
+  "1.5": {
+   "drive_peak_v": 1.4846330510264285,
+   "i_motor_peak_a": 0.07892214538644401,
+   "i_motor_rms_a": 0.04885985485296297,
+   "overshoot_pct": -46.36979483729141,
+   "period_s": null,
+   "residual_v": 0.4636979483729141,
+   "settle_s": 1.5,
+   "sustained": false
+  },
+  "10": {
+   "drive_peak_v": 9.340614742941243,
+   "i_motor_peak_a": 0.47145827529545536,
+   "i_motor_rms_a": 0.05327945119655812,
+   "overshoot_pct": -1.5285750506979667,
+   "period_s": null,
+   "residual_v": 0.015285750506979667,
+   "settle_s": 1.3654212015238754,
+   "sustained": false
+  },
+  "100": {
+   "drive_peak_v": 11.743283347890376,
+   "i_motor_peak_a": 0.738953285558958,
+   "i_motor_rms_a": 0.14253503366385586,
+   "overshoot_pct": 20.588438443712477,
+   "period_s": 0.08885466588000927,
+   "residual_v": 0.0027833035458870725,
+   "settle_s": 0.2712216707194699,
+   "sustained": false
+  },
+  "22": {
+   "drive_peak_v": 11.448270311829015,
+   "i_motor_peak_a": 0.5951627235299555,
+   "i_motor_rms_a": 0.07124563381374593,
+   "overshoot_pct": 11.976238037147358,
+   "period_s": null,
+   "residual_v": 0.037247702531996496,
+   "settle_s": 1.5,
+   "sustained": true
+  },
+  "5": {
+   "drive_peak_v": 4.8055623274966734,
+   "i_motor_peak_a": 0.23494767693257834,
+   "i_motor_rms_a": 0.045662210602232446,
+   "overshoot_pct": -8.910103120324331,
+   "period_s": null,
+   "residual_v": 0.08910103120324331,
+   "settle_s": 1.5,
+   "sustained": false
+  },
+  "50": {
+   "drive_peak_v": 11.678007958947918,
+   "i_motor_peak_a": 0.6422378711241113,
+   "i_motor_rms_a": 0.09977886660410819,
+   "overshoot_pct": 18.616310971174865,
+   "period_s": 0.3653148365431102,
+   "residual_v": -0.00554573763540378,
+   "settle_s": 1.2867726554761285,
+   "sustained": false
+  }
+ },
+ "pd": {
+  "none": {
+   "overshoot_pct": 11.976238037147358,
+   "period_s": null,
+   "rv3_k": null,
+   "settle_s": 1.5,
+   "sustained": true
+  },
+  "rule": {
+   "overshoot_pct": 3.792585985359187,
+   "period_s": null,
+   "rv3_k": 643,
+   "settle_s": 1.4029675135145827,
+   "sustained": false
+  },
+  "third": {
+   "overshoot_pct": 3.9841019241813935,
+   "period_s": null,
+   "rv3_k": 214,
+   "settle_s": 1.387819070108006,
+   "sustained": false
+  },
+  "triple": {
+   "overshoot_pct": 3.6707751245241615,
+   "period_s": null,
+   "rv3_k": 1000,
+   "settle_s": 1.5,
+   "sustained": true
+  }
+ },
+ "pd_gain100": {
+  "overshoot_pct": 0.9644567597822284,
+  "period_s": 0.35132516704238204,
+  "settle_s": 0.09183553219780291,
+  "sustained": false
+ },
+ "pi": {
+  "P only": {
+   "overshoot_pct": 0.370269956615199,
+   "period_s": null,
+   "residual_mv": -2.3490739627907153,
+   "rv4_k": 100.0,
+   "settle_s": 4.782196870941396,
+   "sustained": false
+  },
+  "too much I": {
+   "overshoot_pct": 338.14938144985643,
+   "period_s": null,
+   "residual_mv": -24.828825402770647,
+   "rv4_k": 5.0,
+   "settle_s": 7.9,
+   "sustained": true
+  },
+  "with I": {
+   "overshoot_pct": 9.186056780382135,
+   "period_s": null,
+   "residual_mv": -91.86056780382134,
+   "rv4_k": 100.0,
+   "settle_s": 7.9,
+   "sustained": false
+  }
+ },
+ "plant": {
+  "i_stick_a": 0.05,
+  "ke_v_per_vps": 0.2991,
+  "r_motor": 15.0,
+  "tau_m_s": 0.015,
+  "v_end": 7.732
+ },
+ "rc_d_ms": 14.14,
+ "rv3_k": 643.0,
+ "short": {
+  "i_short_a": 0.738,
+  "p_q1_w": 10.9,
+  "v_drive": 0.24
+ },
+ "stall": {
+  "i_motor_a": 0.602,
+  "i_peak_a": 0.6,
+  "p_motor_w": 5.43,
+  "p_q1_w": 3.15,
+  "v_motor": 9.03
+ }
+}

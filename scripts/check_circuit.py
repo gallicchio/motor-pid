@@ -135,8 +135,8 @@ def main(path):
     # --- U4: the differentiator --------------------------------------------------------
     check(N.net("U4", PLUS) == "GND", "U4's + input is grounded")
     m4 = N.net("U4", MINUS)
-    check(N.net("SW5", 1) == N.net("C5", 2) and N.net("C5", 1) == "ERROR" and abs(farads(N.value["C5"]) - 10e-9) < 1e-12,
-          "SW5 pole 1 takes ERROR through C5 = 10 nF (the slide pot's capacitor)")
+    check(N.net("SW5", 1) == N.net("C5", 2) and N.net("C5", 1) == "ERROR" and abs(farads(N.value["C5"]) - 22e-9) < 1e-12,
+          "SW5 pole 1 takes ERROR through C5 = 22 nF (the slide pot's capacitor)")
     check(N.net("SW5", 3) == N.net("C6", 2) and N.net("C6", 1) == "ERROR" and abs(farads(N.value["C6"]) - 100e-9) < 1e-12,
           "SW5 pole 3 takes ERROR through C6 = 100 nF (the book's capacitor)")
     check(N.between(N.net("SW5", 2), m4) == ["R15"] and ohms(N.value["R15"]) == 1000, "R15 = 1k from SW5's common into U4's - input")
@@ -145,14 +145,14 @@ def main(path):
     check(N.between(m4, "D", "C") == ["C7"] and abs(farads(N.value["C7"]) - 470e-12) < 1e-13, "C7 = 470 pF across RV3")
     check(N.net("U4", OUT) == "D", "U4's output is D")
     check(N.net("SW3", 2) == "D" and N.net("SW3", 3) == m4, "SW3: common D; pole 3 shorts the output to the - input (D OFF)")
-    rc_slide = 1e6 * 10e-9
+    rc_slide = 1e6 * 22e-9
     rc_book = 1e6 * 100e-9
-    check(abs(rc_slide - 0.010) < 1e-6 and abs(rc_book - 0.1) < 1e-6,
-          f"D's RC reaches {rc_slide*1e3:.0f} ms with 10 nF and {rc_book*1e3:.0f} ms with 100 nF (the book's 1M x 0.1 uF)")
+    check(abs(rc_slide - 0.022) < 1e-6 and abs(rc_book - 0.1) < 1e-6,
+          f"D's RC reaches {rc_slide*1e3:.0f} ms with 22 nF and {rc_book*1e3:.0f} ms with 100 nF (the book's 1M x 0.1 uF)")
     f_roll = 1 / (2 * math.pi * 640e3 * 470e-12)
     check(300 < f_roll < 1500, f"the 470 pF rolls the differentiator off above {f_roll:.0f} Hz at 640k")
-    f_nat_slide = 1 / (2 * math.pi * 640e3 * 10e-9)
-    check(20 < f_nat_slide < 30, f"RV3 at 640k with 10 nF makes D = P at {f_nat_slide:.0f} Hz, the slide pot's natural oscillation")
+    f_lo, f_hi = 1 / (2 * math.pi * 1e6 * 22e-9), 1 / (2 * math.pi * 200e3 * 22e-9)
+    check(f_lo < 11 and f_hi > 25, f"with 22 nF the D rule covers natural oscillations from {f_lo:.0f} to {f_hi:.0f} Hz (the book's slider: 25 Hz; the simulation: 11 Hz)")
 
     # --- U5: the integrator -----------------------------------------------------------------
     check(N.net("U5", PLUS) == "GND", "U5's + input is grounded")
@@ -196,7 +196,7 @@ def main(path):
     sn = N.net("R20", 2)
     check(N.net("R20", 1) == "DRIVE" and ohms(N.value["R20"]) == 10 and N.between(sn, "GND", "C") == ["C10"]
           and abs(farads(N.value["C10"]) - 100e-9) < 1e-12, "the snubber is 10 ohm + 0.1 uF from DRIVE to ground, as the book draws it")
-    check(N.net("F1", 1) == "DRIVE" and N.net("F1", 2) == "MOTOR" and N.value["F1"] == "0.5A", "F1, the 0.5 A resettable fuse, is between DRIVE and MOTOR")
+    check(N.net("F1", 1) == "DRIVE" and N.net("F1", 2) == "MOTOR" and N.value["F1"] == "0.35A", "F1, the 0.35 A resettable fuse, is between DRIVE and MOTOR")
     check(N.net("R23", 1) == "DRIVE" and ohms(N.value["R23"]) == 1000 and N.net("LED3", 1) == N.net("R23", 2)
           and N.net("LED3", 2) == "MOTOR" and N.net("LED4", 2) == N.net("R23", 2) and N.net("LED4", 1) == "MOTOR",
           "the tripped lamp: 1k and two anti-parallel red LEDs across the fuse")

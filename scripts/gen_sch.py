@@ -394,8 +394,8 @@ def build():
     # the capacitor selector: poles on the left, 1 = 10 nF (slide pot), 3 = 100 nF (book)
     SW5_X = EX_D + 17.78
     v1, v2, v3 = switch("SW5", "D CAPACITOR", SW5_X, n4[1], "y",
-                        "1: 10 nF, the slide pot", "3: 100 nF, the rotary pot (the book)")
-    cap("C5", "10nF", EX_D + 7.62, v1[1], rot=90, fields_at="above")
+                        "1: 22 nF, the slide pot", "3: 100 nF, the rotary pot (the book)")
+    cap("C5", "22nF", EX_D + 7.62, v1[1], rot=90, fields_at="above")
     cap("C6", "100nF", EX_D + 7.62, v3[1], rot=90, fields_at="below")
     s.wire((EX_D, v1[1]), (EX_D + 3.81, v1[1]))
     s.wire((EX_D + 11.43, v1[1]), v1)
@@ -424,7 +424,7 @@ def build():
     s.wire(d2, (d2[0], CY))                                     # wiper to the output side
     s.junction(d2[0], CY)
     s.text("D GAIN: RC = RV3 x C", U4_X + 2.54, n4[1] + 9.0, size=1.2)
-    s.text("to 10 ms (10 nF), 100 ms (100 nF)", U4_X + 2.54, n4[1] + 11.0, size=1.1)
+    s.text("to 22 ms (22 nF), 100 ms (100 nF)", U4_X + 2.54, n4[1] + 11.0, size=1.1)
     # output to the summing junction through SW3 and 10k; the other pole shorts the feedback (D off)
     s.wire(o4, (o4[0] + 12.7, o4[1]))
     testpoint(o4[0] + 12.7, o4[1], "D", rot=0)
@@ -607,7 +607,7 @@ def build():
     testpoint(DOX, A_Y, "DRIVE", rot=0)
     FX = SNX + 15.24
     s.wire((DOX, A_Y), (FX - 3.81, A_Y))
-    s.place("Device:Polyfuse", "F1", "0.5A", FX, A_Y, rot=90, footprint=fp("PTC"),
+    s.place("Device:Polyfuse", "F1", "0.35A", FX, A_Y, rot=90, footprint=fp("PTC"),
             fields=part_fields("PTC"), ref_off=(0, 3.0), val_off=(0, 5.0))
     TPM = FX + 17.78
     s.wire((FX + 3.81, A_Y), (TPM, A_Y))
@@ -638,10 +638,10 @@ def build():
     s.wire(l4k, (XK, l4k[1]), (XK, LY))
     s.junction(XK, LY)
     s.wire((XK, LY), (TR, LY))
-    s.text("MOTOR FUSE: 0.5 A resettable (not in the book)", TL - 4.0, A_Y - 27.0, size=1.2)
-    s.text("a stalled motor (0.4-0.8 A) trips it in 10-30 s; the red", TL - 4.0, A_Y - 25.0, size=1.0)
-    s.text("lamp lights while it is tripped; it resets when the drive", TL - 4.0, A_Y - 23.0, size=1.0)
-    s.text("stops.  Running current is 0.1-0.3 A.", TL - 4.0, A_Y - 21.0, size=1.0)
+    s.text("MOTOR FUSE: 0.35 A resettable (not in the book)", TL - 4.0, A_Y - 27.0, size=1.2)
+    s.text("a stalled motor (0.6 A at full drive) trips it in 5-10 s; the", TL - 4.0, A_Y - 25.0, size=1.0)
+    s.text("red lamp lights while it is tripped; it resets when the drive", TL - 4.0, A_Y - 23.0, size=1.0)
+    s.text("stops.  The loop runs the motor at 50-150 mA rms.", TL - 4.0, A_Y - 21.0, size=1.0)
     s.rect(CLX - 4.0, A_Y - 35.5, TR + 2.0, A_Y + 30.0, style="dash", key="box/fuse")
     # DRIVE OUT: the push-pull output through 1k to a jack, below the snubber
     J3Y = A_Y + 40.64
@@ -878,8 +878,9 @@ def build():
           "",
           "Why a home-made op-amp: the motor integrates (voltage in, position out: -90 degrees from DC), so an ordinary op-amp's own",
           "-90 degrees would make -180 at a few hertz.  The pseudo op-amp has gain 1 to 101 and no phase shift of its own.",
-          f"With the slide pot the natural oscillation (P only, gain raised until it rings) is near {R.get('f_nat_hz', 25):.0f} Hz; D equal to P",
-          f"there wants RC = 1 / 2 pi f = {R.get('rc_d_ms', 6):.0f} ms (RV3 at {R.get('rv3_k', 640):.0f}k with 10 nF).  I removes the residual error at low P gain."],
+          f"Simulated as drawn (sim/pid_sim.py, the fader modelled from its data sheet): P only rings at {R.get('f_nat_hz', 11):.0f} Hz when the gain",
+          f"nears 100; D equal to P there wants RC = 1 / 2 pi f = {R.get('rc_d_ms', 14):.0f} ms (RV3 near {R.get('rv3_k', 640):.0f}k with 22 nF), and then gain 100 settles",
+          f"in {R.get('pd_gain100', {}).get('settle_s', 0.07)*1e3:.0f} ms with {R.get('pd_gain100', {}).get('overshoot_pct', 1):.0f} % overshoot.  I removes the residual error at low P gain."],
          g(13), g(8), size=1.5, pitch=3.1)
 
     # ================================================== the notes band =======
@@ -913,10 +914,10 @@ def build():
     note(["DERIVATIVE  (U4, SW3, SW5)",
           "D = -RV3 C dERROR/dt, rolled off above 500 Hz by the",
           "470 pF.  Set RV3 C to 1/6 of the natural period: for",
-          "the slide pot (T about 40 ms) that is 6 ms, 600k with",
-          "the 10 nF; for the book's rotary motor-pot (T 0.6 s)",
-          "use 100 nF and 1M.  SW5 picks the capacitor, SW3",
-          "puts D into the sum or shorts it out.",
+          "the slide pot (T of 40-90 ms) that is 6-14 ms, 300k-",
+          "640k with the 22 nF; for the book's rotary motor-pot",
+          "(T 0.6 s) use 100 nF and 1M.  SW5 picks the capacitor,",
+          "SW3 puts D into the sum or shorts it out.",
           "",
           "INTEGRAL  (U5, SW4)",
           "I = -(1/RC) integral ERROR dt, RC = (1k + RV4) x 10 uF.",
@@ -935,7 +936,7 @@ def build():
           "",
           "CURRENT LIMIT and FUSE: not in the book.  1 ohm and a",
           "small transistor per half hold a short to 0.65 A; the",
-          "0.5 A PTC opens a stall in seconds and resets itself."],
+          "0.35 A PTC opens a stall in seconds and resets itself."],
          col[3], NOTE_Y)
     note(["THE PLANT",
           "Any motorized fader with a 10k track and a 6-11 V motor.",
