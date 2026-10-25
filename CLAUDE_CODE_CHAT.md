@@ -264,3 +264,18 @@ D trimmer position follow from the rerun.
 Lessons into `~/OpticsPCBs/CLAUDE_PCB.md` (committed as its own hunk; another session's
 uncommitted section-17 edits left as they were).  Next: Jason's read of the schematic and
 board, those changes, then the design-review round.
+
+## Prompt 7
+
+> The target should be able to be overridden with a function generator input on a BNC input. If the target potentiometer has reasonable resistors between each extreme and +-15V, a function generator should be able to be plugged in directly onto the center tap to "override" the potentiometer and input a square, triangle, sawtooth, or sine wave. If this is not already there, add it.
+
+## Response 4
+
+*2026-10-25 PDT.*  Already there, as a switch rather than a direct tap; no change made.
+J1 (TARGET IN, BNC, shell grounded) goes to pole 3 of SW1 (TARGET SOURCE); the knob's
+wiper goes to pole 1; the common is TARGET, which feeds U1's 100k input.  Silk beside
+the jack: "±12 V max.  A square wave ±0.5 V at 0.2 Hz replaces the knob".  Handbook
+section "The square wave" uses it.  The switch was kept over a direct tap because the
+generator then sees only the 100k input, with no knob-position offset (a direct tap
+would see the wiper's 2.5–5.9 kΩ, about 1–2 % loading and up to ~50 mV of offset
+from the knob with a 50 Ω generator; workable, and Jason's call if he prefers it).
