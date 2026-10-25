@@ -9,7 +9,8 @@ right, and the plant (the fader's motor and track) on screw terminals along
 the bottom edge, where the POSITION comes back along the bottom to the LOOP
 switch.  +15 V is a line along the top.  -15 V runs on the back of the board:
 each op-amp has its own "-15 V" flag, a via, exactly as the sheet draws a
-power symbol at each one.
+power symbol at each one; the lower stages' +15 V and the POSITION return
+to the LOOP switch run on the back too (a flag, or a dashed line).
 
 Coordinates are millimetres from the board's top-left corner, y down.
 Rotations are KiCad's, degrees counter-clockwise.
@@ -41,8 +42,7 @@ Rotations are KiCad's, degrees counter-clockwise.
   KF301 terminal at rot 180: pins in a row 5 mm apart, 1 on the right, the
   wire openings toward +y (the board's bottom edge).  rot 270: pins in a
   column, 1 at the top, openings toward +x.
-  BNC at rot 180: the barrel points -x (left edge); rot 270: -y... no:
-  rot 270 points the barrel down (+y), the bottom edge.
+  BNC at rot 180: the barrel points -x, out of the left edge.
 
 A wire is (net, [point, ...], width); a point is (x, y) or ("REF", "pad"),
 which the board generator resolves to that pad's centre (or, for an op-amp,
@@ -54,22 +54,30 @@ BACK lists copper that runs on the back only (-15 V): vias at both ends.
 """
 import parts
 
-BOARD_W, BOARD_H = 160.0, 110.0
+BOARD_W, BOARD_H = 170.0, 120.0
 VP_Y = 14.0                      # the +15 V rail along the top
-A_Y = 34.0                       # the top row of op-amps (pseudo op-amp)
+VM_TOP = 12.5                    # the -15 V trunk, on the back, just above it
+A_Y = 34.0                       # the top row of op-amps (the pseudo op-amp)
 D_Y = 62.0                       # the differentiator
-I_Y = 86.0                       # the integrator
+I_Y = 94.0                       # the integrator
+DRV_Y = 58.0                     # the motor driver's output row (DRIVE)
 OA_IN = 3.0                      # the inputs enter the triangle at cy -/+ OA_IN
 OA_H, OA_W = 12.0, 10.4          # the triangle
 OA_VM_DY = 4.0                   # V- leaves the triangle at (cx, cy + OA_VM_DY): the via
-U1X, U2X, U3X = 60.0, 86.0, 114.0
-U4X, U5X = 100.0, 100.0
-U6X, U7X = 134.0, 100.0
+VM_CAP, VM_GND = 6.0, 8.2        # the -15 V bypass under each triangle, and its ground via
+FB = 12.5                        # the feedback row under an inverting op-amp
+U1X, U2X, U3X = 62.0, 88.0, 116.0
+U4X, U5X = 94.0, 94.0
+U6X, U7X, U7Y = 135.0, 22.0, 86.0
 ERR_X = 70.0                     # the ERROR column, down from U1's output
 SUM_X = U3X - 7.2                # the summing node column, up into U3's - input
-BOT_Y = 105.5                    # the bottom-edge connectors' pin row
-DRV_Y = 58.0                     # the driver's output row (DRIVE)
-QX = 147.0                       # the push-pull column
+QX = 152.0                       # the push-pull column
+BUS_X, FUSE_Y = 167.0, 94.0      # DRIVE down the right edge, then left along the fuse row
+MOT_X = 151.0                    # MOTOR down to its terminal
+BOT_Y = 115.5                    # the bottom-edge terminals' pin row (the body 0.5 mm inside the edge)
+VM_BR = 103.5                    # the -15 V branch down the D and I stages' east side (back)
+VP_SP = 87.5                     # the +15 V spine up their west side (back)
+POS_X = 124.0                    # the POT terminal's wiper pin
 
 # ------------------------------------------------------------ placement ----
 PLACE = {
@@ -78,84 +86,80 @@ PLACE = {
     "R1": (28.0, 22.0, 270), "C1": (31.0, 27.0, 0),
     "R2": (24.0, 46.0, 270), "C2": (27.0, 41.0, 180),
     "J1": (5.7, 60.0, 180),
-    "SW1": (40.0, 40.0, 90),
-    "R5": (50.0, A_Y - OA_IN, 0),
-    "TP1": (45.0, 31.0, 90),
-    # the LOOP switch under the TARGET source switch, the POSITION return comes up to it
-    "SW2": (40.0, 52.0, 90),
-    "R7": (50.0, A_Y + OA_IN, 0),
+    "SW1": (40.0, 36.0, 180),
+    "TP1": (48.0, 41.0, 90),
+    "R5": (52.5, A_Y - OA_IN, 0),
+    # the LOOP switch under it; POSITION comes back to it on the back
+    "SW2": (44.0, 50.0, 180),
+    "R7": (52.5, A_Y + OA_IN, 0),
     # U1 the difference amplifier
-    "U1": (U1X, A_Y, 0),
-    "R6": (U1X - 7.2, 26.0, 270),      # from the + node up to ground
-    "R8": (U1X, A_Y + 13.0, 180),      # feedback, under the triangle
-    "TP2": (ERR_X, 43.0, 0),
+    "U1": (U1X, A_Y, 0), "R6": (U1X - 7.2, 27.5, 90), "R8": (U1X - 1.0, A_Y + FB, 0),
+    "TP2": (ERR_X, 40.5, 0),
     # U2 the inverter
-    "U2": (U2X, A_Y, 0),
-    "R9": (U2X - 11.0, A_Y + OA_IN, 0), "R10": (U2X, A_Y + 13.0, 180),
-    "TP3": (U2X + 9.5, A_Y, 90),
+    "U2": (U2X, A_Y, 0), "R9": (78.0, A_Y + OA_IN, 0), "R10": (U2X - 1.0, A_Y + FB, 0),
+    "TP3": (100.5, A_Y, 90),
     # U3 the summing amplifier with its gain trimmer
-    "U3": (U3X, A_Y, 0),
-    "R11": (U3X - 11.0, A_Y + OA_IN, 0),
-    "R14": (U3X - 2.5, A_Y + 13.0, 180), "RV2": (U3X + 4.0, A_Y + 17.0, 0),
-    "TP6": (U3X + 9.5, A_Y, 90),
-    # the differentiator row
-    "SW5": (80.0, D_Y + OA_IN - 4.5, 0), "C5": (76.0, D_Y + OA_IN, 0), "C6": (84.0, D_Y + OA_IN, 0),
-    "R15": (U4X - 11.0, D_Y + OA_IN, 0),
+    "U3": (U3X, A_Y, 0), "R11": (106.5, A_Y + OA_IN, 0),
+    "R14": (U3X - 3.5, A_Y + FB, 0), "RV2": (U3X - 0.05, A_Y + 17.5, 0),
+    "TP6": (U6X - 7.2, 40.0, 0),
+    # the differentiator row: the capacitor switch, the two capacitors, 1k, U4, 1M || 470 pF
+    "SW5": (74.0, D_Y + OA_IN + 0.75, 90), "C6": (80.0, D_Y - 2.0, 0), "C5": (80.0, D_Y + 9.0, 0),
+    "R15": (84.5, D_Y + OA_IN, 0),
     "U4": (U4X, D_Y, 0),
-    "RV3": (U4X + 1.0, D_Y + 17.0, 0), "C7": (U4X - 2.0, D_Y + 13.0, 180),
-    "SW3": (U4X + 12.0, D_Y, 270), "R12": (SUM_X, D_Y - 6.0, 270),
-    "TP4": (U4X + 8.5, D_Y - 3.5, 0),
-    # the integrator row
-    "R17": (76.0, I_Y + OA_IN, 0), "RV4": (84.0, I_Y + OA_IN + 2.0, 0),
+    "C7": (89.3, D_Y + FB, 0), "RV3": (U4X + 1.0, D_Y + 15.5, 0),
+    "SW3": (106.0, D_Y + 2.75, 90), "R12": (106.5, D_Y - 6.0, 0),
+    "TP4": (U4X + 7.2, D_Y + 9.8, 90),
+    # the integrator row: 1k + 1M in, U5, 10 uF across
+    "R17": (73.5, I_Y + OA_IN, 0), "RV4": (79.5, I_Y + 6.0, 0),
     "U5": (U5X, I_Y, 0),
-    "C8": (U5X, I_Y + 13.0, 180),
-    "SW4": (U5X + 12.0, I_Y, 270), "R13": (SUM_X, I_Y - 6.0, 270),
-    "TP5": (U5X + 8.5, I_Y - 3.5, 0),
-    # the motor driver
+    "C8": (91.0, I_Y + FB, 0),
+    "SW4": (106.0, I_Y + 2.75, 90), "R13": (106.5, I_Y - 14.0, 0),
+    "TP5": (U5X + 7.2, I_Y + 6.5, 90),
+    # the motor driver: split feedback, 270 ohm, the push-pull, 1 ohm each, clamps
     "U6": (U6X, DRV_Y, 0),
-    "C9": (U6X, DRV_Y + 13.0, 180), "R18": (U6X - 7.2, DRV_Y + 9.0, 270),
-    "R19": (U6X + 9.0, DRV_Y, 0),
-    "Q1": (QX, DRV_Y - 14.0, 90), "Q2": (QX, DRV_Y + 14.0, 270),
-    "R21": (QX, DRV_Y - 5.5, 270), "R22": (QX, DRV_Y + 5.5, 270),
-    "D3": (153.5, DRV_Y - 8.0, 270), "D4": (153.5, DRV_Y + 8.0, 270),
-    "TP7": (QX + 4.0, DRV_Y, 90),
-    "R20": (153.5, DRV_Y + 20.0, 270), "C10": (153.5, DRV_Y + 25.0, 270),
-    "F1": (140.0, DRV_Y + 20.0, 90), "R23": (136.0, DRV_Y + 24.0, 270),
-    "LED3": (134.0, DRV_Y + 30.0, 90), "LED4": (138.0, DRV_Y + 30.0, 270),
-    "TP11": (143.0, DRV_Y + 36.0, 0),
-    "J4": (126.0, BOT_Y, 180),
-    "R24": (118.0, DRV_Y + 30.0, 90), "J3": (112.0, 104.3, 270),
-    # the plant's track: its end resistors, the follower for the POSITION jack
-    "J5": (146.0, BOT_Y, 180),
-    "R3": (153.5, 84.0, 270), "C3": (156.5, 90.0, 270),
-    "R4": (140.0, 94.0, 270), "C4": (136.0, 94.0, 270),
-    "U7": (U7X - 4.0, 98.0, 0), "R25": (U7X + 6.0, 98.0, 0), "J2": (92.0, 104.3, 270),
-    "TP8": (120.0, 96.0, 90),
-    # power: in at the right edge, down the rail
-    "J6": (155.5, 22.0, 270),
-    "D1": (147.0, 14.0, 180), "D2": (147.0, 28.0, 180),
-    "C11": (138.0, 20.0, 270), "C13": (133.0, 19.0, 270),
-    "C12": (138.0, 34.0, 90), "C14": (133.0, 33.0, 90),
-    "R26": (128.0, 19.0, 270), "LED1": (128.0, 24.0, 90),
-    "R27": (128.0, 38.0, 90), "LED2": (128.0, 33.0, 270),
-    "TP9": (120.0, VP_Y, 90), "TP10": (122.0, 42.0, 90),
-    # op-amp bypass: +15 hangs from the rail beside each V+ line, -15 under each triangle
-    "C20": (U1X + 4.0, VP_Y + 3.0, 270), "C21": (U1X, A_Y + 6.3, 90),
-    "C22": (U2X + 4.0, VP_Y + 3.0, 270), "C23": (U2X, A_Y + 6.3, 90),
-    "C24": (U3X + 4.0, VP_Y + 3.0, 270), "C25": (U3X, A_Y + 6.3, 90),
-    "C26": (U4X + 4.0, D_Y - 8.0, 270), "C27": (U4X, D_Y + 6.3, 90),
-    "C28": (U5X + 4.0, I_Y - 8.0, 270), "C29": (U5X, I_Y + 6.3, 90),
-    "C30": (U6X + 4.0, DRV_Y - 8.0, 270), "C31": (U6X, DRV_Y + 6.3, 90),
-    "C32": (U7X, 90.0, 270), "C33": (U7X - 4.0, 98.0 + 6.3, 90),
-    "TP100": (12.0, 80.0, 0), "TP101": (50.0, 100.0, 0), "TP102": (70.0, 100.0, 0), "TP103": (150.0, 50.0, 0),
-    "MH1": (4.0, 4.0, 0), "MH2": (156.0, 4.0, 0), "MH3": (4.0, 106.0, 0), "MH4": (156.0, 106.0, 0),
+    "C9": (U6X - 0.35, DRV_Y + 14.0, 0), "R18": (U6X - 7.2, 80.0, 270),
+    "R19": (143.8, DRV_Y, 0),
+    "Q1": (QX, DRV_Y - 14.5, 90), "Q2": (QX, DRV_Y + 14.5, 270),
+    "R21": (QX, DRV_Y - 4.0, 270), "R22": (QX, DRV_Y + 4.0, 270),
+    "TP7": (140.0, 91.0, 90),
+    "D3": (156.0, DRV_Y - 3.7, 270), "D4": (159.7, DRV_Y - 3.7, 90),
+    "R20": (164.0, DRV_Y + 3.5, 270), "C10": (164.0, DRV_Y + 8.0, 270),
+    # the fuse row, the lamp across the fuse, the snubber, the MOTOR terminal
+    "F1": (160.0, FUSE_Y, 180), "TP11": (MOT_X, 99.0, 0),
+    "R23": (164.5, 97.0, 270), "LED3": (160.0, 99.0, 180), "LED4": (160.0, 103.0, 0),
+    "J4": (146.0, BOT_Y, 180),
+    # the plant's track: its terminal, end resistors, decoupling; the POSITION loop
+    "J5": (POS_X, BOT_Y, 180),
+    "R3": (POS_X + 5.0, 107.5, 270), "C3": (133.0, 109.4, 0),
+    "R4": (POS_X - 5.0, 107.5, 90), "C4": (115.5, 109.4, 180),
+    "TP8": (POS_X, 107.5, 0),
+    # the POSITION follower and its jack, at the left under the TARGET block
+    "U7": (U7X, U7Y, 0), "R25": (32.0, U7Y, 0), "J2": (5.7, 101.0, 180),
+    # DRIVE OUT: 1k from the DRIVE row to a jack on the bottom edge
+    "R24": (112.5, 95.0, 270), "J3": (60.0, 114.3, 270),
+    # power: in at the top edge, series diodes, bulk capacitors, lamps
+    "J6": (138.0, 4.5, 0),
+    "D1": (131.0, 11.6, 0), "D2": (148.5, 10.0, 270),
+    "C11": (76.0, 17.8, 270), "C13": (83.0, 17.0, 270),
+    "C12": (155.5, 18.0, 90), "C14": (148.5, 17.5, 90),
+    "R26": (102.0, 17.0, 270), "LED1": (102.0, 22.0, 90),
+    "R27": (163.5, 15.5, 90), "LED2": (163.5, 20.0, 270),
+    "TP9": (125.0, VP_Y, 90), "TP10": (167.0, 12.5, 90),
+    # op-amp bypass: +15 hangs from the rail (or a flag) beside each V+ line, -15 under each triangle
+    "C20": (U1X + 4.5, VP_Y + 3.0, 270), "C21": (U1X, A_Y + VM_CAP, 90),
+    "C22": (U2X + 4.5, VP_Y + 3.0, 270), "C23": (U2X, A_Y + VM_CAP, 90),
+    "C24": (U3X + 4.5, VP_Y + 3.0, 270), "C25": (U3X, A_Y + VM_CAP, 90),
+    "C26": (U4X + 4.5, D_Y - 7.5, 0), "C27": (U4X, D_Y + VM_CAP, 90),
+    "C28": (U5X + 4.5, I_Y - 7.0, 0), "C29": (U5X, I_Y + VM_CAP, 90),
+    "C30": (U6X + 4.5, VP_Y + 3.0, 270), "C31": (U6X, DRV_Y + VM_CAP, 90),
+    "C32": (U7X + 4.5, U7Y - 7.5, 0), "C33": (U7X, U7Y + VM_CAP, 90),
+    "TP100": (40.0, 92.0, 0), "TP101": (42.0, 99.0, 0), "TP102": (50.0, 99.0, 0), "TP103": (118.0, 70.0, 0),
+    "MH1": (4.0, 4.0, 0), "MH2": (166.0, 4.0, 0), "MH3": (6.0, 116.0, 0), "MH4": (166.0, 116.0, 0),
 }
 
 # ---------------------------------------------------------------- wires ----
-W_SIG, W_RAIL, W_PWR = 0.35, 0.6, 1.0
-FB_Y = 100.0          # the POSITION return along the bottom, back to the LOOP switch
-SRC_X = 44.0          # the TARGET source switch's output column... (unused)
-ERR_TOP = A_Y         # ERROR leaves U1's output row here
+W_SIG, W_RAIL = 0.35, 0.6
+FBA, FBD, FBI, FBM = A_Y + FB, D_Y + FB, I_Y + FB, DRV_Y + 14.0     # the feedback rows
 
 
 def oa(ref, which):
@@ -164,209 +168,326 @@ def oa(ref, which):
 
 
 WIRES = [
-    # ---- +15 V rail and what hangs from it
-    ("+15V", [(28.0, VP_Y), ("D1", "2")], W_RAIL),
+    # ---- +15 V: the rail along the top, the entry diode, the knob's end, the pour feed
+    ("+15V", [(20.0, VP_Y), (143.0, VP_Y)], W_RAIL),
+    ("+15V", [("D1", "1"), (129.0, VP_Y)], W_RAIL),
+    ("+15V", [(143.0, VP_Y), (143.0, 30.0), (QX - 4.0, 30.0)], W_RAIL),
     ("+15V", [("R1", "1"), (28.0, VP_Y)], W_SIG),
-    ("+15V", [("R26", "1"), (128.0, VP_Y)], W_SIG),
-    ("+15V", [("C11", "1"), (138.0, VP_Y)], W_SIG),
-    ("+15V", [("C13", "1"), (133.0, VP_Y)], W_SIG),
-    ("+15V", [("R3", "1"), (153.5, 80.0), (158.0, 80.0), (158.0, 50.0), (158.0, VP_Y - 0.0), (147.0 + 2.0, VP_Y)], W_SIG),
-    # ---- power entry: the terminal, the series diodes, the bulk capacitors, the lamps
-    ("/+15V_IN", [("J6", "1"), (152.0, 17.0), (152.0, 14.0), ("D1", "1")], W_RAIL),
-    ("/-15V_IN", [("J6", "3"), (152.0, 27.0), (152.0, 28.0), ("D2", "1")], W_RAIL),
-    ("-15V", [("D2", "2"), (138.0, 28.0)], W_RAIL),
-    ("-15V", [("C12", "2"), (138.0, 28.0)], W_SIG),
-    ("-15V", [("C14", "2"), (133.0, 28.0), (138.0, 28.0)], W_SIG),
-    ("-15V", [("R27", "2"), (128.0, 28.0), (133.0, 28.0)], W_SIG),
+    ("+15V", [("C11", "1"), (76.0, VP_Y)], W_SIG), ("+15V", [("C13", "1"), (83.0, VP_Y)], W_SIG),
+    ("+15V", [("R26", "1"), (102.0, VP_Y)], W_SIG),
     ("Net-(LED1-A)", [("R26", "2"), ("LED1", "2")], W_SIG),
+    # ---- power entry and the -15 V corner
+    ("/+15V_IN", [("J6", "1"), ("D1", "2")], W_RAIL),
+    ("/-15V_IN", [("J6", "3"), (143.0, 6.5), (148.5, 6.5), ("D2", "1")], W_RAIL),
+    ("-15V", [("D2", "2"), (148.5, 13.5), ("C14", "2")], W_RAIL),
+    ("-15V", [(148.5, 12.5), (155.5, 12.5), (163.5, 12.5), (167.0, 12.5)], W_RAIL),
+    ("-15V", [(163.5, 12.5), ("R27", "2")], W_SIG),
+    ("-15V", [(155.5, 12.5), ("C12", "2")], W_SIG),
     ("Net-(LED2-K)", [("R27", "1"), ("LED2", "1")], W_SIG),
     # ---- TARGET: knob, end resistors, decoupling, jack, source switch
     ("Net-(C1-Pad1)", [("RV1", "3"), (28.0, 31.5), ("R1", "2")], W_SIG),
     ("Net-(C1-Pad1)", [(28.0, 27.0), ("C1", "1")], W_SIG),
     ("Net-(C2-Pad2)", [("RV1", "1"), (24.0, 41.0), ("R2", "1")], W_SIG),
     ("Net-(C2-Pad2)", [(24.0, 41.0), ("C2", "2")], W_SIG),
-    ("/KNOB", [("RV1", "2"), (34.0, 34.0), (34.0, 37.75), ("SW1", "3")], W_SIG),
-    ("/TARGET IN", [("J1", "1"), (34.0, 60.0), (34.0, 42.25), ("SW1", "1")], W_SIG),
-    ("/TARGET", [("SW1", "2"), (45.0, 40.75), (45.0, A_Y - OA_IN), ("R5", "1")], W_SIG),
-    # ---- U1, the difference amplifier (unity): 4 x 100k
+    ("-15V", [("R2", "2"), (24.0, 50.0)], W_SIG),
+    ("/KNOB", [("RV1", "2"), (35.0, 34.0), (35.0, 29.0), (45.0, 29.0), (45.0, 40.0), (42.25, 40.0), ("SW1", "1")], W_SIG),
+    ("/TARGET IN", [("J1", "1"), (37.75, 60.0), ("SW1", "3")], W_SIG),
+    ("/TARGET", [("SW1", "2"), (39.25, 43.0), (48.0, 43.0), (48.0, A_Y - OA_IN), ("R5", "1")], W_SIG),
+    # ---- U1, the difference amplifier (unity): 4 x 100k; the LOOP switch feeds its - side
     ("Net-(U1-+)", [("R5", "2"), oa("U1", "+")], W_SIG),
-    ("Net-(U1-+)", [(U1X - 7.2, A_Y - OA_IN), ("R6", "2")], W_SIG),
-    ("/LOOP", [("SW2", "2"), (45.0, 52.75), (45.0, A_Y + OA_IN), ("R7", "1")], W_SIG),
+    ("Net-(U1-+)", [(U1X - 7.2, A_Y - OA_IN), ("R6", "1")], W_SIG),
+    ("/LOOP", [("SW2", "2"), (43.25, 60.0), (50.0, 60.0), (50.0, A_Y + OA_IN), ("R7", "1")], W_SIG),
     ("Net-(U1--)", [("R7", "2"), oa("U1", "-")], W_SIG),
-    ("Net-(U1--)", [(U1X - 7.2, A_Y + OA_IN), (U1X - 7.2, A_Y + 13.0), ("R8", "2")], W_SIG),
-    ("/ERROR", [oa("U1", "out"), (U1X + 7.2, A_Y), (ERR_X, A_Y), (ERR_X, 43.0), (ERR_X, D_Y + OA_IN), (ERR_X, I_Y + OA_IN)], W_SIG),
-    ("/ERROR", [(U1X + 7.2, A_Y), (U1X + 7.2, A_Y + 13.0), ("R8", "1")], W_SIG),
+    ("Net-(U1--)", [(U1X - 7.2, A_Y + OA_IN), (U1X - 7.2, FBA), ("R8", "1")], W_SIG),
+    ("/ERROR", [oa("U1", "out"), (ERR_X, A_Y), (ERR_X, FBA), (ERR_X, D_Y + OA_IN), (ERR_X, I_Y + OA_IN)], W_SIG),
+    ("/ERROR", [("R8", "2"), (ERR_X, FBA)], W_SIG),
     ("/ERROR", [(ERR_X, A_Y + OA_IN), ("R9", "1")], W_SIG),
     # ---- U2, the inverter
     ("Net-(U2--)", [("R9", "2"), oa("U2", "-")], W_SIG),
-    ("Net-(U2--)", [(U2X - 7.2, A_Y + OA_IN), (U2X - 7.2, A_Y + 13.0), ("R10", "2")], W_SIG),
-    ("/P", [oa("U2", "out"), (U2X + 7.2, A_Y), (U2X + 9.5, A_Y), ("R11", "1")], W_SIG),
-    ("/P", [(U2X + 7.2, A_Y), (U2X + 7.2, A_Y + 13.0), ("R10", "1")], W_SIG),
-    # ---- U3, the summing amplifier with its gain trimmer
+    ("Net-(U2--)", [(U2X - 7.2, A_Y + OA_IN), (U2X - 7.2, FBA), ("R10", "1")], W_SIG),
+    ("/P", [oa("U2", "out"), (U2X + 7.2, A_Y), (104.0, A_Y), (104.0, A_Y + OA_IN), ("R11", "1")], W_SIG),
+    ("/P", [(U2X + 7.2, A_Y), (U2X + 7.2, FBA), ("R10", "2")], W_SIG),
+    # ---- U3, the summing amplifier; its - node is the SUM_X column the D and I stages feed
     ("Net-(U3--)", [("R11", "2"), oa("U3", "-")], W_SIG),
-    ("Net-(U3--)", [(SUM_X, A_Y + OA_IN), (SUM_X, A_Y + 13.0), ("R14", "2")], W_SIG),
-    ("Net-(U3--)", [(SUM_X, A_Y + 13.0), (SUM_X, D_Y - 7.0), ("R12", "1")], W_SIG),
-    ("Net-(U3--)", [(SUM_X, D_Y - 7.0), (SUM_X, I_Y - 7.0), ("R13", "1")], W_SIG),
-    ("Net-(R14-Pad2)", [("R14", "1"), (U3X - 0.5, A_Y + 13.0), (U3X + 1.46, A_Y + 13.0), ("RV2", "1")], W_SIG),
-    ("/SUM", [oa("U3", "out"), (U3X + 7.2, A_Y), (U3X + 9.5, A_Y), (124.0, A_Y), (124.0, DRV_Y - OA_IN), oa("U6", "+")], W_SIG),
-    ("/SUM", [(U3X + 7.2, A_Y), (U3X + 7.2, A_Y + 18.27), ("RV2", "3")], W_SIG),
-    ("/SUM", [("RV2", "2"), (U3X + 4.0, A_Y + 13.0), (U3X + 7.2, A_Y + 13.0)], W_SIG),
-    # ---- the differentiator: C through the switch, 1k, the op-amp, 1M || 470 pF
-    ("Net-(SW5-A)", [("C5", "2"), ("SW5", "1")], W_SIG),
-    ("Net-(SW5-C)", [("C6", "2"), ("SW5", "3")], W_SIG),
-    ("Net-(SW5-B)", [("SW5", "2"), (80.75, D_Y + OA_IN), ("R15", "1")], W_SIG),
-    ("/ERROR", [(ERR_X, D_Y + OA_IN), ("C5", "1")], W_SIG),
-    ("/ERROR", [(ERR_X, D_Y - 3.0), (84.0, D_Y - 3.0), (84.0, D_Y + OA_IN - 1.0), ("C6", "1")], W_SIG),
-    ("Net-(SW3-C)", [("R15", "2"), oa("U4", "-")], W_SIG),
-    ("Net-(SW3-C)", [(U4X - 7.2, D_Y + OA_IN), (U4X - 7.2, D_Y + 13.0), ("C7", "2")], W_SIG),
-    ("Net-(SW3-C)", [(U4X - 7.2, D_Y + 13.0), (U4X - 7.2, D_Y + 18.27), ("RV3", "1")], W_SIG),
-    ("Net-(SW3-C)", [(U4X - 7.2, D_Y + 18.27), (U4X - 7.2, D_Y + 22.0), (U4X + 14.0, D_Y + 22.0), (U4X + 14.0, D_Y + 2.25), ("SW3", "3")], W_SIG),
-    ("/D", [oa("U4", "out"), (U4X + 7.2, D_Y), (U4X + 8.5, D_Y), ("SW3", "2")], W_SIG),
-    ("/D", [(U4X + 7.2, D_Y), (U4X + 7.2, D_Y + 13.0), ("C7", "1")], W_SIG),
-    ("/D", [(U4X + 7.2, D_Y + 13.0), (U4X + 7.2, D_Y + 18.27), ("RV3", "3")], W_SIG),
-    ("/D", [("RV3", "2"), (U4X + 1.0, D_Y + 13.0), (U4X + 7.2, D_Y + 13.0)], W_SIG),
-    ("Net-(SW3-A)", [("SW3", "1"), (U4X + 14.0, D_Y - 2.25), (U4X + 14.0, D_Y - 9.0), (SUM_X, D_Y - 9.0), ("R12", "2")], W_SIG),
-    # ---- the integrator: 1k + 1M in, 10 uF across
+    ("Net-(U3--)", [(SUM_X, A_Y + OA_IN), (SUM_X, FBA), ("R14", "1")], W_SIG),
+    ("Net-(U3--)", [(SUM_X, FBA), (SUM_X, D_Y - 6.0), ("R12", "2")], W_SIG),
+    ("Net-(U3--)", [(SUM_X, D_Y - 6.0), (SUM_X, I_Y - 14.0), ("R13", "2")], W_SIG),
+    ("Net-(R14-Pad2)", [("R14", "2"), ("RV2", "1")], W_SIG),
+    ("/SUM", [oa("U3", "out"), (U3X + 7.2, A_Y), (U6X - 7.2, A_Y), (U6X - 7.2, DRV_Y - OA_IN), oa("U6", "+")], W_SIG),
+    ("/SUM", [(U3X + 7.2, A_Y), (U3X + 7.2, A_Y + 18.77), ("RV2", "3")], W_SIG),
+    ("/SUM", [("RV2", "2"), (U3X - 0.05, FBA), (U3X + 7.2, FBA)], W_SIG),
+    # ---- the differentiator: ERROR into the switch, a capacitor per pole, 1k, U4, 1M || 470 pF
+    ("/ERROR", [(ERR_X, D_Y + OA_IN), ("SW5", "2")], W_SIG),
+    ("Net-(SW5-C)", [("SW5", "3"), (72.05, D_Y - 2.0), ("C6", "1")], W_SIG),
+    ("Net-(SW5-A)", [("SW5", "1"), (72.05, D_Y + 9.0), ("C5", "1")], W_SIG),
+    ("Net-(C5-Pad2)", [("C6", "2"), (82.0, D_Y - 2.0), (82.0, D_Y + 9.0), ("C5", "2")], W_SIG),
+    ("Net-(C5-Pad2)", [(82.0, D_Y + OA_IN), ("R15", "1")], W_SIG),
+    ("Net-(SW3-A)", [("R15", "2"), oa("U4", "-")], W_SIG),
+    ("Net-(SW3-A)", [(U4X - 7.2, D_Y + OA_IN), (U4X - 7.2, FBD), ("C7", "1")], W_SIG),
+    ("Net-(SW3-A)", [(U4X - 7.2, FBD), (U4X - 7.2, D_Y + 16.77), ("RV3", "1")], W_SIG),
+    ("Net-(SW3-A)", [(U4X - 7.2, D_Y + 16.77), (U4X - 7.2, D_Y + 22.0), (104.05, D_Y + 22.0), ("SW3", "1")], W_SIG),
+    ("/D", [oa("U4", "out"), (U4X + 7.2, D_Y), (U4X + 7.2, D_Y + 2.0), ("SW3", "2")], W_SIG),
+    ("/D", [(U4X + 7.2, D_Y + 2.0), (U4X + 7.2, FBD), ("C7", "2")], W_SIG),
+    ("/D", [(U4X + 7.2, FBD), (U4X + 7.2, D_Y + 16.77), ("RV3", "3")], W_SIG),
+    ("/D", [("RV3", "2"), (U4X + 1.0, FBD)], W_SIG),
+    ("Net-(SW3-C)", [("SW3", "3"), (104.05, D_Y - 6.0), ("R12", "1")], W_SIG),
+    ("+15V", [oa("U4", "v+"), (U4X + 1.14, D_Y - 7.5), ("C26", "1")], W_SIG),
+    # ---- the integrator: 1k + 1M in, U5, 10 uF across, the switch shorts it for reset
     ("/ERROR", [(ERR_X, I_Y + OA_IN), ("R17", "1")], W_SIG),
-    ("Net-(R17-Pad2)", [("R17", "2"), (80.0, I_Y + OA_IN), (80.0, I_Y + OA_IN + 3.27), ("RV4", "1")], W_SIG),
-    ("Net-(SW4-C)", [("RV4", "3"), (88.0, I_Y + OA_IN + 3.27), (88.0, I_Y + OA_IN), oa("U5", "-")], W_SIG),
-    ("Net-(SW4-C)", [("RV4", "2"), (84.0, I_Y + OA_IN - 2.0), (88.0, I_Y + OA_IN - 2.0), (88.0, I_Y + OA_IN)], W_SIG),
-    ("Net-(SW4-C)", [(U5X - 7.2, I_Y + OA_IN), (U5X - 7.2, I_Y + 13.0), ("C8", "2")], W_SIG),
-    ("Net-(SW4-C)", [(U5X - 7.2, I_Y + 13.0), (U5X - 7.2, I_Y + 16.0), (U5X + 14.0, I_Y + 16.0), (U5X + 14.0, I_Y + 2.25), ("SW4", "3")], W_SIG),
-    ("/I", [oa("U5", "out"), (U5X + 7.2, I_Y), (U5X + 8.5, I_Y), ("SW4", "2")], W_SIG),
-    ("/I", [(U5X + 7.2, I_Y), (U5X + 7.2, I_Y + 13.0), ("C8", "1")], W_SIG),
-    ("Net-(SW4-A)", [("SW4", "1"), (U5X + 14.0, I_Y - 2.25), (U5X + 14.0, I_Y - 9.0), (SUM_X, I_Y - 9.0), ("R13", "2")], W_SIG),
-    # ---- the motor driver: split feedback, 270 ohm, the push-pull, 1 ohm each
-    ("Net-(U6--)", [oa("U6", "-"), (U6X - 7.2, DRV_Y + OA_IN), ("R18", "1")], W_SIG),
-    ("Net-(U6--)", [(U6X - 7.2, DRV_Y + OA_IN), (U6X - 7.2, DRV_Y + 13.0), ("C9", "2")], W_SIG),
-    ("Net-(C9-Pad2)", [oa("U6", "out"), (U6X + 7.2, DRV_Y), ("R19", "1")], W_SIG),
-    ("Net-(C9-Pad2)", [(U6X + 7.2, DRV_Y), (U6X + 7.2, DRV_Y + 13.0), ("C9", "1")], W_SIG),
-    ("/BASES", [("R19", "2"), (QX - 6.0, DRV_Y), (QX - 6.0, DRV_Y - 14.0), ("Q1", "1")], W_SIG),
-    ("/BASES", [(QX - 6.0, DRV_Y), (QX - 6.0, DRV_Y + 14.0), ("Q2", "1")], W_SIG),
+    ("Net-(R17-Pad2)", [("R17", "2"), (76.96, I_Y + OA_IN), ("RV4", "1")], W_SIG),
+    ("Net-(SW4-A)", [("RV4", "3"), (84.0, I_Y + 7.27), (84.0, I_Y + OA_IN), oa("U5", "-")], W_SIG),
+    ("Net-(SW4-A)", [("RV4", "2"), (79.5, I_Y + 1.5), (84.0, I_Y + 1.5), (84.0, I_Y + OA_IN)], W_SIG),
+    ("Net-(SW4-A)", [(U5X - 7.2, I_Y + OA_IN), (U5X - 7.2, FBI), ("C8", "1")], W_SIG),
+    ("Net-(SW4-A)", [(U5X - 7.2, FBI), (U5X - 7.2, I_Y + 16.5), (104.05, I_Y + 16.5), ("SW4", "1")], W_SIG),
+    ("/I", [oa("U5", "out"), (U5X + 7.2, I_Y), (U5X + 7.2, I_Y + 2.0), ("SW4", "2")], W_SIG),
+    ("/I", [(U5X + 7.2, I_Y + 2.0), (U5X + 7.2, FBI), ("C8", "2")], W_SIG),
+    ("Net-(SW4-C)", [("SW4", "3"), (104.05, I_Y - 2.5), (105.5, I_Y - 2.5), (105.5, I_Y - 14.0), ("R13", "1")], W_SIG),
+    ("+15V", [oa("U5", "v+"), (U5X + 1.14, I_Y - 7.0), ("C28", "1")], W_SIG),
+    # ---- the motor driver: split feedback, 270 ohm, the push-pull, 1 ohm each, clamps
+    ("Net-(U6--)", [oa("U6", "-"), (U6X - 7.2, DRV_Y + OA_IN), (U6X - 7.2, FBM), ("C9", "1")], W_SIG),
+    ("Net-(U6--)", [(U6X - 7.2, FBM), ("R18", "1")], W_SIG),
+    ("Net-(C9-Pad2)", [oa("U6", "out"), (U6X + 6.5, DRV_Y), ("R19", "1")], W_SIG),
+    ("Net-(C9-Pad2)", [(U6X + 6.5, DRV_Y), (U6X + 6.5, FBM), ("C9", "2")], W_SIG),
+    ("/BASES", [("R19", "2"), (QX - 6.0, DRV_Y), ("Q1", "1")], W_SIG),
+    ("/BASES", [(QX - 6.0, DRV_Y), (QX - 6.0, 89.0), (162.0, 89.0), (162.0, DRV_Y + 16.0), ("Q2", "1")], W_SIG),
     ("Net-(Q1-E)", [("Q1", "3"), ("R21", "1")], W_SIG),
     ("Net-(Q2-E)", [("Q2", "3"), ("R22", "2")], W_SIG),
     ("/DRIVE", [("R21", "2"), (QX, DRV_Y), ("R22", "1")], W_SIG),
-    ("/DRIVE", [(QX, DRV_Y), (QX + 4.0, DRV_Y), (153.5, DRV_Y)], W_SIG),
-    ("/DRIVE", [("D3", "2"), (153.5, DRV_Y), ("D4", "1")], W_SIG),
-    ("+15V", [("D3", "1"), (153.5, DRV_Y - 12.0), (158.0, DRV_Y - 12.0)], W_SIG),
-    ("-15V", [("D4", "2"), (153.5, DRV_Y + 12.0), (158.0, DRV_Y + 12.0), (158.0, 84.0)], W_SIG),
-    ("/DRIVE", [(153.5, DRV_Y), (153.5, DRV_Y + 12.0 + 0.0)], W_SIG),  # replaced below
-    ("/DRIVE", [(QX, DRV_Y), (QX, DRV_Y + 7.4)], W_SIG),
-    ("/DRIVE", [(140.0, DRV_Y), (140.0, DRV_Y + 16.0), ("F1", "1")], W_SIG),
-    ("/DRIVE", [(140.0, DRV_Y + 16.0), (136.0, DRV_Y + 16.0), ("R23", "1")], W_SIG),
-    ("/DRIVE", [(136.0, DRV_Y + 16.0), (130.0, DRV_Y + 16.0), (130.0, DRV_Y + 20.0), (U6X - 7.2, DRV_Y + 20.0)], W_SIG),
-    ("Net-(LED3-K)", [("R23", "2"), (136.0, DRV_Y + 27.0), ("LED3", "1")], W_SIG),
-    ("Net-(LED3-K)", [(136.0, DRV_Y + 27.0), ("LED4", "2")], W_SIG),
-    ("/MOTOR", [("F1", "2"), (140.0, DRV_Y + 33.0), ("LED3", "2")], W_SIG),
-    ("/MOTOR", [(140.0, DRV_Y + 33.0), ("LED4", "1")], W_SIG),
-    ("/MOTOR", [(140.0, DRV_Y + 33.0), (140.0, DRV_Y + 36.0), ("TP11", "1"), (131.0, DRV_Y + 36.0), ("J4", "1")], W_SIG),
-    ("/DRIVE", [(130.0, DRV_Y + 20.0), (130.0, DRV_Y + 24.0), (118.0, DRV_Y + 24.0), ("R24", "2")], W_SIG),
-    ("Net-(J3-In)", [("R24", "1"), (118.0, DRV_Y + 36.0), (112.0, DRV_Y + 36.0), ("J3", "1")], W_SIG),
-    # ---- the plant's track and the POSITION follower
-    ("/POT+", [("R3", "2"), (153.5, 90.0), ("C3", "1")], W_SIG),
-    ("/POT+", [(153.5, 90.0), (153.5, 100.0), (151.0, 100.0), ("J5", "1")], W_SIG),
-    ("/POT-", [("R4", "1"), (140.0, 90.0), ("C4", "1")], W_SIG),
-    ("/POT-", [(140.0, 90.0), (141.0, 100.0), ("J5", "3")], W_SIG),
-    ("-15V", [("R4", "2"), (140.0, 98.0), (158.0, 98.0), (158.0, 84.0)], W_SIG),
-    ("/POSITION", [("J5", "2"), (146.0, 96.0), (120.0, 96.0), ("TP8", "1"), (U7X - 11.2, 96.0), oa("U7", "+")], W_SIG),
-    ("/POSITION", [(U7X - 11.2, 96.0), (48.0, 96.0), (48.0, 56.75), ("SW2", "3")], W_SIG),
-    ("Net-(U7--)", [oa("U7", "out"), (U7X + 3.2, 98.0), ("R25", "1")], W_SIG),
-    ("Net-(U7--)", [(U7X + 3.2, 98.0), (U7X + 3.2, 103.0), (U7X - 11.2, 103.0), (U7X - 11.2, 101.0), oa("U7", "-")], W_SIG),
-    ("Net-(J2-In)", [("R25", "2"), (108.0, 98.0), (108.0, 104.3), ("J2", "1")], W_SIG),
-    # ---- the op-amps' supplies
-    ("+15V", [oa("U1", "v+"), (U1X, VP_Y)], W_SIG), ("+15V", [("C20", "1"), (U1X + 4.0, VP_Y)], W_SIG),
-    ("+15V", [oa("U2", "v+"), (U2X, VP_Y)], W_SIG), ("+15V", [("C22", "1"), (U2X + 4.0, VP_Y)], W_SIG),
-    ("+15V", [oa("U3", "v+"), (U3X, VP_Y)], W_SIG), ("+15V", [("C24", "1"), (U3X + 4.0, VP_Y)], W_SIG),
-    ("+15V", [oa("U4", "v+"), (U4X, D_Y - 11.0), (U4X + 4.0, D_Y - 11.0), ("C26", "1")], W_SIG),
-    ("+15V", [oa("U5", "v+"), (U5X, I_Y - 11.0), (U5X + 4.0, I_Y - 11.0), ("C28", "1")], W_SIG),
-    ("+15V", [oa("U6", "v+"), (U6X, DRV_Y - 11.0), (U6X + 4.0, DRV_Y - 11.0), ("C30", "1")], W_SIG),
-    ("+15V", [oa("U7", "v+"), (U7X - 4.0, 91.0), (U7X, 91.0), ("C32", "1")], W_SIG),
+    ("/DRIVE", [(QX, DRV_Y), (BUS_X, DRV_Y), (BUS_X, FUSE_Y), ("F1", "1")], W_RAIL),
+    ("/DRIVE", [("D3", "2"), (156.0, DRV_Y)], W_SIG),
+    ("+15V", [("D3", "1"), (156.0, 33.0)], W_SIG),
+    ("/DRIVE", [("D4", "1"), (159.5, DRV_Y)], W_SIG),
+    ("-15V", [("D4", "2"), (159.7, 48.5)], W_SIG),
+    ("/DRIVE", [("R20", "1"), (164.0, DRV_Y)], W_SIG),
+    ("Net-(C10-Pad1)", [("R20", "2"), ("C10", "1")], W_SIG),
+    ("+15V", [("Q1", "2"), (QX, 33.0)], W_RAIL),
+    ("-15V", [("Q2", "2"), (QX, DRV_Y + 25.0)], W_RAIL),
+    ("/DRIVE", [("R18", "2"), (U6X - 7.2, 91.0), (BUS_X, 91.0)], W_SIG),
+    ("/DRIVE", [(U6X - 7.2, 91.0), (112.5, 91.0), ("R24", "1")], W_SIG),
+    ("Net-(J3-In)", [("R24", "2"), (112.5, 112.5), (60.0, 112.5), ("J3", "1")], W_SIG),
+    # ---- the fuse row: the PTC, the lamp across it, the snubber, MOTOR to its terminal
+    ("/DRIVE", [(164.5, FUSE_Y), ("R23", "1")], W_SIG),
+    ("Net-(LED3-K)", [("R23", "2"), (164.5, 99.0), ("LED3", "1")], W_SIG),
+    ("Net-(LED3-K)", [(164.5, 99.0), (164.5, 103.0), ("LED4", "2")], W_SIG),
+    ("/MOTOR", [("F1", "2"), (MOT_X, FUSE_Y), (MOT_X, BOT_Y), ("J4", "1")], W_RAIL),
+    ("/MOTOR", [("LED3", "2"), (MOT_X, 99.0)], W_SIG),
+    ("/MOTOR", [("LED4", "1"), (MOT_X, 103.0)], W_SIG),
+    # ---- the plant's track: end resistors to the rails' flags, decoupling, the wiper
+    ("/POT+", [("J5", "1"), ("R3", "2")], W_SIG),
+    ("/POT+", [(POS_X + 5.0, 109.4), ("C3", "1")], W_SIG),
+    ("+15V", [("R3", "1"), (POS_X + 5.0, 100.5)], W_SIG),
+    ("/POT-", [("J5", "3"), ("R4", "1")], W_SIG),
+    ("/POT-", [(POS_X - 5.0, 109.4), ("C4", "1")], W_SIG),
+    ("-15V", [("R4", "2"), (POS_X - 5.0, 102.3)], W_SIG),
+    ("/POSITION", [("J5", "2"), (POS_X, 105.0)], W_SIG),
+    # ---- the POSITION follower and its jack (POSITION arrives on the back)
+    ("/POSITION", [(12.0, U7Y - OA_IN), oa("U7", "+")], W_SIG),
+    ("/POSITION", [(41.75, 64.0), ("SW2", "3")], W_SIG),
+    ("Net-(U7--)", [oa("U7", "out"), (29.0, U7Y), ("R25", "1")], W_SIG),
+    ("Net-(U7--)", [(29.0, U7Y), (29.0, U7Y + 12.0), (14.0, U7Y + 12.0), (14.0, U7Y + OA_IN), oa("U7", "-")], W_SIG),
+    ("Net-(J2-In)", [("R25", "2"), (35.0, U7Y), (35.0, 101.0), ("J2", "1")], W_SIG),
+    ("+15V", [oa("U7", "v+"), (U7X + 1.14, U7Y - 7.5), ("C32", "1")], W_SIG),
+    # ---- the op-amps' supplies: V+ up to the rail with a bypass hanging beside it, V- flags
+    ("+15V", [oa("U1", "v+"), (U1X + 1.14, VP_Y)], W_SIG), ("+15V", [("C20", "1"), (U1X + 4.5, VP_Y)], W_SIG),
+    ("+15V", [oa("U2", "v+"), (U2X + 1.14, VP_Y)], W_SIG), ("+15V", [("C22", "1"), (U2X + 4.5, VP_Y)], W_SIG),
+    ("+15V", [oa("U3", "v+"), (U3X + 1.14, VP_Y)], W_SIG), ("+15V", [("C24", "1"), (U3X + 4.5, VP_Y)], W_SIG),
+    ("+15V", [oa("U6", "v+"), (U6X + 1.14, VP_Y)], W_SIG), ("+15V", [("C30", "1"), (U6X + 4.5, VP_Y)], W_SIG),
     ("-15V", [oa("U1", "v-"), ("C21", "2")], W_SIG), ("-15V", [oa("U2", "v-"), ("C23", "2")], W_SIG),
     ("-15V", [oa("U3", "v-"), ("C25", "2")], W_SIG), ("-15V", [oa("U4", "v-"), ("C27", "2")], W_SIG),
     ("-15V", [oa("U5", "v-"), ("C29", "2")], W_SIG), ("-15V", [oa("U6", "v-"), ("C31", "2")], W_SIG),
     ("-15V", [oa("U7", "v-"), ("C33", "2")], W_SIG),
 ]
 
-# Segments that run on the back layer between two vias, under a crossing wire.
+# Segments that run on the back layer between two vias, under a crossing wire: (net, start, end).
 HOPS = []
 
-# Copper on the back only: -15 V, from the power entry to every -15 V flag.
-# (net, [points], width): a via at each end unless the end is a through-hole
-# pad; the plane flows round it.  Drawn nowhere on the front: the flags say
-# where it surfaces, as the sheet's power symbols do.
-VM_TRUNK_Y = 50.0                # the back trunk between the top row and the differentiator
-VM_TRUNK2_Y = 94.0               # ... and along the bottom for the integrator and the follower
+# Copper on the back only: (net, [points], width, vias) with vias "both",
+# "start", "end" or "none": a via at those ends (an end on a through-hole pad
+# needs none).  The plane flows round it.  -15 V is a trunk just above the
+# +15 V rail with a branch down to every flag; the lower stages' +15 V comes
+# down from the push-pull's pour; POSITION runs back along the bottom.
 BACK = [
-    ("-15V", [(138.0, 28.0), (138.0, VM_TRUNK_Y), (24.0, VM_TRUNK_Y)], W_RAIL),          # the trunk, from the entry
-    ("-15V", [(24.0, VM_TRUNK_Y), (24.0, 49.5)], W_SIG),                                    # the knob's end resistor
-    ("-15V", [(U1X, A_Y + OA_VM_DY), (U1X + 3.0, A_Y + OA_VM_DY), (U1X + 3.0, VM_TRUNK_Y)], W_SIG),
-    ("-15V", [(U2X, A_Y + OA_VM_DY), (U2X + 3.0, A_Y + OA_VM_DY), (U2X + 3.0, VM_TRUNK_Y)], W_SIG),
-    ("-15V", [(U3X, A_Y + OA_VM_DY), (U3X + 3.0, A_Y + OA_VM_DY), (U3X + 3.0, VM_TRUNK_Y)], W_SIG),
-    ("-15V", [(U4X, D_Y + OA_VM_DY), (U4X + 3.0, D_Y + OA_VM_DY), (U4X + 3.0, VM_TRUNK_Y)], W_SIG),
-    ("-15V", [(U6X, DRV_Y + OA_VM_DY), (U6X + 3.0, DRV_Y + OA_VM_DY), (U6X + 3.0, VM_TRUNK_Y)], W_SIG),
-    ("-15V", [(138.0, VM_TRUNK_Y), (138.0, 94.0 - 0.0)], W_RAIL),                            # down to the bottom trunk... via Q2's pour
-    ("-15V", [(U5X, I_Y + OA_VM_DY), (U5X + 3.0, I_Y + OA_VM_DY), (U5X + 3.0, VM_TRUNK2_Y), (138.0, VM_TRUNK2_Y)], W_SIG),
-    ("-15V", [(U7X - 4.0, 98.0 + OA_VM_DY), (U7X - 1.0, 98.0 + OA_VM_DY), (U7X - 1.0, VM_TRUNK2_Y)], W_SIG),
+    ("-15V", [(148.5, 13.5), (148.5, VM_TOP), (26.0, VM_TOP), (26.0, 90.0), (U7X, U7Y + OA_VM_DY)], W_RAIL, "both"),
+    ("-15V", [(24.0, 50.0), (26.0, 50.0)], W_SIG, "start"),
+    ("-15V", [(U1X, A_Y + OA_VM_DY), (U1X + 3.0, A_Y + OA_VM_DY), (U1X + 3.0, VM_TOP)], W_SIG, "start"),
+    ("-15V", [(U2X, A_Y + OA_VM_DY), (91.0, A_Y + OA_VM_DY), (91.0, VM_TOP)], W_SIG, "start"),
+    ("-15V", [(U5X, I_Y + OA_VM_DY), (VM_BR, I_Y + OA_VM_DY), (VM_BR, VM_TOP)], W_SIG, "start"),
+    ("-15V", [(U4X, D_Y + OA_VM_DY), (VM_BR, D_Y + OA_VM_DY)], W_SIG, "start"),
+    ("-15V", [(U3X, A_Y + OA_VM_DY), (U3X + 3.0, A_Y + OA_VM_DY), (U3X + 3.0, VM_TOP)], W_SIG, "start"),
+    ("-15V", [(U6X, DRV_Y + OA_VM_DY), (U6X + 3.0, DRV_Y + OA_VM_DY), (U6X + 3.0, VM_TOP)], W_SIG, "start"),
+    ("-15V", [(149.0, 85.0), (144.0, 85.0), (144.0, VM_TOP)], W_SIG, "start"),
+    ("-15V", [(159.7, 48.5), (165.5, 48.5), (165.5, VM_TOP), (148.5, VM_TOP)], W_SIG, "start"),
+    ("-15V", [(POS_X - 5.0, 102.3), (156.0, 102.3), (156.0, 85.5)], W_SIG, "both"),
+    ("+15V", [(153.0, 32.0), (153.0, 100.5), (POS_X + 5.0, 100.5)], W_SIG, "both"),
+    ("+15V", [(POS_X + 5.0, 100.5), (VP_SP, 100.5), (VP_SP, D_Y - 7.5), (U4X + 1.14, D_Y - 7.5)], W_SIG, "end"),
+    ("+15V", [(VP_SP, I_Y - 7.0), (U5X + 1.14, I_Y - 7.0)], W_SIG, "end"),
+    ("+15V", [(20.0, VP_Y), (20.0, U7Y - 7.5), (U7X + 1.14, U7Y - 7.5)], W_SIG, "both"),
+    ("/POSITION", [(POS_X, 105.0), (46.0, 105.0), (46.0, 64.0), (41.75, 64.0)], W_SIG, "both"),
+    ("/POSITION", [(46.0, 105.0), (12.0, 105.0), (12.0, U7Y - OA_IN)], W_SIG, "end"),
 ]
-# Where the back copper surfaces as a flag with no front wire of its own: (net, x, y)
-FLAGS = [("-15V", 24.0, 49.5)]
+# Back runs of these nets are drawn on the front as dashed lines (a signal
+# that goes round the back, as a sheet's net label does); the rest are flags.
+DASHED_BACK = {"/POSITION"}
+# Flags where the back copper surfaces: (net, x, y[, dx, dy, justify]) for the name's place
+FLAGS = [
+    ("-15V", 24.0, 50.0), ("-15V", 159.7, 48.5), ("-15V", POS_X - 5.0, 102.3),
+    ("+15V", U4X + 1.14, D_Y - 7.5, -1.6, 0.0, "right"), ("+15V", U5X + 1.14, I_Y - 7.0, -1.6, 0.0, "right"),
+    ("+15V", U7X + 1.14, U7Y - 7.5, -1.6, 0.0, "right"), ("+15V", POS_X + 5.0, 100.5),
+]
 
 # Ground: a stub from the pad to a via (a point, or a path of points), the
 # ground symbol drawn at the via pointing the way the last segment runs.
+# An op-amp pad's stub starts where its lead leaves the triangle.
 GND_STUBS = [
-    (("J1", "2"), [(5.7, 64.0), (5.7, 67.5)]),
-    (("C1", "2"), [(33.5, 27.0), (33.5, 30.0)]),
-    (("C2", "1"), [(29.5, 41.0), (29.5, 44.0)]),
-    (("R6", "1"), (U1X - 7.2, 22.0)),
-    (("SW2", "1"), [(38.05, 54.25), (36.0, 54.25), (36.0, 57.0)]),
-    (("C20", "2"), (U1X + 4.0, VP_Y + 6.5)), (("C22", "2"), (U2X + 4.0, VP_Y + 6.5)), (("C24", "2"), (U3X + 4.0, VP_Y + 6.5)),
-    (("C26", "2"), (U4X + 4.0, D_Y - 4.5)), (("C28", "2"), (U5X + 4.0, I_Y - 4.5)), (("C30", "2"), (U6X + 4.0, DRV_Y - 4.5)),
-    (("C32", "2"), (U7X, 93.5)),
-    (("C21", "1"), (U1X, A_Y + 9.0)), (("C23", "1"), (U2X, A_Y + 9.0)), (("C25", "1"), (U3X, A_Y + 9.0)),
-    (("C27", "1"), (U4X, D_Y + 9.0)), (("C29", "1"), (U5X, I_Y + 9.0)), (("C31", "1"), (U6X, DRV_Y + 9.0)),
-    (("C33", "1"), (U7X - 4.0, 98.0 + 9.0)),
-    (("U2", "1"), [(U2X - 7.2, A_Y - OA_IN), (U2X - 7.2, A_Y - 1.0)]),
-    (("U3", "1"), [(U3X - 7.2, A_Y - OA_IN), (U3X - 7.2, A_Y - 1.0)]),
-    (("U4", "1"), [(U4X - 7.2, D_Y - OA_IN), (U4X - 7.2, D_Y - 1.0)]),
-    (("U5", "1"), [(U5X - 7.2, I_Y - OA_IN), (U5X - 7.2, I_Y - 1.0)]),
-    (("C10", "2"), (153.5, DRV_Y + 29.0)),
-    (("C3", "2"), (156.5, 93.5)), (("C4", "2"), (136.0, 97.5)),
-    (("C11", "2"), (138.0, 23.5)), (("C13", "2"), (133.0, 22.5)),
-    (("C12", "1"), (138.0, 30.5)), (("C14", "1"), (133.0, 29.5)),
-    (("LED1", "1"), (128.0, 27.5)), (("LED2", "2"), (128.0, 29.5)),
-    (("J6", "2"), [(151.5, 22.0), (151.5, 24.0)]),
-    (("J2", "2"), [(96.0, 100.3), (96.0, 98.0)]), (("J3", "2"), [(116.0, 100.3), (116.0, 98.0)]),
-    (("J4", "2"), [(126.0, 102.0), (126.0, 100.0)]),
-    (("TP100", "1"), (12.0, 83.5)), (("TP101", "1"), (50.0, 103.5)), (("TP102", "1"), (70.0, 103.5)), (("TP103", "1"), (150.0, 53.5)),
+    (("C1", "2"), [(33.5, 27.0), (33.5, 30.0)]), (("C2", "1"), [(29.5, 41.0), (29.5, 44.0)]),
+    (("R6", "2"), (U1X - 7.2, 24.5)), (("SW2", "1"), (46.25, 55.0)),
+    (("U2", "1"), [(U2X - 7.2, A_Y - OA_IN), (U2X - 9.2, A_Y - OA_IN), (U2X - 9.2, A_Y - 1.5)]),
+    (("U3", "1"), [(U3X - 7.2, A_Y - OA_IN), (U3X - 9.2, A_Y - OA_IN), (U3X - 9.2, A_Y - 1.5)]),
+    (("U4", "1"), [(U4X - 7.2, D_Y - OA_IN), (U4X - 9.2, D_Y - OA_IN), (U4X - 9.2, D_Y - 1.5)]),
+    (("U5", "1"), [(U5X - 7.2, I_Y - OA_IN), (U5X - 9.2, I_Y - OA_IN), (U5X - 9.2, I_Y - 1.5)]),
+    (("C20", "2"), (U1X + 4.5, VP_Y + 6.5)), (("C22", "2"), (U2X + 4.5, VP_Y + 6.5)),
+    (("C24", "2"), (U3X + 4.5, VP_Y + 6.5)), (("C30", "2"), (U6X + 4.5, VP_Y + 6.5)),
+    (("C26", "2"), [(U4X + 7.0, D_Y - 7.5), (U4X + 7.0, D_Y - 5.0)]),
+    (("C28", "2"), [(U5X + 7.0, I_Y - 7.0), (U5X + 7.0, I_Y - 4.5)]),
+    (("C32", "2"), [(U7X + 7.0, U7Y - 7.5), (U7X + 7.0, U7Y - 5.0)]),
+    (("C21", "1"), (U1X, A_Y + VM_GND)), (("C23", "1"), (U2X, A_Y + VM_GND)), (("C25", "1"), (U3X, A_Y + VM_GND)),
+    (("C27", "1"), (U4X, D_Y + VM_GND)), (("C29", "1"), (U5X, I_Y + VM_GND)), (("C31", "1"), (U6X, DRV_Y + VM_GND)),
+    (("C33", "1"), (U7X, U7Y + VM_GND)),
+    (("C10", "2"), (164.0, DRV_Y + 11.5)),
+    (("C3", "2"), (133.95, 112.5)), (("C4", "2"), (114.55, 112.5)),
+    (("C11", "2"), (76.0, 24.0)), (("C13", "2"), (83.0, 22.5)),
+    (("C12", "1"), (155.5, 23.0)), (("C14", "1"), (148.5, 21.0)),
+    (("LED1", "1"), (102.0, 25.5)), (("LED2", "2"), (163.5, 23.5)),
+    (("J6", "2"), (138.0, 8.5)),
+    (("J4", "2"), [(146.0, 110.5), (146.0, 108.5)]),
+    (("TP100", "1"), (40.0, 95.0)), (("TP101", "1"), (42.0, 102.0)), (("TP102", "1"), (50.0, 102.0)), (("TP103", "1"), (118.0, 73.0)),
 ]
-GND_MARKS = []
+# Through-hole ground posts the plane reaches directly, with where to draw the symbol.
+GND_MARKS = [(12.5, 61.5), (2.5, 108.3), (67.5, 112.5)]
 
 # --------------------------------------------------------- silkscreen -----
-# Op-amps: every one is drawn as a triangle round its SOT-23-5 (gen_pcb.oa_geometry).
 OPAMPS = ["U1", "U2", "U3", "U4", "U5", "U6", "U7"]
-# Power transistors: ref -> (kind, base side).  Drawn as the textbook symbol
-# round the DPAK, with the tab's copper pour as the collector.
-TRANSISTORS = {"Q1": ("NPN", "left"), "Q2": ("PNP", "left")}
-Q_RADIUS = 6.0
-Q_CAPTION = {"Q1": (QX - 9.5, DRV_Y - 22.0, "left", 0.9), "Q2": (QX - 9.5, DRV_Y + 22.0, "left", 0.9)}
-# The copper pours under the tabs: ref -> (x0, y0, x1, y1)
-POURS = {"Q1": (QX - 7.5, DRV_Y - 25.0, QX + 7.5, DRV_Y - 15.5), "Q2": (QX - 7.5, DRV_Y + 15.5, QX + 7.5, DRV_Y + 25.0)}
+TRANSISTORS = {"Q1": ("NPN", "left"), "Q2": ("PNP", "right")}
+Q_RADIUS = 8.2
+Q_CAPTION = {"Q1": (145.2, 32.2, "right", 0.9), "Q2": (145.2, 83.6, "right", 0.9)}
+POURS = {"Q1": (QX - 4.5, 27.5, QX + 7.5, 33.3), "Q2": (QX - 4.5, DRV_Y + 24.7, QX + 7.5, DRV_Y + 30.0)}
 
 # Free text: (x, y, text, size, thickness, justify, angle)
 TEXTS = [
-    (80.0, 5.0, parts.BOARD_NAME.upper(), 2.4, 0.4, "center", 0),
-    (80.0, 8.2, "Learning the Art of Electronics (Hayes & Horowitz), Lab 10L: a motorized fader held to a target", 1.0, 0.15, "center", 0),
-    (80.0, 10.4, "circuit: Hayes & Horowitz    board: Jason Gallicchio and Claude    rev " + parts.REV + "  " + parts.BOARD_DATE + "    " + parts.PROJECT_URL, 1.0, 0.15, "center", 0),
-    (28.5, 12.3, "+15 V", 1.2, 0.2, "left", 0),
+    # identity, in the band above the +15 V rail
+    (75.0, 5.0, parts.BOARD_NAME.upper(), 2.4, 0.4, "center", 0),
+    (75.0, 8.2, "Learning the Art of Electronics (Hayes & Horowitz), Lab 10L: a motorized fader held to a target", 1.0, 0.15, "center", 0),
+    (75.0, 10.4, "board: Jason Gallicchio and Claude    rev " + parts.REV + "  " + parts.BOARD_DATE + "    " + parts.PROJECT_URL, 1.0, 0.15, "center", 0),
+    (20.5, 12.3, "+15 V", 1.2, 0.2, "left", 0),
+    (150.9, 10.6, "-15 V", 0.9, 0.18, "left", 0),
+    (72.5, 16.2, "100uF", 0.8, 0.15, "right", 0), (72.5, 17.6, "C11", 0.8, 0.15, "right", 0),
+    (84.6, 16.2, "C13", 0.8, 0.15, "left", 0), (84.6, 17.6, "100nF", 0.8, 0.15, "left", 0),
+    (103.7, 22.0, "GREEN", 0.8, 0.15, "left", 0), (163.5, 26.4, "GREEN", 0.8, 0.15, "center", 0),
+    (103.7, 16.3, "R26", 0.8, 0.15, "left", 0), (103.7, 17.7, "10k", 0.8, 0.15, "left", 0),
+    (165.2, 16.2, "10k", 0.8, 0.15, "left", 0),
+    (155.5, 26.4, "100uF", 0.8, 0.15, "center", 0), (148.5, 24.4, "100nF", 0.8, 0.15, "center", 0),
+    (151.0, 7.4, "D1, D2: SS34", 0.8, 0.15, "left", 0),
+    (132.2, 9.1, "+15", 0.8, 0.15, "right", 0), (143.8, 9.1, "-15", 0.8, 0.15, "left", 0),
+    (147.0, 4.0, "POWER ±15 V, 1 A", 1.0, 0.18, "left", 0),
+    (147.0, 5.6, "both green lamps light", 0.8, 0.15, "left", 0),
+    # the TARGET knob and jack
+    (17.0, 20.3, "TARGET", 1.8, 0.3, "center", 0),
+    (17.0, 22.2, "centre = 0 V, clockwise +", 0.8, 0.15, "center", 0),
+    (12.5, 54.6, "TARGET IN", 1.2, 0.2, "left", 0),
+    (12.5, 56.2, "±12 V max.  A square wave", 0.8, 0.15, "left", 0),
+    (12.5, 57.6, "±0.5 V at 0.2 Hz replaces the knob", 0.8, 0.15, "left", 0),
+    # the source switch, explained beside it
+    (36.9, 39.1, "TARGET", 0.8, 0.15, "right", 0), (36.9, 40.4, "SOURCE", 0.8, 0.15, "right", 0),
+    (36.9, 41.7, "1 = knob", 0.8, 0.15, "right", 0), (36.9, 43.0, "3 = jack", 0.8, 0.15, "right", 0),
+    # the loop switch
+    (44.0, 44.4, "LOOP", 0.9, 0.18, "center", 0),
+    (44.0, 45.75, "3 = closed", 0.8, 0.15, "center", 0), (44.0, 47.05, "1 = open", 0.8, 0.15, "center", 0),
+    # the gain trimmers
+    (116.0, 56.2, "P GAIN", 0.8, 0.15, "center", 0),
+    (97.4, 73.0, "D GAIN", 0.8, 0.15, "center", 0),
+    (75.6, 101.8, "I GAIN", 0.8, 0.15, "right", 0),
+    # the D and I switches
+    (69.0, 62.6, "D CAPACITOR", 0.8, 0.15, "right", 0),
+    (69.0, 64.0, "3 = 100 nF", 0.8, 0.15, "right", 0), (69.0, 65.4, "1 = 22 nF", 0.8, 0.15, "right", 0),
+    (111.1, 58.4, "D IN / OFF", 0.8, 0.15, "left", 0),
+    (111.1, 59.8, "3 = into the sum", 0.8, 0.15, "left", 0),
+    (111.1, 61.2, "1 = off (shorted)", 0.8, 0.15, "left", 0),
+    (111.1, 86.7, "I IN / OFF", 0.8, 0.15, "left", 0),
+    (111.1, 88.1, "3 = into the sum", 0.8, 0.15, "left", 0),
+    (111.1, 89.5, "1 = off (reset)", 0.8, 0.15, "left", 0),
+    # the clamps, the fuse and its lamps
+    (157.0, 60.0, "D3, D4", 0.8, 0.15, "center", 0), (157.0, 61.4, "SS34", 0.8, 0.15, "center", 0),
+    (157.0, 62.8, "clamps", 0.8, 0.15, "center", 0),
+    (152.5, 105.6, "MOTOR FUSE 0.35 A", 0.8, 0.15, "left", 0),
+    (152.5, 107.0, "red = fuse open", 0.8, 0.15, "left", 0),
+    # the jacks on the left and bottom edges
+    (14.5, 99.7, "POSITION OUT", 1.0, 0.18, "left", 0),
+    (53.8, 110.5, "DRIVE OUT", 1.0, 0.18, "right", 0),
+    (53.8, 112.0, "1k in series", 0.8, 0.15, "right", 0),
+    # the terminals' pins
+    (120.6, 110.5, "-", 0.8, 0.15, "left", 0), (124.6, 110.5, "wiper", 0.8, 0.15, "left", 0), (129.8, 110.5, "+", 0.8, 0.15, "left", 0),
+    (141.0, 110.5, "shield", 0.8, 0.15, "center", 0), (146.0, 110.5, "GND", 0.8, 0.15, "center", 0), (152.6, 110.5, "MOTOR", 0.8, 0.15, "left", 0),
+    # a legend for the 14 bypass capacitors, which carry no names of their own
+    (13.0, 66.5, "every op-amp has 100 nF from each", 0.8, 0.15, "left", 0),
+    (13.0, 67.9, "supply pin to ground (C20-C33)", 0.8, 0.15, "left", 0),
 ]
 LEGENDS = []
+
+# Reference designators and values: ref -> ((ref dx, dy), (value dx, dy)) from the part.
+# Horizontal parts get their names above and below; vertical ones to the right.
 FIELD_AT = {}
-HIDE_REF = set()
-HIDE_VALUE = set()
-TP_LABEL = {}
-BOXES = []
-FIDUCIALS = [(10.0, 100.0), (150.0, 100.0), (10.0, 10.0)]
-QR_AT, QR_MODULE = (40.0, 75.0), 0.6
-BACK_TITLE_AT = (80.0, 60.0)
-BACK_X, BACK_Y, BACK_PITCH = 20.0, 70.0, 1.9
-BACK_TEXT = ["(how to use the board: written once the layout settles)"]
+for _ref, (_x, _y, _rot) in PLACE.items():
+    if _ref[0] in "RCDL" and _ref[:2] != "LE":
+        FIELD_AT[_ref] = ((0.0, -1.75), (0.0, 1.75)) if _rot in (0, 180) else ((1.7, -0.7), (1.7, 0.7))
+FIELD_AT.update({
+    "R3": ((1.7, -3.4), (1.7, -4.8)), "R4": ((-1.7, -3.4), (-1.7, -4.8)),
+    "R20": ((-1.7, -0.7), (-1.7, 0.7)), "C10": ((-1.7, -0.7), (-1.7, 0.7)),
+    "R21": ((-2.4, -0.7), (-2.4, 0.7)), "R22": ((-2.4, -0.7), (-2.4, 0.7)),
+    "R19": ((0.0, -3.05), (0.0, -1.75)), "R6": ((1.7, -2.0), (1.7, -0.6)),
+    "R12": ((0.0, -3.05), (0.0, -1.75)), "R13": ((0.0, -3.05), (0.0, -1.75)),
+    "C3": (None, (0.0, -1.75)), "C4": (None, (0.0, -1.75)),
+    "RV1": (None, (-3.5, 4.1)),
+    "RV2": ((-4.5, -1.2), (4.5, 0.0)), "RV3": ((0.0, 4.6), (2.4, 4.6)), "RV4": ((-4.3, 0.0), (0.0, 6.0)),
+    "F1": (None, (0.0, 2.7)),
+    "R8": ((0.0, 1.75), (0.0, 3.05)), "R10": ((0.0, 1.75), (0.0, 3.05)), "R14": ((0.0, -3.05), (0.0, -1.75)),
+    "C7": ((0.0, -3.05), (0.0, -1.75)), "C8": ((2.3, 1.0), (2.3, 2.4)),
+    "C5": ((0.0, 1.75), (0.0, 3.05)), "C6": ((0.0, -3.05), (0.0, -1.75)),
+})
+# Parts whose reference or value is printed as free text instead, or not at all.
+_BYPASS = {f"C{n}" for n in range(20, 34)}
+HIDE_REF = _BYPASS | {"J1", "J2", "J3", "J4", "J5", "J6", "SW1", "SW2", "SW3", "SW4", "SW5",
+                      "LED1", "LED2", "LED3", "LED4", "C11", "C13", "C12", "C14", "R26", "R27", "R23",
+                      "D1", "D2", "D3", "D4", "F1"}
+HIDE_VALUE = _BYPASS | {"J1", "J2", "J3", "J4", "J5", "J6", "SW1", "SW2", "SW3", "SW4", "SW5",
+                        "LED1", "LED2", "LED3", "LED4", "C11", "C13", "C12", "C14", "R26", "R27", "R23",
+                        "D1", "D2", "D3", "D4"}
+
+# Where each probe loop's name goes, relative to the loop: (dx, dy, justify); None = no name.
+TP_LABEL = {
+    "TP1": (-1.6, 0.0, "right"), "TP2": (2.6, 0.0, "left"), "TP3": (0.0, -3.0, "center"),
+    "TP4": (-1.6, 0.0, "right"), "TP5": (-1.6, 0.0, "right"), "TP6": (2.6, 0.0, "left"),
+    "TP7": (0.0, -3.0, "center"), "TP8": (0.0, -3.3, "center"), "TP9": None, "TP10": None,
+    "TP11": (-2.6, 0.0, "right"),
+    "TP100": (2.6, 0.0, "left"), "TP101": None, "TP102": (2.6, 0.0, "left"), "TP103": (2.6, 0.0, "left"),
+}
+
+# Dashed boxes round the stages, named as the book names them:
+# (x0, y0, x1, y1, [(title line, x, y[, size]), ...]); titles are short lines that dodge the wires.
+BOXES = [
+    (50.5, 18.5, 69.0, 50.8, [("DIFFERENCE", 51.0, 19.9, 0.85), ("AMPLIFIER x1", 51.0, 21.3, 0.85)]),
+    (72.5, 26.0, 97.5, 50.8, [("INVERTER x-1", 73.0, 27.4, 0.85)]),
+    (103.0, 26.0, 124.5, 57.0, [("SUMMING", 103.5, 27.4, 0.85), ("AMPLIFIER", 103.5, 28.8, 0.85)]),
+    (71.0, 52.0, 109.5, 85.3, [("DIFFERENTIATOR", 71.5, 53.4, 0.85)]),
+    (71.0, 86.0, 109.5, 111.7, [("INTEGRATOR", 71.5, 87.4, 0.85)]),
+    (126.0, 28.2, 168.5, 92.5, [("MOTOR DRIVER", 126.5, 29.7, 0.8), ("gain 1", 126.5, 31.1, 0.8)]),
+    (149.0, 92.8, 169.0, 109.0, []),
+    (111.5, 99.3, 139.5, 109.6, [("THE FADER'S TRACK", 113.5, 101.2, 0.8)]),
+    (10.5, 76.0, 38.0, 101.7, [("FOLLOWER", 30.2, 77.4, 0.85), ("x1", 30.2, 78.8, 0.85)]),
+    (123.5, 1.5, 168.5, 27.2, []),
+]
+
+FIDUCIALS = [(12.0, 10.0), (12.0, 110.0), (158.0, 112.0)]
+QR_AT, QR_MODULE = (52.0, 70.0), 0.6
+BACK_TITLE_AT = (85.0, 44.0)
+BACK_X, BACK_Y, BACK_PITCH = 40.0, 46.0, 1.9
+BACK_TEXT = ["(back text to come)"]

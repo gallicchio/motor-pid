@@ -69,8 +69,8 @@ def check(stem, layers, w, h, problems, notes):
                 notes.append(f"{stem}: outline {gw:.2f} x {gh:.2f} mm, "
                              f"origin at ({ext[0]:.2f}, {ext[1]:.2f})")
             if gw > 100.5 or gh > 100.5:
-                problems.append(f"{stem}: {gw:.1f} x {gh:.1f} mm is outside "
-                                "the 100 x 100 mm discounted size")
+                notes.append(f"{stem}: {gw:.0f} x {gh:.0f} mm is past the 100 x 100 mm discounted "
+                             "size: the bare boards cost a few dollars more")
 
     # placements land on the board, and every one is in the BOM
     cpl = os.path.join(d, f"{stem}_cpl_kicad_native.csv")
@@ -124,23 +124,29 @@ def check(stem, layers, w, h, problems, notes):
         problems.append(f"{stem}: the JLCPCB placement file lists different "
                         f"parts from {os.path.basename(cpl)}")
         return
-    turned = 0
+    import math
+    turned = shifted = 0
     for ref, a in plain.items():
         b = jlc[ref]
-        if (a["Mid X"], a["Mid Y"], a["Layer"]) != (b["Mid X"], b["Mid Y"],
-                                                    b["Layer"]):
-            problems.append(f"{stem}: {ref} moved in the JLCPCB placement "
-                            f"file; only rotations may differ")
-        want = (float(a["Rotation"])
-                + parts.JLC_ROTATION.get(lcsc_of.get(ref, ""), (0,))[0]) % 360.0
+        if a["Layer"] != b["Layer"]:
+            problems.append(f"{stem}: {ref} changed side in the JLCPCB placement file")
+        entry = parts.JLC_ROTATION.get(lcsc_of.get(ref, ""), (0, (0, 0)))
+        want = (float(a["Rotation"]) + entry[0]) % 360.0
         diff = (float(b["Rotation"]) - want) % 360.0
         if min(diff, 360.0 - diff) > 0.05:
             problems.append(f"{stem}: {ref} is at {b['Rotation']} deg for "
                             f"JLCPCB, expected {want:.1f}")
         elif float(b["Rotation"]) != float(a["Rotation"]):
             turned += 1
-    notes.append(f"{stem}: the JLCPCB placement file turns {turned} parts "
-                 f"and moves none")
+        shift = math.hypot(float(b["Mid X"]) - float(a["Mid X"]), float(b["Mid Y"]) - float(a["Mid Y"]))
+        want_shift = math.hypot(*entry[1])
+        if abs(shift - want_shift) > 0.01:
+            problems.append(f"{stem}: {ref} moved {shift:.2f} mm in the JLCPCB placement file, "
+                            f"the table says {want_shift:.2f}")
+        elif shift:
+            shifted += 1
+    notes.append(f"{stem}: the JLCPCB placement file turns {turned} parts and shifts "
+                 f"{shifted} to JLCPCB's datum, by exactly the table's amounts")
 
 
 # Through-hole parts whose hole pattern must be its own key: each of these
@@ -148,7 +154,7 @@ def check(stem, layers, w, h, problems, notes):
 # preview chooses to draw them, they cannot be soldered in turned.  The
 # assembler's notes say so in as many words, and this is what makes that
 # true rather than hopeful.
-KEYED_THT = ["RV1"]
+KEYED_THT = ["RV1", "RV2", "RV3", "RV4"]
 
 
 def check_keying(stem, problems, notes):
@@ -185,48 +191,6 @@ def check_keying(stem, problems, notes):
         else:
             notes.append(f"{stem}: {ref}'s {len(holes)} holes fit only one "
                          f"way round, so no preview can mislead it")
-
-
-# HRO TYPE-C-31-M-12, "RECOMMEND P.C.B LAYOUT": the board edge belongs
-# 5.79 mm in front of the upper shell-tab centre, which leaves the connector's
-# mating face overhanging it by about 1 mm.  That overhang is what lets a plug
-# with a moulded body seat, so it is worth re-deriving from the placed pads
-# rather than trusting a number in a placement table.
-USB_TAB_TO_EDGE = 5.79
-
-
-def check_usb_setback(stem, height, problems, notes):
-    pcb = os.path.join(ROOT, "hardware", stem + ".kicad_pcb")
-    if not os.path.exists(pcb):
-        return
-    board = parse_file(pcb)
-    for fp in board.kids("footprint"):
-        ref = next((p.atom(1) for p in fp.kids("property")
-                    if p.atom(0) == "Reference"), "?")
-        if ref != "J1":
-            continue
-        at = fp.first("at")
-        oy = float(at.atom(1))
-        tabs = []
-        for pad in fp.kids("pad"):
-            if pad.atom(0) == "SH":
-                tabs.append(float(pad.first("at").atom(1)))
-        if not tabs:
-            problems.append(f"{stem}: J1 has no shell tabs to measure from")
-            return
-        edge = oy + min(tabs) + USB_TAB_TO_EDGE
-        if abs(edge - height) > 0.05:
-            problems.append(
-                f"{stem}: the USB-C wants the board edge {USB_TAB_TO_EDGE} mm "
-                f"in front of its upper shell tab, which is y = {edge:.2f}; "
-                f"the board ends at {height:.2f}, so the connector is "
-                f"{abs(edge - height):.2f} mm {'too far back' if edge < height else 'too far forward'}")
-        else:
-            notes.append(f"{stem}: the USB-C sits where its drawing asks -- "
-                         f"mating face {oy + 3.65 - height:.2f} mm past the "
-                         f"board edge, so a moulded plug body clears it")
-        return
-    problems.append(f"{stem}: no J1 on the board")
 
 
 def check_models(stem, problems, notes):
@@ -322,12 +286,14 @@ def check_qr(stem, problems, notes):
 # What JLCPCB's own description of each code must say, beyond the MPN.
 # (The ECP5 lesson: a code typed from memory can be a perfectly real other part.)
 CODE_EXPECT = {
-    "NPN": ["NPN", "SOT-23"], "PNP": ["PNP", "SOT-23"], "POT": ["50Ω"], "DIP2": ["DIP Switch", "2.54mm"],
-    "BNC": ["BNC", "50Ω"], "TERM2": ["2P", "5mm"], "TERM3": ["3P", "5mm"], "TP": ["Test"],
-    "DSCH": ["Schottky", "SOD-123"], "DSW": ["Switching", "SOD-123"], "LED": ["0805"],
-    "47R": ["47Ω", "0805"], "1k": ["1kΩ", "0805"], "1k_1206": ["1kΩ", "1206"], "1.5k": ["1.5kΩ", "0805"], "330R": ["330Ω", "0805"],
-    "10k": ["10kΩ", "0805"], "12k": ["12kΩ", "0805"], "62k": ["62kΩ", "0805"],
-    "100pF": ["100pF", "0805", "C0G"], "100nF": ["100nF", "0805"], "10uF": ["10uF", "0805"],
+    "OPAMP": ["LM321", "SOT-23-5"], "NPN_PWR": ["NPN", "TO-252"], "PNP_PWR": ["PNP", "TO-252"],
+    "CBULK": ["100uF", "25V"], "POT_KNOB": ["10k"], "TRIM": ["1M"], "SW": ["SPDT"],
+    "BNC": ["BNC"], "TERM3": ["3P", "5mm"], "TP": ["Test"],
+    "DSCH": ["Schottky", "SMA"], "PTC": ["0.35A", "1812"], "LED": ["0805"], "LED_R": ["0805"],
+    "100k": ["100kΩ", "0805"], "10k": ["10kΩ", "0805"], "1k": ["1kΩ", "0805"], "1k_1206": ["1kΩ", "1206"],
+    "6.8k": ["6.8kΩ", "0805"], "4.7k": ["4.7kΩ", "0805"], "270R": ["270Ω", "0805"], "10R": ["10Ω", "0805"],
+    "1R": ["1Ω", "2512"], "100nF": ["100nF", "0805"], "22nF": ["22nF", "0805"], "470pF": ["470pF", "0805"],
+    "330nF": ["330nF", "0805"], "10uF": ["10uF", "0805"],
 }
 
 
@@ -370,7 +336,7 @@ def check_stock(problems, notes):
     for key, p in parts.PARTS.items():
         if "stock" not in p:
             continue
-        need = {"NPN": 5, "PNP": 3, "BNC": 3, "DIP2": 3, "TERM2": 3, "TP": 18, "DSCH": 2, "DSW": 4, "LED": 2}.get(key, 1)
+        need = {"OPAMP": 7, "BNC": 3, "SW": 5, "TERM3": 3, "TP": 15, "DSCH": 4, "TRIM": 3, "LED": 2, "LED_R": 2, "CBULK": 2}.get(key, 1)
         boards = p["stock"] // need
         if boards < 50:
             low.append(f"{p['mpn']} ({p['stock']} in stock = {boards} boards)")
@@ -382,10 +348,11 @@ def check_stock(problems, notes):
 
 def main():
     problems, notes = [], []
-    check("opamp", 2, 100.0, 100.0, problems, notes)
-    check_qr("opamp", problems, notes)
-    check_keying("opamp", problems, notes)
-    check_models("opamp", problems, notes)
+    import layout
+    check("motorpid", 2, layout.BOARD_W, layout.BOARD_H, problems, notes)
+    check_qr("motorpid", problems, notes)
+    check_keying("motorpid", problems, notes)
+    check_models("motorpid", problems, notes)
     check_stock(problems, notes)
     check_codes(problems, notes)
     for n in notes:

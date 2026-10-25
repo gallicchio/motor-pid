@@ -20,8 +20,9 @@ GERBER_LAYERS_4 = ("F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,B.Paste,"
 
 # Parts whose orientation in the CPL is worth a glance in the fab's preview:
 # anything that is not rotationally symmetric.
-ORIENTATION_SENSITIVE = ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "SW1", "SW2", "SW3", "RV1",
-                         "D1", "D2", "D3", "D4", "D5", "D6", "LED1", "LED2", "J1", "J2", "J3", "J4", "J5", "J6", "J7"]
+ORIENTATION_SENSITIVE = ["Q1", "Q2", "U1", "U2", "U3", "U4", "U5", "U6", "U7", "SW1", "SW2", "SW3", "SW4", "SW5",
+                         "RV1", "RV2", "RV3", "RV4", "D1", "D2", "D3", "D4", "LED1", "LED2", "LED3", "LED4",
+                         "C11", "C12", "J1", "J2", "J3", "J4", "J5", "J6"]
 IMAGES = os.path.join(ROOT, "docs", "images")
 PNG_DPI = 170
 import layout as _place
@@ -125,19 +126,27 @@ def export_cpl(stem, bom_lines):
             lcsc_of[ref.strip()] = line["LCSC Part #"]
 
     def write(path, correct):
+        """The JLCPCB copy turns each part by its table angle and moves it by
+        its table datum shift (JLCPCB's origin for the part, in KiCad's
+        footprint frame), rotated into board coordinates by KiCad's angle."""
+        import math
         turned = []
         with open(path, "w", newline="") as fh:
             w = csv.writer(fh)
             w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])
             for r in rows:
                 rot = float(r["Rot"])
+                x, y = float(r["PosX"]), float(r["PosY"])
                 if correct:
-                    d = parts.JLC_ROTATION.get(lcsc_of.get(r["Ref"], ""), (0,))[0]
-                    if d:
+                    d, (dx, dy) = parts.JLC_ROTATION.get(lcsc_of.get(r["Ref"], ""), (0, (0, 0)))[:2]
+                    if d or dx or dy:
+                        a = math.radians(rot)
+                        # the pos file's y is up (drill origin at the bottom-left)
+                        x += dx * math.cos(a) - dy * math.sin(a)
+                        y += dx * math.sin(a) + dy * math.cos(a)
                         rot = (rot + d) % 360.0
                         turned.append(r["Ref"])
-                w.writerow([r["Ref"], f'{float(r["PosX"]):.4f}',
-                            f'{float(r["PosY"]):.4f}',
+                w.writerow([r["Ref"], f'{x:.4f}', f'{y:.4f}',
                             "Top" if r["Side"].lower().startswith("t")
                             else "Bottom", f'{rot:.1f}'])
         return turned
@@ -217,30 +226,35 @@ def export_bom(stem):
     return path, full, lines, total, unknown
 
 
-ASSEMBLY_NOTES = """DISCRETE TRANSISTOR OP-AMP -- notes for the assembler
-=====================================================
+ASSEMBLY_NOTES = """PID MOTOR CONTROL LOOP -- notes for the assembler
+================================================
 
 PLACEMENTS
   Use {stem}_cpl_jlcpcb_upload.csv for JLCPCB.  It is {stem}_cpl_kicad_native.csv
-  with JLCPCB's own per-part rotations applied; use the native file anywhere else.
+  with JLCPCB's own per-part rotations and datum offsets applied; use the native
+  file anywhere else.
 
-Q1-Q8 -- SOT-23 transistors, 1 = B, 2 = E, 3 = C.  Each sits inside a silkscreen
-  circle; the two bottom pads (or, for Q2 and Q6, the two top pads) are base and
-  emitter, the single pad on the other side is the collector.
+U1-U7 -- LM321 in SOT-23-5, all at the same orientation: pins 1, 2, 3 on the
+  LEFT (toward the triangle's inputs), 4 and 5 on the right.  Pin 1 is the
+  upper-left pad, under the "+" of the triangle.
 
-SW1, SW2, SW3 -- 2-way DIP switches.  Any orientation that puts the pads on the
-  pads is electrically right; the sliders should move toward the side the
-  silkscreen "1"/"2" legends sit on.
+Q1, Q2 -- DPAK (TO-252).  Q1's tab points UP toward its copper pour, Q2's tab
+  points DOWN toward its pour.  Each sits inside a silkscreen circle.
 
-RV1 -- 3362P trimmer, keyed by its three holes: it fits one way only.
+SW1-SW5 -- MSK12C02 slide switches.  The three pins are on one side of the
+  body; pin 1 is the end pin nearest the silkscreen "1" legend.
 
-J1, J2, J3 -- BNC jacks.  The barrel points OFF the board edge: J1 and J2 off the
-  left-hand edge, J3 off the right-hand edge.
+RV1 -- ALPS RK09K knob potentiometer with centre detent, keyed by its two
+  mounting posts: it fits one way, pins toward the switch.
+RV2, RV3, RV4 -- 3362P trimmers, keyed by their three holes.
 
-J4, J5, J6, J7 -- screw terminal blocks.  The wire openings face the board edge.
+J1, J2, J3 -- BNC jacks.  The barrel points OFF the board edge: J1 and J2 off
+  the left edge, J3 off the bottom edge.
+J4, J5 -- screw terminal blocks on the bottom edge, wire openings facing the
+  edge.  J6 -- screw terminal block on the top edge, openings facing the edge.
 
-D1-D6, LED1, LED2 -- polarised; the cathode is pad 1, at the end the silkscreen
-  bar marks.
+D1-D4 (SMA), LED1-LED4 (0805), C11, C12 (electrolytic) -- polarised; the
+  cathode / negative end is pad 1, at the end the silkscreen bar marks.
 """
 
 
@@ -392,7 +406,7 @@ def run(stem, layers):
 
 if __name__ == "__main__":
     bad = 0
-    for stem, layers in (("opamp", 2),):
+    for stem, layers in (("motorpid", 2),):
         total, lines, unknown = run(stem, layers)
         bad += len(unknown)
     sys.exit(1 if bad else 0)

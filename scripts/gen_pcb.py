@@ -30,7 +30,7 @@ SILK_CLEAR = 0.3        # silkscreen to pad
 Q_BAR_X, Q_BAR_H = 2.2, 1.4     # the bar: x = -Q_BAR_X, from -Q_BAR_H to +Q_BAR_H
 Q_BEND = 3.6                    # the legs leave the bar's ends at 45 degrees and turn vertical here
 Q_W_CIRCLE, Q_W_LEAD, Q_W_BAR, Q_W_STUB = 0.25, 0.45, 0.55, 0.16
-Q_STUB_GAP = 0.15               # a hairline starts this far from its pad
+Q_STUB_GAP = 0.3                # a hairline starts this far from its pad
 VIA_DIA, VIA_DRILL = 0.8, 0.3
 
 
@@ -257,10 +257,11 @@ class Board:
                 else:
                     self.track(a, b, width, net)
         for ref in L.TRANSISTORS:
-            for num, path in self.q_geometry(ref)["copper"].items():
+            g = self.q_geometry(ref)
+            for num, path in g["copper"].items():
                 net = self.pads[(ref, num)]["net"]
                 for a, b in zip(path, path[1:]):
-                    self.track(a, b, L.W_SIG, net)
+                    self.track(a, b, 2.0 if num in g.get("wide", ()) else L.W_SIG, net)
         for ref in L.OPAMPS:
             g = self.oa_geometry(ref)
             for num, path in g["copper"].items():
@@ -273,22 +274,25 @@ class Board:
             self.via(*g["via_in"], net); self.via(*g["exit"]["2"], net)
             self.track(g["via_in"], g["exit"]["2"], L.W_SIG, net, pcbnew.B_Cu)
         # the back-only copper: -15 V from the entry to every flag
-        for (net, points, width) in L.BACK:
+        for (net, points, width, ends) in L.BACK:
             pts = [self.resolve(p, net) for p in points]
             for a, b in zip(pts, pts[1:]):
                 self.track(a, b, width, net, pcbnew.B_Cu)
-            for e, p in ((pts[0], points[0]), (pts[-1], points[-1])):
+            for e, p, which in ((pts[0], points[0], "start"), (pts[-1], points[-1], "end")):
+                if ends not in ("both", which):
+                    continue
                 if isinstance(p[0], str) and self.pads[(p[0], p[1])]["through"]:
                     continue
                 self.via(*e, net)
-        for (net, x, y) in L.FLAGS:
-            self.via(x, y, net)
+        for f in L.FLAGS:
+            self.via(f[1], f[2], f[0])
         self.stub_dir = {}
         for (padref, path) in L.GND_STUBS:
             pad = self.pads[padref]
             if pad["net"] != "GND":
                 self.problems.append(f"ground stub from {padref}, which is on {pad['net']!r}")
-            pts = [(pad["x"], pad["y"])] + (list(path) if isinstance(path, list) else [path])
+            start = self.resolve(padref, "GND") if padref[0] in L.OPAMPS else (pad["x"], pad["y"])
+            pts = [start] + (list(path) if isinstance(path, list) else [path])
             for a, b in zip(pts, pts[1:]):
                 self.track(a, b, L.W_SIG, "GND")
             vx, vy = pts[-1]
@@ -331,6 +335,9 @@ class Board:
         self.board.Add(z)
         self.board.BuildConnectivity()
         pcbnew.ZONE_FILLER(self.board).Fill(self.board.Zones())
+        for (net, x, y) in self.vias:
+            if net == "GND" and not z.HitTestFilledArea(pcbnew.B_Cu, pt(x, y), 0):
+                self.problems.append(f"the ground plane does not reach the ground via at ({x}, {y})")
 
     # ------------------------------------------------------- silkscreen --
     def _line(self, a, b, layer=pcbnew.F_SilkS, width=SILK_W):
@@ -522,9 +529,10 @@ class Board:
             return min(ay, by) + tol < py < max(ay, by) - tol
         return False
 
-    def _on_pad(self, x, y):
+    def _on_pad(self, x, y, margin=0.55):
+        """On, or within a dot's radius of, a pad: no junction dot there."""
         for p in self.pads.values():
-            if p["x0"] - 0.05 <= x <= p["x1"] + 0.05 and p["y0"] - 0.05 <= y <= p["y1"] + 0.05:
+            if p["x0"] - margin <= x <= p["x1"] + margin and p["y0"] - margin <= y <= p["y1"] + margin:
                 return True
         return False
 
@@ -538,8 +546,14 @@ class Board:
             self.ground_symbol(x, y, ux, uy)
         for (x, y) in L.GND_MARKS:
             self.ground_symbol(x, y, 0, 1, start=1.3 + 0.4)
-        for (net, x, y) in L.FLAGS:
-            self.flag_symbol(x, y, net.replace("-15V", "-15 V").replace("+15V", "+15 V"))
+        for f in L.FLAGS:
+            net, x, y = f[:3]
+            dx, dy, just = f[3:6] if len(f) > 3 else (1.6, 0.05, "left")
+            self.flag_symbol(x, y, net.replace("-15V", "-15 V").replace("+15V", "+15 V"), dx, dy, just)
+        # signals that go round the back: dashed where they run
+        for (net, a, b, layer) in self.segments:
+            if layer == pcbnew.B_Cu and net in L.DASHED_BACK:
+                self._dashed(a, b, dash=1.0, gap=0.6, width=0.2)
 
     def ground_symbol(self, x, y, ux, uy, start=0.55):
         """Three shortening bars across the direction (ux, uy), beyond `start`
@@ -570,25 +584,31 @@ class Board:
         n = 1 if kind == "NPN" else -1
         dpak = "TO-252" in self.comps[ref]["footprint"]
 
-        def P(x, y):
-            return (cx + m * x, cy + n * y)
-
         if dpak:
-            R, BX, BH, BEND = L.Q_RADIUS, 3.4, 2.0, 5.4
+            # the symbol's centre sits 1.5 mm toward the tab, so the emitter leg
+            # clears the base pad; the circle is big enough to hold the pads
+            # the legs leave the bar at 33 degrees, not 45: a 45-degree emitter
+            # leg cannot pass between the tab and the base pad (2 mm apart)
+            R, BX, BH, BEND, oy = L.Q_RADIUS, 4.5, 3.25, 6.17, 1.5
             roles = (("1", "B"), ("2", "C"), ("3", "E"))
         else:
-            R, BX, BH, BEND = 4.0, Q_BAR_X, Q_BAR_H, Q_BEND
+            R, BX, BH, BEND, oy = 4.0, Q_BAR_X, Q_BAR_H, Q_BEND, 0.0
             roles = (("1", "B"), ("2", "E"), ("3", "C"))
+
+        def P(x, y):
+            return (cx + m * x, cy + n * (y - oy))
+
         pins = {}
         for num, name in roles:
             p = self.pads[(ref, num)]
-            pins[name] = (m * (p["x"] - cx), n * (p["y"] - cy), (p["x1"] - p["x0"]) / 2, (p["y1"] - p["y0"]) / 2)
+            pins[name] = (m * (p["x"] - cx), n * (p["y"] - cy) + oy, (p["x1"] - p["x0"]) / 2, (p["y1"] - p["y0"]) / 2)
         xb, yb, hwb, hhb = pins["B"]
         xe, ye, hwe, hhe = pins["E"]
         xc, yc, hwc, hhc = pins["C"]
         if not (xb < -0.5 and xe > 0.5 and abs(xc) < 0.1):
             raise SystemExit(f"{ref}: the package is not turned with its base pad on the bar's side (B {xb:.2f}, E {xe:.2f}, C {xc:.2f})")
-        u = (math.sqrt(0.5), math.sqrt(0.5))          # along the emitter leg, bar to bend
+        L_ = math.hypot(BX, BEND - BH)
+        u = (BX / L_, (BEND - BH) / L_)               # along the emitter leg, bar to bend
 
         def foot(sx, sy):                             # the point of the emitter leg square on to (sx, sy)
             t = (sx + BX) * u[0] + (sy - BH) * u[1]
@@ -601,13 +621,16 @@ class Board:
         if dpak:
             # the DPAK: base and emitter pads side by side below the tab; the
             # base hairline runs up to the bar's end, the emitter's across to its leg
-            stubs[nB] = [(xb, yb - hhb - g), (-BX + 0.2, BH + 0.2)]
-            copper[nB] = [(-R, 0), (-BX, 0), (-BX, BH), (xb, yb)]
+            # the base: a hairline from the pad's outer edge to the bar's line,
+            # and the bar's line continued down to it
+            stubs[nB] = [(xb - hwb - g, yb), (-BX, yb), (-BX, BH)]
+            copper[nB] = [(-R, 0), (-BX, 0), (-BX, yb), (xb, yb)]
             stubs[nC] = [(0, yc - hhc - g), (0, -BEND)]
             copper[nC] = [(0, -R), (0, yc)]
-            ex_leg = (ye - BEND) if ye < BEND else 0.0
-            stubs[nE] = [(xe - hwe - g, ye), (ex_leg, ye)]
-            copper[nE] = [(0, R), (0, BEND), (ex_leg, ye), (xe, ye)]
+            # the emitter: a hairline below its pad across to the leg's vertical
+            ey = ye + hhe + g + 0.2
+            stubs[nE] = [(xe, ye + hhe + g), (xe, ey), (0, ey)]
+            copper[nE] = [(0, R), (0, ey), (xe, ey), (xe, ye)]
         # B: a hairline from the pad's inner edge straight across to the bar
         if not dpak:
             stubs["1"] = [(xb + hwb + g, yb), (-BX + Q_W_BAR / 2, yb)]
@@ -639,7 +662,7 @@ class Board:
         px, py = -u[1], u[0]
         arrow = [tip, (tail[0] + px * 0.5, tail[1] + py * 0.5), (tail[0] - px * 0.5, tail[1] - py * 0.5)]
         geom = dict(
-            cx=cx, cy=cy, R=R,
+            cx=P(0, 0)[0], cy=P(0, 0)[1], R=R, wide=({nC} if dpak else set()),
             exit={nB: P(-R, 0), nC: P(0, -R), nE: P(0, R)},
             bar=[P(-BX, -BH), P(-BX, BH)],
             leads=[[P(-R, 0), P(-BX, 0)],
@@ -648,7 +671,8 @@ class Board:
             arrow=[P(*q) for q in arrow],
             stubs={k: [P(*q) for q in v] for k, v in stubs.items()},
             copper={k: [P(*q) for q in v] for k, v in copper.items()},
-            letters={"B": P(-BX - 0.8, -0.9), "C": P(1.15 * R / 4, -BEND + 0.6), "E": P(1.15 * R / 4, BEND - 0.6)},
+            letters=({"B": P(-BX - 1.2, -0.9), "C": P(2.3, -BEND + 0.6), "E": P(2.3, 4.7)} if dpak else
+                     {"B": P(-3.0, -0.9), "C": P(1.15, -3.0), "E": P(1.15, 3.0)}),
         )
         self.qgeom[ref] = geom
         return geom
@@ -719,11 +743,11 @@ class Board:
             self._text(*g["minus"], "-", 1.1, 0.2)
             self.flag_symbol(*g["exit"]["2"], "-15 V")
 
-    def flag_symbol(self, x, y, text):
+    def flag_symbol(self, x, y, text, dx=1.6, dy=0.05, justify="left"):
         """A power flag the way the sheet draws one: a bar across the point and
         the rail's name beside it."""
         self._line((x - 1.1, y), (x + 1.1, y), width=0.3)
-        self._text(x + 1.6, y + 0.05, text, 0.8, 0.15, justify="left")
+        self._text(x + dx, y + dy, text, 0.8, 0.15, justify=justify)
 
     def silk_transistors(self):
         """The textbook symbol round each SOT-23: a circle, the base bar, the
@@ -772,7 +796,7 @@ class Board:
             cx, cy = tomm(fp.GetPosition().x), tomm(fp.GetPosition().y)
             at = L.FIELD_AT.get(ref)
             if at is None and ref in L.OPAMPS:
-                at = ((2.9, -5.7), (2.9, -4.3))
+                at = ((1.8, -5.7), (1.8, -4.3))
             r = fp.Reference()
             r.SetTextSize(pcbnew.VECTOR2I(mm(0.8), mm(0.8))); r.SetTextThickness(mm(0.15))
             r.SetTextAngleDegrees(0); r.SetLayer(pcbnew.F_SilkS)
@@ -793,7 +817,7 @@ class Board:
                 v.SetHorizJustify({"left": pcbnew.GR_TEXT_H_ALIGN_LEFT, "right": pcbnew.GR_TEXT_H_ALIGN_RIGHT,
                                    "center": pcbnew.GR_TEXT_H_ALIGN_CENTER}[j])
                 continue
-            if ref in L.HIDE_REF:
+            if ref in L.HIDE_REF or (at and at[0] is None):
                 r.SetVisible(False)
             elif at and at[0]:
                 r.SetPosition(pt(cx + at[0][0], cy + at[0][1]))

@@ -19,12 +19,12 @@ import parts, layout
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 OUT = os.path.join(ROOT, "out")
 DOCS = os.path.join(ROOT, "docs")
-STEM = "opamp"
+STEM = "motorpid"
 
 # JLCPCB list prices, autumn 2026.  These move; the fab's quote is the
 # authority and the build prints these only as an order of magnitude.
-PCB_2L_5PCS = 2.00           # 100 x 100 mm, 2 layers, 5 pieces, green, HASL
-PCB_2L_10PCS = 5.00
+PCB_2L_5PCS = 14.00          # 170 x 120 mm, 2 layers, 5 pieces, green, HASL (past the 100 x 100 discount)
+PCB_2L_10PCS = 24.00
 SHIPPING = 22.00             # DHL to the US; the slow post is about $8
 PCBA_SETUP = 8.00
 STENCIL = 1.50
@@ -77,16 +77,16 @@ def order_form(w, h, min_drill, min_via, tht_refs):
         ("PCB", None, None),
         ("Base Material", "FR-4", "the default"),
         ("Layers", "2", "what the gerber set contains"),
-        ("Dimensions", f"{w:.0f} x {h:.0f} mm", "read from the board outline; the discounted size"),
+        ("Dimensions", f"{w:.0f} x {h:.0f} mm", "read from the board outline; past the 100 x 100 mm discount, so the bare boards cost a little more"),
         ("PCB Qty", "5", "the minimum; 10 costs about three dollars more"),
         ("Product Type", "Industrial/Consumer electronics", "the default"),
         ("PCB Specifications", None, None),
         ("Different Design", "1", "one board in the outline"),
         ("Delivery Format", "Single PCB", "no panel"),
-        ("PCB Thickness", "1.6 mm", "the BNC flanges and the terminal blocks expect it"),
+        ("PCB Thickness", "1.6 mm", "the BNC flanges, the knob and the terminal blocks expect it"),
         ("PCB Color", "Green", "any; the white silkscreen reads best on green or black"),
         ("Silkscreen", "White", "the default for green"),
-        ("Material Type", "FR4-Standard TG 135-140", "the default; nothing here gets warm"),
+        ("Material Type", "FR4-Standard TG 135-140", "the default; the power transistors get warm only in a stall, for seconds"),
         ("Surface Finish", "LeadFree HASL", "students handle this board: lead-free.  ENIG is fine too"),
         ("High-spec Options", None, None),
         ("Outer Copper Weight", "1 oz", "the design rules assume it"),
@@ -104,11 +104,11 @@ def order_form(w, h, min_drill, min_via, tht_refs):
         ("PCBA Type", "Economic", "all parts on one side, nothing fine-pitch"),
         ("Assembly Side", "Top", "every part is on the front"),
         ("PCBA Qty", "2, or as many as the class needs", "the per-order fees are the same for 2 or 20"),
-        ("Edge Rails/Fiducials", "Added by JLCPCB", "the board carries no fiducials; let them add rails with fiducials, removed before delivery"),
+        ("Edge Rails/Fiducials", "Added by JLCPCB", "the board carries three fiducials; rails do no harm, removed before delivery"),
         ("Confirm Parts Placement", "Yes", "look at the preview against PLACEMENT_CHECKS.txt before paying"),
         ("Parts Selection", "By JLCPCB", "every BOM line has an LCSC code"),
         ("Through-hole parts", f"keep them: {', '.join(tht_refs)}",
-         "the form lists them separately; the BNCs, terminals and trimmer are meant to be fitted"),
+         "the form lists them separately; the BNCs, terminals, knob and trimmers are meant to be fitted"),
         ("Bake Components", "No", "nothing moisture-sensitive"),
         ("Stencil", "none", "JLCPCB keeps its own; nothing to order"),
     ]
@@ -159,7 +159,7 @@ def main():
     a("")
     a("## The order form, field by field")
     a("")
-    a("The same list is in `out/opamp/opamp-fabrication-notes.txt` to keep open while")
+    a(f"The same list is in `out/{STEM}/{STEM}-fabrication-notes.txt` to keep open while")
     a("ordering.  The values that come from the board are computed, not typed.")
     a("")
     a("| field | pick | why |")
@@ -174,8 +174,9 @@ def main():
     a("")
     a(f"The board has **{smt} SMT joints** and **{tht} through-hole joints** on")
     a(f"{len(rows)} BOM lines; {len(ext_codes)} distinct order codes are JLCPCB *Extended* parts")
-    a(f"(the BNCs, the terminal blocks, the trimmer, the DIP switches, the test loops")
-    a(f"and the PNPs), each with a one-off {money(EXTENDED_PART_FEE)} feeder fee.  Parts alone are")
+    a(f"(the op-amps, the BNCs, the terminal blocks, the knob, the trimmers, the slide")
+    a(f"switches, the test loops, the power transistors, the fuse and the 1 ohm resistors),")
+    a(f"each with a one-off {money(EXTENDED_PART_FEE)} feeder fee.  Parts alone are")
     a(f"**{money(parts_cost)} per board**, of which the three BNC jacks are")
     a(f"{money(3 * parts.PARTS['BNC']['price'])} and the {loops} test loops {money(loops * parts.PARTS['TP']['price'])}.")
     a("")
@@ -204,19 +205,20 @@ def main():
     a("everywhere else is wrong there by a fixed angle.  The upload CPL has these")
     a("angles already applied, per LCSC code, from `scripts/parts.py`:")
     a("")
-    a("| parts | LCSC | turned by | evidence |")
-    a("|---|---|---|---|")
-    for code, (deg, how, note) in sorted(parts.JLC_ROTATION.items(), key=lambda kv: (-kv[1][0], kv[0])):
+    a("| parts | LCSC | turned by | datum shift | evidence |")
+    a("|---|---|---|---|---|")
+    for code, (deg, (dx, dy), how, note) in sorted(parts.JLC_ROTATION.items(), key=lambda kv: (-kv[1][0], kv[0])):
         refs = sorted((r for r, c in ref_lcsc.items() if c == code),
                       key=lambda r: (re.sub(r"\d", "", r), int(re.sub(r"\D", "", r) or 0)))
         if not refs:
             continue
-        a(f"| {', '.join(refs)} | {code} | {deg} deg | {how}: {note} |")
+        shift = f"({dx:+.1f}, {dy:+.1f}) mm" if (dx or dy) else "none"
+        a(f"| {', '.join(refs)} | {code} | {deg} deg | {shift} | {how}: {note} |")
     a("")
     a("*read* means seen in a JLCPCB preview on a real order of that part on that")
     a("footprint; *predicted* means derived by fitting JLCPCB's own land pattern")
     a("onto ours by pin number (`scripts/easyeda.py <code>`).  Every predicted part is")
-    a("in `out/opamp/PLACEMENT_CHECKS.txt`, the list to hold against the preview.")
+    a(f"in `out/{STEM}/PLACEMENT_CHECKS.txt`, the list to hold against the preview.")
     a("`check_outputs.py` proves the two CPL files differ in nothing but those angles.")
     a("")
     a("## Check these in the preview before you pay")
@@ -226,19 +228,19 @@ def main():
     for line in PREVIEW_CHECKS:
         a(f"| {line[0]} | {line[1]} | {line[2]} |")
     a("")
-    a("The one part that cannot go in wrong is the trimmer: its three holes form an")
-    a("L, so it fits one way.  `check_outputs.py` re-derives that from the board file")
-    a("on every build.  The BNCs are not keyed (four symmetric posts and a centre")
+    a("The parts that cannot go in wrong are the knob and the three trimmers: their")
+    a("hole patterns fit one way.  `check_outputs.py` re-derives that from the board")
+    a("file on every build.  The BNCs are not keyed (four symmetric posts and a centre")
     a("pin), which is why their correction is read, not predicted, and worth a glance.")
     a("")
     a("## The through-hole parts")
     a("")
     a(f"{len(tht_refs)} parts are through-hole: **{', '.join(tht_refs)}**, the three BNC")
-    a("jacks, the four terminal blocks and the trimmer.  They are in the BOM and the")
+    a("jacks, the three terminal blocks, the knob and the three trimmers.  They are in the BOM and the")
     a("CPL and JLCPCB fits them for a per-order fee plus pennies a joint; keep them")
     a("selected when the form lists them.  If you would rather solder them yourself")
     a(f"they are the {tht} largest, easiest joints on the board.  Everything else is 0805,")
-    a("1206, SOD-123 or SOT-23 and is hand-workable with a fine iron.")
+    a("1206, 2512, SMA, SOT-23-5 or DPAK and is hand-workable with a fine iron.")
     a("")
     a("## Parts, stock and alternates")
     a("")
@@ -277,15 +279,16 @@ def main():
     a(f"The thinnest line is the {worth[0][1]}: {worth[0][2]:,} in stock and {worth[0][3]} per")
     a(f"board, about {worth[0][0]:,} boards' worth; next the {worth[1][1]} at about {worth[1][0]:,}.")
     a("The BNC alternates share the 'BNC-KYWE' body (10 x 10 mm flange, four posts on")
-    a("8 x 8 mm, centre pin), so the footprint takes any of them.")
+    a("8 x 8 mm, centre pin), so the footprint takes any of them.  Any 100 mm motorized")
+    a("fader with a 10k track and a 6-11 V motor is the plant; see the handbook.")
     a("")
     a("## After the boards arrive")
     a("")
     a("The bring-up order, the expected voltage at every loop and the student")
-    a("exercises are in [HANDBOOK.md](HANDBOOK.md).  In one line: power it from a")
-    a("current-limited supply at 30 mA, both green LEDs light, and as a follower")
-    a("(FEEDBACK 2 on) with IN+ grounded OUT sits within a few tens of millivolts")
-    a("of zero and the trimmer nulls it.")
+    a("exercises are in [HANDBOOK.md](HANDBOOK.md).  In one line: with the fader")
+    a("unplugged and the LOOP switch open, power it at ±15 V, both green lamps light,")
+    a("and the TARGET knob moves the P loop's output; then wire the fader and close")
+    a("the loop at a P gain of a few.")
     a("")
     os.makedirs(DOCS, exist_ok=True)
     path = os.path.join(DOCS, "MANUFACTURING.md")
@@ -319,12 +322,13 @@ def main():
          "Look at each predicted part in the preview; if one is turned, do NOT nudge it",
          "in their viewer (the fix is lost on the next upload): change its entry in",
          "scripts/parts.py JLC_ROTATION and rebuild.", ""]
-    for code, (deg, how, note) in sorted(parts.JLC_ROTATION.items(), key=lambda kv: (kv[1][1] != "predicted", kv[0])):
+    for code, (deg, (dx, dy), how, note) in sorted(parts.JLC_ROTATION.items(), key=lambda kv: (kv[1][2] != "predicted", kv[0])):
         refs = sorted((r for r, c in ref_lcsc.items() if c == code),
                       key=lambda r: (re.sub(r"\d", "", r), int(re.sub(r"\D", "", r) or 0)))
         if not refs:
             continue
-        P.append(f"[{how.upper():9s}] {', '.join(refs)}  ({code}, +{deg} deg)")
+        shift = f", datum ({dx:+.1f}, {dy:+.1f}) mm" if (dx or dy) else ""
+        P.append(f"[{how.upper():9s}] {', '.join(refs)}  ({code}, +{deg} deg{shift})")
         P.append(f"            {note}")
         look = next((l for l in PREVIEW_CHECKS if l[0].split(",")[0].strip() in refs), None)
         if look:
@@ -343,38 +347,8 @@ def main():
         s = f"{x:+.1f}"
         return "0.0" if s in ("+0.0", "-0.0") else s
 
-    claims = [
-        ("README.md", r"about \$([0-9.]+) in parts per board", f"{parts_cost:.2f}"),
-        ("README.md", r"(\d+) circuit assertions", str(circuit_check_count())),
-        ("README.md", r"first board about \$(\d+) and each further one about \$(\d+)",
-         (f"{round(p1):d}", f"{round(p2 - p1):d}")),
-        ("README.md", r"(\d+) probe loops", str(loops)),
-        ("README.md", r"about \$(\d+) each for (\d+) assembled boards", (f"{round(quote(10, PCB_2L_10PCS)[4] / 10):d}", "10")),
-        ("docs/HANDBOOK.md", r"(\d+) probe loops", str(loops)),
-        ("docs/HANDBOOK.md", r"\| TP3 \| TAIL \|[^|]*\| ([-+0-9.]+) V", v(op["tail"])),
-        ("docs/HANDBOOK.md", r"\| TP6 \| Q2 C \|[^|]*\| ([-+0-9.]+) V", v(op["c2"])),
-        ("docs/HANDBOOK.md", r"\| TP7 \| Q3 E \|[^|]*\| ([-+0-9.]+) V", v(op["e3"])),
-        ("docs/HANDBOOK.md", r"\| TP8 \| Q3 C \|[^|]*\| ([-+0-9.]+) V", v(op["c3"])),
-        ("docs/HANDBOOK.md", r"\| TP5 \| Q6 B \|[^|]*\| ([-+0-9.]+) V", v(op["b6"])),
-        ("docs/HANDBOOK.md", r"\| TP4 \| Q6 E \|[^|]*\| ([-+0-9.]+) V", v(op["e6"])),
-        ("docs/HANDBOOK.md", r"limits at about (\d+) mA", f"{R['isc_ma']:.0f}"),
-        ("docs/DESIGN_NOTES.md", r"into a dead short is about (\d+) mA", f"{R['isc_ma']:.0f}"),
-        ("docs/HANDBOOK.md", r"\| TP11 \| \+15V \|[^|]*\| ([-+0-9.]+) V", v(R["vrail"])),
-        ("docs/HANDBOOK.md", r"\| TP12 \| -15V \|[^|]*\| ([-+0-9.]+) V", v(-R["vrail"])),
-        ("docs/HANDBOOK.md", r"null range of about \+/-(\d+) mV", f"{R['null_mv']:.0f}"),
-        ("docs/DESIGN_NOTES.md", r"open-loop gain at the quiescent point of about (\d+)", f"{R['a0']:.0f}"),
-        ("docs/DESIGN_NOTES.md", r"phase margin of about (\d+) degrees as a follower", f"{R['pm_x1']:.0f}"),
-        ("docs/DESIGN_NOTES.md", r"the x11 amplifier really has a gain of ([0-9.]+)", f"{R['g11']:.1f}"),
-        ("docs/DESIGN_NOTES.md", r"swings from ([-0-9.]+) V to \+([0-9.]+) V", (f"{R['swing'][0]:.1f}", f"{R['swing'][1]:.1f}")),
-        ("docs/DESIGN_NOTES.md", r"null range of about \+/-(\d+) mV", f"{R['null_mv']:.0f}"),
-        ("docs/DESIGN_NOTES.md", r"tail current of ([0-9.]+) mA", f"{R['i_tail_ma']:.2f}"),
-        ("docs/DESIGN_NOTES.md", r"from ([0-9.]+) with the resistor to ([0-9.]+) with the sink",
-         (f"{R['gcm_r']:.3f}", f"{R['gcm_cs']:.4f}")),
-        ("docs/DESIGN_NOTES.md", r"[Ww]ithout the 1 k the follower's phase margin is ([-0-9]+) degrees", f"{R['pm_x1_bare']:.0f}"),
-        ("docs/DESIGN_NOTES.md", r"follower settles in about ([0-9.]+) us", f"{R['ts_x1_us']:.1f}"),
-        ("docs/DESIGN_NOTES.md", r"(\d+) SMT and (\d+) through-hole joints", (str(smt), str(tht))),
-        ("docs/DESIGN_NOTES.md", r"(\d+) vias", str(n_vias)),
-    ]
+    claims = CLAIMS(parts_cost, circuit_check_count(), loops, smt, tht, n_vias, R, p1, p2,
+                    round(quote(10, PCB_2L_10PCS)[4] / 10))
     bad, n = [], 0
     for rel, pat, want in claims:
         text = re.sub(r"\s+", " ", open(os.path.join(ROOT, rel)).read())   # prose wraps lines
@@ -394,23 +368,36 @@ def main():
 
 # What to look for in JLCPCB's preview, per orientation-sensitive part.
 PREVIEW_CHECKS = [
-    ("Q1, Q3, Q4, Q5, Q7, Q8", "SOT-23: the lone pad (collector) on the side the collector wire leaves",
-     "lone pad at the TOP, the pair at the bottom"),
-    ("Q2, Q6", "the same, the other way up", "lone pad at the BOTTOM, the pair at the top"),
-    ("SW1, SW2, SW3", "2-way DIP switch: pads on pads; sliders move toward the '1 / 2' legends",
-     "SW1 and SW2 sliders moving toward the labelled side; electrically it cannot go in wrong"),
-    ("RV1", "3362P trimmer, keyed", "fits one way; screw on top"),
+    ("U1, U2, U3, U4, U5, U6, U7", "SOT-23-5: three pads on the left, two on the right",
+     "the three-pad side under the triangle's inputs (left); pin 1 top-left"),
+    ("Q1", "DPAK tab", "tab pointing UP into the copper pour above its circle"),
+    ("Q2", "DPAK tab", "tab pointing DOWN into the copper pour below its circle"),
+    ("SW1, SW2, SW3, SW4, SW5", "MSK12C02 slide switch: the three pins on one edge",
+     "SW1, SW2: pins along the bottom edge of the body; SW3, SW4, SW5: pins down the left edge"),
+    ("RV1", "RK09K knob, keyed by its two posts", "fits one way; the shaft up, the pins toward the switch"),
+    ("RV2, RV3, RV4", "3362P trimmer, keyed", "fits one way; screw on top, wiper pin toward the top"),
     ("J1, J2", "BNC barrel", "pointing off the LEFT edge"),
-    ("J3", "BNC barrel", "pointing off the RIGHT edge"),
-    ("J4, J5", "screw terminal wire openings", "facing the LEFT edge"),
-    ("J6, J7", "screw terminal wire openings", "facing the RIGHT edge"),
-    ("D1, D2", "SOD-123 cathode band", "at the end the silkscreen bar marks (they are anti-parallel: one up, one down)"),
-    ("D3, D4", "SOD-123 cathode band", "D3 toward the +15 V rail (top); D4 toward the terminal (right)"),
-    ("D5, D6", "SOD-123 cathode band", "D5 cathode DOWN toward Q7; D6 cathode DOWN toward the bus"),
-    ("LED1, LED2", "0805 LED cathode mark", "LED1 cathode on the RIGHT (its ground via), anode toward R12; "
-     "LED2 cathode on the LEFT toward R13, anode to the ground via on its right"),
-    ("TP1-TP14, TP100-TP103", "test loops", "the loop lying along the pad's long side; not polarised"),
+    ("J3", "BNC barrel", "pointing off the BOTTOM edge"),
+    ("J4, J5", "screw terminal wire openings", "facing the BOTTOM edge"),
+    ("J6", "screw terminal wire openings", "facing the TOP edge"),
+    ("D1, D2", "SMA cathode band", "D1 cathode on the LEFT (toward the rail); D2 cathode at the TOP (toward the terminal)"),
+    ("D3, D4", "SMA cathode band", "D3 cathode UP toward the +15 V pour; D4 cathode DOWN toward the DRIVE row"),
+    ("LED1, LED2", "0805 LED cathode mark", "LED1 cathode DOWN toward its ground via; LED2 cathode UP toward its 10k"),
+    ("LED3, LED4", "0805 LED cathode mark", "antiparallel across the fuse: LED3 cathode on the RIGHT, LED4 cathode on the LEFT"),
+    ("C11, C12", "electrolytic stripe (negative)", "C11 negative DOWN toward its ground; C12 negative DOWN toward its ground"),
+    ("TP1-TP11, TP100-TP103", "test loops", "the loop lying along the pad's long side; not polarised"),
 ]
+
+
+def CLAIMS(parts_cost, nchecks, loops, smt, tht, n_vias, R, p1, p2, each10):
+    """Every number the hand-written documents quote from the build."""
+    return [
+        ("README.md", r"about \$([0-9.]+) in parts per board", f"{parts_cost:.2f}"),
+        ("README.md", r"(\d+) circuit assertions", str(nchecks)),
+        ("README.md", r"(\d+) probe loops", str(loops)),
+        ("docs/DESIGN_NOTES.md", r"(\d+) SMT and (\d+) through-hole joints", (str(smt), str(tht))),
+        ("docs/DESIGN_NOTES.md", r"(\d+) vias", str(n_vias)),
+    ]
 
 
 if __name__ == "__main__":
