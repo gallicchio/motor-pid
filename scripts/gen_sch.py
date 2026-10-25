@@ -377,6 +377,7 @@ def build():
     s.junction(c, t2[1])
     s.text("P GAIN: (10k + RV2) / 10k", U3_X + 2.54, n3[1] + 9.0, size=1.2)
     s.text("= 1 to 101", U3_X + 2.54, n3[1] + 11.0, size=1.1)
+    s.text("clockwise: more R, more P", U3_X + 2.54, n3[1] + 13.0, size=1.1)
     s.wire(o3, (g(126), A_Y))
     testpoint(g(122), A_Y, "SUM", rot=0)
     label("SUM", g(122) + 1.5, A_Y)
@@ -431,6 +432,7 @@ def build():
     s.junction(d2[0], CY)
     s.text("D GAIN: RC = RV3 x C", U4_X + 2.54, n4[1] + 9.0, size=1.2)
     s.text("to 22 ms (22 nF), 100 ms (100 nF)", U4_X + 2.54, n4[1] + 11.0, size=1.1)
+    s.text("clockwise: more R, more D", U4_X + 2.54, n4[1] + 13.0, size=1.1)
     # output to the summing junction through SW3 and 10k; the other pole shorts the feedback (D off)
     s.wire(o4, (o4[0] + 12.7, o4[1]))
     testpoint(o4[0] + 12.7, o4[1], "D", rot=0)
@@ -469,6 +471,7 @@ def build():
     s.junction(n5[0], n5[1])
     s.text("I GAIN: RC = (1k + RV4) x 10 uF", EX_D + 2.54, n5[1] + 9.0, size=1.2)
     s.text("10 ms to 10 s", EX_D + 2.54, n5[1] + 11.0, size=1.1)
+    s.text("clockwise: more R, LESS I", EX_D + 2.54, n5[1] + 13.0, size=1.1)
     # the integrating capacitor from the - node to the output
     cap("C8", "10uF", U5_X + 3.81, n5[1], rot=90)
     s.wire(n5, (U5_X, n5[1]))
@@ -894,7 +897,9 @@ def build():
           "INTEGRAL  (U5, SW4)",
           "I = -(1/RC) integral ERROR dt, RC = (1k + RV4) x 10 uF.",
           "OFF shorts the capacitor, so I starts from zero.  I",
-          "drives the residual error to zero; too much I rings."],
+          "drives the residual error to zero; too much I rings.",
+          "Trimmers: clockwise is more resistance (Bourns: wiper",
+          "to 3), so more P, more D, but LESS I.  Arcs on the board."],
          col[2], NOTE_Y)
     note(["MOTOR DRIVER  (U6, Q1, Q2)",
           "The book's Fig. 10L.3: the op-amp drives the push-pull",

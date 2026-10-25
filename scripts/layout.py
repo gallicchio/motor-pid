@@ -100,13 +100,13 @@ PLACE = {
     "TP3": (100.5, A_Y, 90),
     # U3 the summing amplifier with its gain trimmer
     "U3": (U3X, A_Y, 0), "R11": (106.5, A_Y + OA_IN, 0),
-    "R14": (U3X - 3.5, A_Y + FB, 0), "RV2": (U3X - 0.05, A_Y + 17.5, 0),
+    "R14": (U3X - 4.7, A_Y + 18.77, 0), "RV2": (U3X + 1.0, A_Y + 17.5, 0),
     "TP6": (U6X - 7.2, 40.0, 0),
     # the differentiator row: the capacitor switch, the two capacitors, 1k, U4, 1M || 470 pF
     "SW5": (74.0, D_Y + OA_IN + 0.75, 90), "C6": (80.0, D_Y - 2.0, 0), "C5": (80.0, D_Y + 9.0, 0),
     "R15": (84.5, D_Y + OA_IN, 0),
     "U4": (U4X, D_Y, 0),
-    "C7": (89.3, D_Y + FB, 0), "RV3": (U4X + 1.0, D_Y + 15.5, 0),
+    "C7": (89.3, D_Y + 11.5, 0), "RV3": (U4X + 0.5, D_Y + 17.5, 0),
     "SW3": (106.0, D_Y + 2.75, 90), "R12": (106.5, D_Y - 6.0, 0),
     "TP4": (U4X + 7.2, D_Y + 9.8, 90),
     # the integrator row: 1k + 1M in, U5, 10 uF across
@@ -159,7 +159,7 @@ PLACE = {
 
 # ---------------------------------------------------------------- wires ----
 W_SIG, W_RAIL = 0.35, 0.6
-FBA, FBD, FBI, FBM = A_Y + FB, D_Y + FB, I_Y + FB, DRV_Y + 14.0     # the feedback rows
+FBA, FBD, FBI, FBM = A_Y + FB, D_Y + 11.5, I_Y + FB, DRV_Y + 14.0   # the feedback rows (D's is higher: its trimmer and arc sit under it)
 
 
 def oa(ref, which):
@@ -209,13 +209,15 @@ WIRES = [
     ("/P", [(U2X + 7.2, A_Y), (U2X + 7.2, FBA), ("R10", "2")], W_SIG),
     # ---- U3, the summing amplifier; its - node is the SUM_X column the D and I stages feed
     ("Net-(U3--)", [("R11", "2"), oa("U3", "-")], W_SIG),
-    ("Net-(U3--)", [(SUM_X, A_Y + OA_IN), (SUM_X, FBA), ("R14", "1")], W_SIG),
-    ("Net-(U3--)", [(SUM_X, FBA), (SUM_X, D_Y - 6.0), ("R12", "2")], W_SIG),
+    ("Net-(U3--)", [(SUM_X, A_Y + OA_IN), (SUM_X, A_Y + 18.77), ("R14", "1")], W_SIG),
+    ("Net-(U3--)", [(SUM_X, A_Y + 18.77), (SUM_X, D_Y - 6.0), ("R12", "2")], W_SIG),
     ("Net-(U3--)", [(SUM_X, D_Y - 6.0), (SUM_X, I_Y - 14.0), ("R13", "2")], W_SIG),
     ("Net-(R14-Pad2)", [("R14", "2"), ("RV2", "1")], W_SIG),
     ("/SUM", [oa("U3", "out"), (U3X + 7.2, A_Y), (U6X - 7.2, A_Y), (U6X - 7.2, DRV_Y - OA_IN), oa("U6", "+")], W_SIG),
     ("/SUM", [(U3X + 7.2, A_Y), (U3X + 7.2, A_Y + 18.77), ("RV2", "3")], W_SIG),
-    ("/SUM", [("RV2", "2"), (U3X - 0.05, FBA), (U3X + 7.2, FBA)], W_SIG),
+    # each trimmer's wiper is tied to its clockwise end (3) by a short wire under the body,
+    # so the top of the trimmer is clear for the clockwise arc
+    ("/SUM", [("RV2", "2"), (U3X + 3.54, A_Y + 16.23), ("RV2", "3")], W_SIG),
     # ---- the differentiator: ERROR into the switch, a capacitor per pole, 1k, U4, 1M || 470 pF
     ("/ERROR", [(ERR_X, D_Y + OA_IN), ("SW5", "2")], W_SIG),
     ("Net-(SW5-C)", [("SW5", "3"), (72.05, D_Y - 2.0), ("C6", "1")], W_SIG),
@@ -224,19 +226,19 @@ WIRES = [
     ("Net-(C5-Pad2)", [(82.0, D_Y + OA_IN), ("R15", "1")], W_SIG),
     ("Net-(SW3-A)", [("R15", "2"), oa("U4", "-")], W_SIG),
     ("Net-(SW3-A)", [(U4X - 7.2, D_Y + OA_IN), (U4X - 7.2, FBD), ("C7", "1")], W_SIG),
-    ("Net-(SW3-A)", [(U4X - 7.2, FBD), (U4X - 7.2, D_Y + 16.77), ("RV3", "1")], W_SIG),
-    ("Net-(SW3-A)", [(U4X - 7.2, D_Y + 16.77), (U4X - 7.2, D_Y + 22.0), (104.05, D_Y + 22.0), ("SW3", "1")], W_SIG),
+    ("Net-(SW3-A)", [(U4X - 7.2, FBD), (U4X - 7.2, D_Y + 18.77), ("RV3", "1")], W_SIG),
+    ("Net-(SW3-A)", [(U4X - 7.2, D_Y + 18.77), (U4X - 7.2, D_Y + 22.5), (104.05, D_Y + 22.5), ("SW3", "1")], W_SIG),
     ("/D", [oa("U4", "out"), (U4X + 7.2, D_Y), (U4X + 7.2, D_Y + 2.0), ("SW3", "2")], W_SIG),
     ("/D", [(U4X + 7.2, D_Y + 2.0), (U4X + 7.2, FBD), ("C7", "2")], W_SIG),
-    ("/D", [(U4X + 7.2, FBD), (U4X + 7.2, D_Y + 16.77), ("RV3", "3")], W_SIG),
-    ("/D", [("RV3", "2"), (U4X + 1.0, FBD)], W_SIG),
+    ("/D", [(U4X + 7.2, FBD), (U4X + 7.2, D_Y + 18.77), ("RV3", "3")], W_SIG),
+    ("/D", [("RV3", "2"), (U4X + 3.04, D_Y + 16.23), ("RV3", "3")], W_SIG),
     ("Net-(SW3-C)", [("SW3", "3"), (104.05, D_Y - 6.0), ("R12", "1")], W_SIG),
     ("+15V", [oa("U4", "v+"), (U4X + 1.14, D_Y - 7.5), ("C26", "1")], W_SIG),
     # ---- the integrator: 1k + 1M in, U5, 10 uF across, the switch shorts it for reset
     ("/ERROR", [(ERR_X, I_Y + OA_IN), ("R17", "1")], W_SIG),
     ("Net-(R17-Pad2)", [("R17", "2"), (76.96, I_Y + OA_IN), ("RV4", "1")], W_SIG),
     ("Net-(SW4-A)", [("RV4", "3"), (84.0, I_Y + 7.27), (84.0, I_Y + OA_IN), oa("U5", "-")], W_SIG),
-    ("Net-(SW4-A)", [("RV4", "2"), (79.5, I_Y + 1.5), (84.0, I_Y + 1.5), (84.0, I_Y + OA_IN)], W_SIG),
+    ("Net-(SW4-A)", [("RV4", "2"), (82.04, I_Y + 4.73), ("RV4", "3")], W_SIG),
     ("Net-(SW4-A)", [(U5X - 7.2, I_Y + OA_IN), (U5X - 7.2, FBI), ("C8", "1")], W_SIG),
     ("Net-(SW4-A)", [(U5X - 7.2, FBI), (U5X - 7.2, I_Y + 16.5), (104.05, I_Y + 16.5), ("SW4", "1")], W_SIG),
     ("/I", [oa("U5", "out"), (U5X + 7.2, I_Y), (U5X + 7.2, I_Y + 2.0), ("SW4", "2")], W_SIG),
@@ -344,7 +346,7 @@ GND_STUBS = [
     (("U2", "1"), [(U2X - 7.2, A_Y - OA_IN), (U2X - 9.2, A_Y - OA_IN), (U2X - 9.2, A_Y - 1.5)]),
     (("U3", "1"), [(U3X - 7.2, A_Y - OA_IN), (U3X - 9.2, A_Y - OA_IN), (U3X - 9.2, A_Y - 1.5)]),
     (("U4", "1"), [(U4X - 7.2, D_Y - OA_IN), (U4X - 9.2, D_Y - OA_IN), (U4X - 9.2, D_Y - 1.5)]),
-    (("U5", "1"), [(U5X - 7.2, I_Y - OA_IN), (U5X - 9.2, I_Y - OA_IN), (U5X - 9.2, I_Y - 1.5)]),
+    (("U5", "1"), [(U5X - 7.2, I_Y - OA_IN), (U5X - 8.4, I_Y - OA_IN), (U5X - 8.4, I_Y - 1.5)]),
     (("C20", "2"), (U1X + 4.5, VP_Y + 6.5)), (("C22", "2"), (U2X + 4.5, VP_Y + 6.5)),
     (("C24", "2"), (U3X + 4.5, VP_Y + 6.5)), (("C30", "2"), (U6X + 4.5, VP_Y + 6.5)),
     (("C26", "2"), [(U4X + 7.0, D_Y - 7.5), (U4X + 7.0, D_Y - 5.0)]),
@@ -404,7 +406,7 @@ TEXTS = [
     (44.0, 45.75, "3 = closed", 0.8, 0.15, "center", 0), (44.0, 47.05, "1 = open", 0.8, 0.15, "center", 0),
     # the gain trimmers
     (116.0, 56.2, "P GAIN", 0.8, 0.15, "center", 0),
-    (97.4, 73.0, "D GAIN", 0.8, 0.15, "center", 0),
+    (90.6, 75.9, "D", 0.8, 0.15, "right", 0), (90.6, 77.1, "GAIN", 0.8, 0.15, "right", 0),
     (75.6, 101.8, "I GAIN", 0.8, 0.15, "right", 0),
     # the D and I switches
     (69.0, 62.6, "D CAPACITOR", 0.8, 0.15, "right", 0),
@@ -447,9 +449,9 @@ FIELD_AT.update({
     "R12": ((0.0, -3.05), (0.0, -1.75)), "R13": ((0.0, -3.05), (0.0, -1.75)),
     "C3": (None, (0.0, -1.75)), "C4": (None, (0.0, -1.75)),
     "RV1": (None, (-3.5, 4.1)),
-    "RV2": ((-4.5, -1.2), (4.5, 0.0)), "RV3": ((0.0, 4.6), (2.4, 4.6)), "RV4": ((-4.3, 0.0), (0.0, 6.0)),
+    "RV2": ((-4.3, -1.8), (-4.3, -0.5)), "RV3": ((-3.9, -1.2), (-3.9, 0.0)), "RV4": ((-4.3, 0.0), (0.0, 6.0)),
     "F1": (None, (0.0, 2.7)),
-    "R8": ((0.0, 1.75), (0.0, 3.05)), "R10": ((0.0, 1.75), (0.0, 3.05)), "R14": ((0.0, -3.05), (0.0, -1.75)),
+    "R8": ((0.0, 1.75), (0.0, 3.05)), "R10": ((0.0, 1.75), (0.0, 3.05)), "R14": ((0.0, 1.75), (0.0, 3.05)),
     "C7": ((0.0, -3.05), (0.0, -1.75)), "C8": ((2.3, 1.0), (2.3, 2.4)),
     "C5": ((0.0, 1.75), (0.0, 3.05)), "C6": ((0.0, -3.05), (0.0, -1.75)),
 })
@@ -477,7 +479,7 @@ BOXES = [
     (50.5, 18.5, 69.0, 50.8, [("DIFFERENCE", 51.0, 19.9, 0.85), ("AMPLIFIER x1", 51.0, 21.3, 0.85)]),
     (72.5, 26.0, 97.5, 50.8, [("INVERTER x-1", 73.0, 27.4, 0.85)]),
     (103.0, 26.0, 124.5, 57.0, [("SUMMING", 103.5, 27.4, 0.85), ("AMPLIFIER", 103.5, 28.8, 0.85)]),
-    (71.0, 52.0, 109.5, 85.3, [("DIFFERENTIATOR", 71.5, 53.4, 0.85)]),
+    (71.0, 52.0, 109.5, 85.5, [("DIFFERENTIATOR", 71.5, 53.4, 0.85)]),
     (71.0, 86.0, 109.5, 111.7, [("INTEGRATOR", 71.5, 87.4, 0.85)]),
     (126.0, 28.2, 168.5, 92.5, [("MOTOR DRIVER", 126.5, 29.7, 0.8), ("gain 1", 126.5, 31.1, 0.8)]),
     (149.0, 92.8, 169.0, 109.0, []),
@@ -485,6 +487,25 @@ BOXES = [
     (10.5, 76.0, 38.0, 101.7, [("FOLLOWER", 30.2, 77.4, 0.85), ("x1", 30.2, 78.8, 0.85)]),
     (123.5, 1.5, 168.5, 27.2, []),
 ]
+
+# Clockwise arcs.  Over each knob and trimmer a short arc runs from `a0` round
+# to 12 o'clock and ends in an arrowhead pointing the way the shaft turns
+# clockwise, with what that does printed beside it.  Bourns 3362: the wiper
+# reaches terminal 3 turning clockwise (the data sheet's schematic), and every
+# trimmer here is a rheostat between 1 and 2 with 3 tied to the wiper, so
+# clockwise is always more resistance; what that does to the gain depends on
+# where the resistance sits (P and D: feedback, more; I: input, less).  The
+# ALPS knob: terminal 3 clockwise by the same convention (DESIGN_NOTES, "Not
+# yet proven").  ref: (centre from the anchor in board mm, radius, start angle, label)
+CW_ARCS = {
+    "RV1": ((-7.5, -2.5), 10.0, 225, "\u2191TARGET"),         # the shaft, not the pins
+    # r 5.0 from 238: the arc's start must clear the trimmer's own silk box (top at
+    # 3.8 above the centre) by the 0.15 mm silk clearance, and the 10 o'clock end
+    # would land on the wire that feeds terminal 1
+    "RV2": ((0.0, 0.0), 5.0, 238, "\u2191R \u2191P"),
+    "RV3": ((0.0, 0.0), 5.0, 238, "\u2191R \u2191D"),
+    "RV4": ((0.0, 0.0), 5.0, 238, "\u2191R \u2193I"),
+}
 
 FIDUCIALS = [(12.0, 10.0), (12.0, 110.0), (158.0, 112.0)]
 QR_AT, QR_MODULE = (64.0, 80.0), 0.6

@@ -2,7 +2,7 @@
 
 One board, two layers, 170 x 120 mm, every part on the top side, a solid
 ground plane on the back.  It passes ERC, DRC with schematic parity, the
-243 circuit assertions and the fab-package checks with zero violations,
+246 circuit assertions and the fab-package checks with zero violations,
 and `./make.py` rebuilds and rechecks everything from scratch in about a minute.
 
 ## What to upload

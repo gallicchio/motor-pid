@@ -3790,30 +3790,6 @@
 		)
 	)
 	(rectangle
-		(start 454.2 119.08)
-		(end 513.3 193.1)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "0e6034ba-cede-4776-80a8-9f6e08c115dd")
-	)
-	(rectangle
-		(start 193.04 166.62)
-		(end 320.04 234.14)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "12c3c158-8681-49e5-97c2-5c9cc4f8f9b6")
-	)
-	(rectangle
 		(start 410.02 96.58)
 		(end 452.85 162.08)
 		(stroke
@@ -3823,19 +3799,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "1bd297b9-4978-4688-b52b-3812449cb947")
-	)
-	(rectangle
-		(start 193.04 237.74)
-		(end 320.04 305.26)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "661d62df-30cf-4386-aaa2-3d7a610df150")
+		(uuid "5f3a13cc-92ac-4a52-a3bc-534e1b855b14")
 	)
 	(rectangle
 		(start 124.46 100.08)
@@ -3847,7 +3811,43 @@
 		(fill
 			(type none)
 		)
-		(uuid "6c869a82-43c9-4ac3-9764-a43ecf0fd641")
+		(uuid "8446978b-2fe2-4c8c-a01b-50039efb5ffd")
+	)
+	(rectangle
+		(start 193.04 166.62)
+		(end 320.04 234.14)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "86aed809-5294-49ae-9c7a-7238414b2441")
+	)
+	(rectangle
+		(start 193.04 237.74)
+		(end 320.04 305.26)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "a3df8bb6-195c-4136-8b3a-ef6c523127f2")
+	)
+	(rectangle
+		(start 454.2 119.08)
+		(end 513.3 193.1)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "af2275d7-eb03-44d5-9e36-7ee6e2f7f1f0")
 	)
 	(text "6.8k ends keep it to ±6.4 V, inside what the motor pot"
 		(exclude_from_sim no)
@@ -4307,6 +4307,17 @@
 		)
 		(uuid "446d4c86-c47b-582b-979b-ec993e70a70a")
 	)
+	(text "to 3), so more P, more D, but LESS I.  Arcs on the board."
+		(exclude_from_sim no)
+		(at 238.76 373.315 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "45fee6d2-0417-59df-8061-37040ecb8259")
+	)
 	(text "stops.  The loop runs the motor at 50-150 mA rms."
 		(exclude_from_sim no)
 		(at 425.26 111.08 0)
@@ -4382,6 +4393,17 @@
 			(justify left)
 		)
 		(uuid "52467f44-4ef0-5e24-803d-3515d8a3be9b")
+	)
+	(text "clockwise: more R, more P"
+		(exclude_from_sim no)
+		(at 287.02 155.24 0)
+		(effects
+			(font
+				(size 1.1 1.1)
+			)
+			(justify left)
+		)
+		(uuid "559b5569-3791-50c4-ada7-990c5c9ade13")
 	)
 	(text "the motorized slide pot (external, on flying"
 		(exclude_from_sim no)
@@ -4918,6 +4940,17 @@
 		)
 		(uuid "aad70110-112e-5906-851b-8fdaa396ed01")
 	)
+	(text "clockwise: more R, more D"
+		(exclude_from_sim no)
+		(at 231.14 221.28 0)
+		(effects
+			(font
+				(size 1.1 1.1)
+			)
+			(justify left)
+		)
+		(uuid "ac37a5c2-7915-5a4c-aee3-2a0112f10c6f")
+	)
 	(text "POWER"
 		(exclude_from_sim no)
 		(at 566.96 125.08 0)
@@ -5115,6 +5148,17 @@
 		)
 		(uuid "d4de0b35-bfaa-565d-a06d-3f20fd43d27a")
 	)
+	(text "clockwise: more R, LESS I"
+		(exclude_from_sim no)
+		(at 185.42 292.4 0)
+		(effects
+			(font
+				(size 1.1 1.1)
+			)
+			(justify left)
+		)
+		(uuid "d4ead655-72ba-547e-a7c9-7e40820a4831")
+	)
 	(text "Op-amps are drawn + on top: that is how the SOT-23-5 sits."
 		(exclude_from_sim no)
 		(at 132.08 368.245 0)
@@ -5169,6 +5213,17 @@
 			(justify left)
 		)
 		(uuid "db7fee55-44f5-51d7-850d-92f973e9c315")
+	)
+	(text "Trimmers: clockwise is more resistance (Bourns: wiper"
+		(exclude_from_sim no)
+		(at 238.76 370.78 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "dcf5204c-c389-5107-b467-40a275552243")
 	)
 	(text "I = -(1/RC) integral of ERROR dt"
 		(exclude_from_sim no)

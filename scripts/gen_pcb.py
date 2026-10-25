@@ -398,6 +398,25 @@ class Board:
         s.SetLayer(pcbnew.F_SilkS); s.SetWidth(mm(width))
         self.board.Add(s)
 
+    def _arc3(self, cx, cy, r, a0, a1, width=SILK_W):
+        """An arc from screen angle a0 to a1 (degrees, y down, so increasing
+        angle is clockwise on the board), fixed by its three points."""
+        def at(a):
+            return pt(cx + r * math.cos(math.radians(a)), cy + r * math.sin(math.radians(a)))
+        s = pcbnew.PCB_SHAPE(self.board)
+        s.SetShape(pcbnew.SHAPE_T_ARC)
+        s.SetArcGeometry(at(a0), at((a0 + a1) / 2.0), at(a1))
+        s.SetLayer(pcbnew.F_SilkS); s.SetWidth(mm(width))
+        self.board.Add(s)
+
+    @staticmethod
+    def _seg_dist(p, a, b):
+        (px, py), (ax, ay), (bx, by) = p, a, b
+        dx, dy = bx - ax, by - ay
+        L2 = dx * dx + dy * dy
+        t = 0.0 if L2 < 1e-12 else max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / L2))
+        return math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+
     def _poly(self, points, filled=True, layer=pcbnew.F_SilkS):
         s = pcbnew.PCB_SHAPE(self.board)
         s.SetShape(pcbnew.SHAPE_T_POLY)
@@ -851,6 +870,28 @@ class Board:
                 v.SetHorizJustify(pcbnew.GR_TEXT_H_ALIGN_LEFT if at[1][0] > 0.5 else
                                   pcbnew.GR_TEXT_H_ALIGN_RIGHT if at[1][0] < -0.5 else pcbnew.GR_TEXT_H_ALIGN_CENTER)
 
+    def silk_arcs(self):
+        """A clockwise arc over each knob and trimmer (layout.CW_ARCS): from
+        a0 round to 12 o'clock, an arrowhead pointing the way the shaft turns
+        clockwise, and beside it what that does.  The arc must not run into a
+        drawn wire: checked here, since DRC does not mind ink over ink."""
+        for ref, ((dx, dy), r, a0, label) in L.CW_ARCS.items():
+            fp = self.fps[ref]
+            cx, cy = tomm(fp.GetPosition().x) + dx, tomm(fp.GetPosition().y) + dy
+            pts = [(cx + r * math.cos(math.radians(a)), cy + r * math.sin(math.radians(a)))
+                   for a in range(a0, 271, 3)] + [(cx + 1.0, cy - r)]
+            for (net, a, b, layer) in self.segments:
+                if layer == pcbnew.B_Cu:
+                    continue
+                d = min(self._seg_dist(p, a, b) for p in pts)
+                if d < 0.5:
+                    raise SystemExit(f"{ref}'s clockwise arc runs into the {net} wire "
+                                     f"{a} - {b} ({d:.2f} mm)")
+            self._arc3(cx, cy, r, a0, 270)
+            ty = cy - r
+            self._poly([(cx + 1.0, ty), (cx - 0.1, ty - 0.45), (cx - 0.1, ty + 0.45)])
+            self._text(cx + 1.6, ty, label, 0.8, 0.15, justify="left")
+
     def silk_boxes(self):
         """A dashed box round each stage, named as the book names it."""
         for (x0, y0, x1, y1, titles) in L.BOXES:
@@ -943,6 +984,7 @@ class Board:
         self.silk_opamps()
         self.silk_transistors()
         self.silk_fields()
+        self.silk_arcs()
         self.silk_boxes()
         self.silk_texts()
         self.silk_back()

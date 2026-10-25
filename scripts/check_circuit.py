@@ -166,6 +166,12 @@ def main(path):
     check(N.between(m5, "I", "C") == ["C8"] and abs(farads(N.value["C8"]) - 10e-6) < 1e-9, "C8 = 10 uF from U5's - input to its output")
     check(N.net("U5", OUT) == "I", "U5's output is I")
     check(N.net("SW4", 2) == "I" and N.net("SW4", 1) == m5, "SW4: common I; pole 1 shorts the capacitor (I OFF, reset)")
+
+    # --- the trimmers turn clockwise toward terminal 3 (Bourns 3362): as rheostats between
+    # 1 and 2 with 3 tied to the wiper, clockwise is always more resistance (the board's arcs)
+    for ref in ("RV2", "RV3", "RV4"):
+        check(N.net(ref, 2) == N.net(ref, 3) and N.net(ref, 1) != N.net(ref, 2),
+              f"{ref}: rheostat between 1 and 2, 3 tied to the wiper, so clockwise is more resistance")
     tau_min, tau_max = 1e3 * 10e-6, 1.001e6 * 10e-6
     check(abs(tau_min - 0.01) < 1e-6 and abs(tau_max - 10.01) < 0.1, f"I's RC runs from {tau_min*1e3:.0f} ms to {tau_max:.0f} s")
 

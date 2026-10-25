@@ -65,12 +65,24 @@ pull output through 1k.
 end resistors are 6.8k, so it spans ±6.4 V; the pot's are 4.7k, ±7.7 V, as the
 lab draws them.
 
+**Clockwise is more resistance on every trimmer, and an arc says what that
+does.**  Bourns' 3362 data sheet marks terminal 3 CW: the wiper reaches it
+turning clockwise.  Each trimmer is a rheostat between 1 and 2 with 3 tied to
+the wiper, so clockwise is always more resistance: more P and more D (the
+resistance is in the feedback), less I (it is in series with the input).  A
+short arc over each trimmer and over the knob ends in an arrowhead at 12
+o'clock with the effect beside it: ↑R ↑P, ↑R ↑D, ↑R ↓I, ↑TARGET.  Jason's
+rule (2026-10-25): clockwise "screwing in" should increase the resistance,
+and where that lowers the gain the board must say so.  The wiper's tie to
+terminal 3 runs under each trimmer's body so the top is clear for the arc:
+the one wire on the board a part hides.
+
 ## The board
 
 170 x 120 mm, two layers, every part on the top, the back a ground plane.  197
 SMT and 27 through-hole joints, 66 vias.  Every wire in `scripts/layout.py` is
 laid as copper on the front and drawn as a silkscreen line, so the picture is
-the netlist; `check_circuit.py` makes 243 assertions on the netlist the
+the netlist; `check_circuit.py` makes 246 assertions on the netlist the
 schematic exports, and `gen_pcb.py` refuses to lay a wire on a pad of another
 net.
 
@@ -91,6 +103,12 @@ The pours under the DPAK tabs sit just outside each transistor's symbol
 circle, fed through a 2 mm copper lead; the symbol's legs leave the base bar at
 33 degrees rather than 45 because a 45-degree emitter leg cannot pass between
 the tab and the base pad.
+
+**170 x 120 mm, on purpose.**  The op-amp board is 100 x 100 mm and gets
+JLCPCB's small-board price; this one is past it.  Jason's call (2026-10-25):
+the circuit is much bigger, not every student needs one of these where every
+student needs an op-amp board, and the probe loops and the room to read the
+silkscreen are worth more than the few dollars.
 
 ## The simulation
 
@@ -114,11 +132,14 @@ The plots are in `docs/images/sim-*.png`.
 
 ## Not yet proven — check on the first board
 
-1. **Slide switch position vs contact.**  The MSK12C02 datasheet shows pin 2
-   common with 1 and 3 at the ends but not which slider position closes
-   which.  The board's "1 = ... / 3 = ..." legends assume the slider toward
-   pin 1 connects pin 1.  If it is the other way, the legends swap meaning;
-   nothing is damaged.
+1. **Slide switch position vs contact.**  The MSK12C02 datasheet draws the
+   circuit (pin 2 common, 1 and 3 at the ends), not the travel, but its
+   section shows the handle carrying the moving contact down onto the terminal
+   on the handle's own side, with the common in the middle (Jason's reading,
+   2026-10-25).  So the slider toward pin 1 closes pin 1, as the board's
+   "1 = ... / 3 = ..." legends assume.  Confirm with an ohmmeter on the first
+   board; if it is the other way the legends swap meaning and nothing is
+   damaged.
 2. **A dead short of MOTOR to ground**: 2 A for the fraction of a second the
    PTC takes.  The DPAK's 8 A rating and the 1 Ω resistor (2 W pulse in a 1 W
    2512) should cover it.  Try it once with a current-limited supply.
@@ -131,4 +152,31 @@ The plots are in `docs/images/sim-*.png`.
 5. **The PTC's trip time at 0.6 A** (a stall) is 5–10 s from its curve; if it
    is much longer the DPAK gets hot (3 W, no heatsink beyond the pour).
 6. **The knob's turn direction**: pin 3 is assumed to be the end the wiper
-   reaches turning clockwise, from the ALPS drawing.
+   reaches turning clockwise, by the convention Bourns' 3362 sheet states
+   for the trimmers (terminal 3 = CW) and ALPS follows; the RK09K sheet itself
+   could not be fetched.  If it is the other way, the knob's arc and
+   "clockwise +" read backwards; the loop is unaffected.
+
+## Measurements to make on the fader (bench, 2026-10-26)
+
+The simulation's plant constants were estimated (15 Ω winding, 0.67 A stall
+at 10 V, 50 mA free-running, a guessed stiction).  Four bench numbers replace
+them and settle whether the 0.35 A fuse is right:
+
+1. **Winding resistance.**  Ohmmeter across the motor leads, at four or five
+   slider positions (the brushes vary); take the lowest few.  Sets `R_MOTOR`.
+2. **Free-running current and traverse time at 5 V.**  Bench supply at 5 V
+   with its current readout; note the direction that moves the slider toward
+   the + end of the track, the current while it runs, and the time end to
+   end (a phone video is enough).  Sets `KE` (back EMF per speed) and the
+   viscous term.
+3. **Stall current at 5 V**, holding the slider for a second, and the lowest
+   voltage at which the slider starts to move from rest.  Sets `I_STICK` and
+   checks `R_MOTOR` (stall current × R should be about the voltage).
+4. **The track**: end-to-end resistance, and a scope on the wiper while the
+   slider is pushed slowly by hand with 10 V across the track, looking for
+   dropouts.  Says whether POSITION needs the 100 nF it has and nothing more.
+
+Put them in `sim/pid_sim.py` (the constants at the top), rerun `./make.py`,
+and the handbook's numbers (ringing gain, the D rule's trimmer position)
+follow.

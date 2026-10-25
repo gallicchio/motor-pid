@@ -12,8 +12,9 @@ and turns up one at a time, exactly as the lab does.
 
 Every node the lab asks you to look at has a probe loop (15 probe loops, four
 of them ground).  Every stage sits in a dashed box named as the book names it.
-The three gain trimmers are labelled P GAIN, D GAIN and I GAIN; the switches say
-in words what each position does.
+The three gain trimmers are labelled P GAIN, D GAIN and I GAIN, each with an arc
+over it saying what clockwise does (more resistance: more P, more D, less I);
+the switches say in words what each position does.
 
 ## What is on it
 
@@ -52,7 +53,7 @@ at in their placement preview.  There are about $9.96 in parts per board.
 
 runs, from `scripts/parts.py` outward: the footprints and 3D stand-ins, the
 ngspice simulation of the loop (from the exported netlist, with a model of the
-fader), the schematic (`scripts/gen_sch.py`) and its ERC, 243 circuit
+fader), the schematic (`scripts/gen_sch.py`) and its ERC, 246 circuit
 assertions on the netlist (`scripts/check_circuit.py`), the board
 (`scripts/layout.py` placed and wired by `scripts/gen_pcb.py`, where every
 drawn wire is laid as copper) and its DRC with schematic parity, the fab

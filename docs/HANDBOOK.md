@@ -17,7 +17,10 @@ Set every switch first:
 | D IN / OFF | 1 | off (the differentiator's output shorted to its input) |
 | I IN / OFF | 1 | off (the integrator's capacitor shorted: reset) |
 
-Turn the three trimmers fully anticlockwise (P GAIN, D GAIN, I GAIN lowest).
+Turn P GAIN and D GAIN fully anticlockwise and I GAIN fully clockwise: all
+three gains at their lowest.  The arc over each trimmer says what clockwise
+does: more resistance, which is more P and more D (the resistance is in the
+feedback) but less I (it is in series with the input).
 Nothing on the MOTOR or POT terminals.
 
 Power: +15 V, ground, −15 V into the POWER terminal (the pins are labelled),
@@ -94,7 +97,7 @@ POSITION OUT on the left edge is the same signal buffered through 1k, for the
 scope or for a second channel.
 
 **D.**  Set a gain that rings (the trimmer two thirds up, about 22 in the
-simulation).  Switch D IN.  Turn D GAIN up from zero: the ringing dies, the
+simulation).  Switch D IN.  Turn D GAIN up from zero (clockwise): the ringing dies, the
 step gets crisp, and too much D makes the slider buzz on the brush noise.  The
 lab's rule for the time constant, RC = 1 / (2π f) with f the oscillation
 frequency, puts D GAIN two thirds of the way up with the 22 nF capacitor (13 ms;
@@ -104,7 +107,8 @@ go all the way up: at the top with D the simulated step settles in 90 ms with
 rotary pot and is too much here.
 
 **I.**  Back to a low P gain with its residual error.  Switch I IN and turn
-I GAIN up from zero: the residual walks to zero over a second or two.  Too much
+I GAIN up from zero (anticlockwise: less resistance is more I): the residual
+walks to zero over a second or two.  Too much
 I, and the loop hunts: a slow oscillation that the D term cannot touch.  I OFF
 shorts the capacitor, so switching back and forth restarts the integrator from
 zero each time.

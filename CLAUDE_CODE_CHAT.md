@@ -199,3 +199,68 @@ physical slider end is "3" remains item 1 of the unverified list.
    screenshots.  Default: wait for your answer.
 6. **Minor.**  The knob's clockwise end is assumed from the ALPS drawing (pin 3 = +).  Say
    if you care which way is +.
+
+## Prompt 6
+
+With the MSK12C02 data sheet's section drawing attached (handle 3 on top, moving
+contact 4 and spring 5 over the three terminals):
+
+> 1. I do not have an MSK12C02 on hand, but from the diagram that I've attached from the data sheet, it looks like the position of the slider handle mechanically pushes down metal onto the pin on that same side. Presumably that metal is also attached to the middle.
+>
+> 2. If the fuse is re-settable after being off for some thermal delay, keep the fuse as the protection.
+> 3. Remind me again and I can make the measurements tomorrow in lab.
+> 4. Keep the big size for this much bigger circuit. I'd rather keep the ability to probe than save a few dollars. Not every student needs one of these boards, whereas every student needs an op-amp board.
+> 5. I will look over the schematic and PCB today or tomorrow and comment. After you make those changes, we will do a design review.
+> 6. I'm torn. I generally do want clockwise "screwing in" to increase the resistance. Sometimes that corresponds to decreasing the relevant gain, which might be counter-intuitive. It would be best to have a little arc over the top of the knob with an arrow on the increasing/clockwise side that is labeled "↑R ↓P" or whatever is appropriate for that particular knob.
+
+## Response 3
+
+*2026-10-25 PDT, afternoon.*  All six answers acted on; the build passes end to end
+(ERC 0, 246 circuit checks, DRC 0, fab checks, 23 document claims).
+
+![the clockwise arcs](docs/history/r3-clockwise-arcs.png)
+
+### What changed on the board
+
+- **Clockwise arcs.**  Each trimmer and the knob has a short arc over its top ending in an
+  arrowhead at 12 o'clock, labelled with what clockwise does: "↑R ↑P", "↑R ↑D", "↑R ↓I"
+  and "↑TARGET".  Bourns' 3362 data sheet marks terminal 3 as the clockwise end, and all
+  three trimmers are rheostats between pins 1 and 2 with 3 tied to the wiper, so clockwise
+  is always more resistance.  A new circuit check asserts that wiring; `gen_pcb.py` refuses
+  an arc that comes within 0.5 mm of a drawn wire (DRC does not mind ink over ink).  KiCad's
+  stroke font has ↑ and ↓, so the labels are ordinary silk text.
+- **Room for the arcs.**  Each trimmer's wiper tie to pin 3 now runs under the part body
+  (the one wire on the board a part hides) so the top of the trimmer is clear.  The P
+  trimmer moved right 1 mm with its 10 k fed from the side on the pin row; the D stage's
+  feedback row went up 1 mm and its return row down 0.5 mm, and the D trimmer moved down
+  2 mm; the I stage's + input ground via moved 0.8 mm right.  The arcs are radius 5 from
+  238°: a 10 o'clock start lands on the wire feeding terminal 1, and any lower start
+  overlaps the trimmer's own silk box.
+- **Handbook fix.**  The set-up table said to turn all three trimmers fully anticlockwise
+  for lowest gain.  For I that is backwards: anticlockwise is least resistance and most I
+  gain.  Now: P and D anticlockwise, I clockwise; the I exercise says "anticlockwise: less
+  resistance is more I".  The schematic carries the same note beside each trimmer's formula.
+- **Design notes.**  Jason's reading of the MSK12C02 section is item 1 (slider toward pin 1
+  closes pin 1; still an ohmmeter check on the first board).  The fuse stays as the only
+  protection.  The board size and the reason for it are recorded.  The knob's clockwise end
+  is still the Bourns/industry convention; the ALPS sheet could not be fetched.
+
+### For the lab on 2026-10-26 (also in DESIGN_NOTES, "Measurements to make on the fader")
+
+1. Winding resistance: ohmmeter across the motor leads at several slider positions; take
+   the lowest few.
+2. At 5 V from a bench supply: the current while it runs freely, the time end to end, and
+   which polarity moves the slider toward the + end of the track.
+3. Stall current at 5 V holding the slider for a second, and the lowest voltage at which it
+   starts to move from rest.
+4. The track: end-to-end resistance, and a scope on the wiper while the slider is pushed
+   slowly with 10 V across the track, looking for dropouts.
+
+They go into the constants at the top of `sim/pid_sim.py`; the handbook's ringing gain and
+D trimmer position follow from the rerun.
+
+### Elsewhere
+
+Lessons into `~/OpticsPCBs/CLAUDE_PCB.md` (committed as its own hunk; another session's
+uncommitted section-17 edits left as they were).  Next: Jason's read of the schematic and
+board, those changes, then the design-review round.
