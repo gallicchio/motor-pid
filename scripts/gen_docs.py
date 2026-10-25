@@ -385,7 +385,7 @@ PREVIEW_CHECKS = [
     ("LED1, LED2", "0805 LED cathode mark", "LED1 cathode DOWN toward its ground via; LED2 cathode UP toward its 10k"),
     ("LED3, LED4", "0805 LED cathode mark", "antiparallel across the fuse: LED3 cathode on the RIGHT, LED4 cathode on the LEFT"),
     ("C11, C12", "electrolytic stripe (negative)", "C11 negative DOWN toward its ground; C12 negative DOWN toward its ground"),
-    ("TP1-TP11, TP100-TP103", "test loops", "the loop lying along the pad's long side; not polarised"),
+    ("TP1-TP14, TP100-TP103", "test loops", "the loop lying along the pad's long side; not polarised"),
 ]
 
 

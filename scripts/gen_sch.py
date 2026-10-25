@@ -71,7 +71,8 @@ def sim_results():
 # Every probe loop has a fixed number, so the board's placement (keyed by
 # reference) never slides when a loop is added to the sheet.
 TP_NUMBER = {"TARGET": 1, "ERROR": 2, "P": 3, "D": 4, "I": 5, "SUM": 6, "DRIVE": 7,
-             "POSITION": 8, "+15V": 9, "-15V": 10, "MOTOR": 11, "BASES": 12}
+             "POSITION": 8, "+15V": 9, "-15V": 10, "MOTOR": 11, "BASES": 12,
+             "U6 OUT": 13, "U7 OUT": 14}
 
 
 def build():
@@ -518,6 +519,8 @@ def build():
     BX = o6[0] + 17.78                                  # the bases' column
     s.wire((o6[0] + 11.43, o6[1]), (BX, o6[1]))
     label("BASES", o6[0] + 12.7, o6[1])
+    testpoint(o6[0] + 15.24, o6[1], "BASES", rot=180, dy=3.2)
+    testpoint(c, o6[1], "U6 OUT", rot=180, dx=-1.8, dy=3.2, justify="right")
     # the push-pull: NPN above, PNP below, 1 ohm in each emitter, joined at DRIVE
     QX = BX + 7.62
     s.place(sym("NPN_PWR"), "Q1", "MJD44H11", QX, A_Y - 22.86, footprint=fp("NPN_PWR"),
@@ -715,6 +718,7 @@ def build():
     n7 = inverting_node("U7", m7, U7_Y)
     c = drop(o7, 10.16, n7[1])
     s.wire(n7, (c, n7[1]))
+    testpoint(c, o7[1], "U7 OUT", rot=180, dx=-1.8, dy=3.2, justify="right")
     res("R25", "1k", o7[0] + 7.62, o7[1], rot=90, lcsc="1k_1206", footprint=fp("R_1206"))
     s.wire(o7, (o7[0] + 3.81, o7[1]))
     s.wire((o7[0] + 11.43, o7[1]), (o7[0] + 17.78, o7[1]))
@@ -733,7 +737,10 @@ def build():
     SW2_X = g(44)
     SW2_Y = n1[1]
     c1_, c2_, c3_ = switch("SW2", "LOOP", SW2_X, SW2_Y, "y",
-                           "upper pole 1: OPEN (- input grounded)", "lower pole 3: CLOSED (position)", below=True)
+                           "1 = OPEN: no feedback.  U1's - side gets ground,",
+                           "so ERROR = TARGET: DRIVE = P GAIN x TARGET", below=True)
+    s.text("(x1 with P GAIN anticlockwise, D and I off)", SW2_X + 1.0, SW2_Y + 15.2, size=1.0)
+    s.text("3 = CLOSED: POSITION fed back, the PID loop", SW2_X + 1.0, SW2_Y + 17.2, size=1.0)
     s.wire(c2_, (n1[0] - 8.89, c2_[1]))
     s.wire((g(44), FB_Y), (c3_[0] - 2.54, FB_Y), (c3_[0] - 2.54, c3_[1]), c3_)
     s.wire(c1_, (c1_[0] - 7.62, c1_[1]), (c1_[0] - 7.62, c1_[1] + 7.62))
@@ -867,10 +874,12 @@ def build():
           "A ±0.5 V square wave at 0.2 Hz from a generator on the",
           "jack gives repeatable steps.  TARGET IN ±12 V max.",
           "",
-          "LOOP (SW2)",
-          "CLOSED: the pot's voltage into the difference amplifier.",
-          "OPEN: its - input grounded, so the motor runs to an end",
-          "stop as the knob leaves zero (the book's first test).",
+          "LOOP (SW2): which voltage U1 subtracts from TARGET.",
+          "CLOSED (3): POSITION, the fader's wiper: the loop.",
+          "OPEN (1): ground, so ERROR = TARGET and the motor",
+          "driver gets P GAIN x TARGET, open loop: the knob or a",
+          "generator drives the motor directly (x1 with P GAIN",
+          "anticlockwise, D and I off).  The slider runs to an end.",
           "Watch the fuse lamp: a stall trips it."],
          col[0], NOTE_Y)
     note(["PSEUDO OP-AMP  (U1, U2, U3)",

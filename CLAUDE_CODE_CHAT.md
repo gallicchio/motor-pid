@@ -287,3 +287,52 @@ from the knob with a 50 Ω generator; workable, and Jason's call if he prefers i
 ## Response 5
 
 Kept as is.  No change.
+
+## Prompt 9
+
+> Would a log pot feel more natural for tuning than linear pots?
+>
+> Students should be able to break the feedback loop and drive the MOTOR DRIVER directly from the input potentiometer or function generator. This can be a switch that selects the motor driver input between the output of the SUM (in normal feedback mode) and whatever is selected as TARGET.
+>
+> I don't understand the function of SW2 LOOP. Explain that. At a minimum, the description in the schematic under the text "SW2 LOOP" is not helpful and needs to be improved.
+>
+> There need to be probe points to look at D and I in addition to what's already there. (Going into a 1M or 10M oscilloscope should be fine.) There should also be a test clip for the motor DRIVE and one on "BASES" to see the interesting thing that the op-amp needs to do when the input crosses zero and it suddenly needs to jump around 1.2 or 1.4 V to go from turning on the NPN's diode to turning on the PNP's diode. If there is room to put more test clips, especially at the outputs of the other opamps, do that.
+>
+> The ground symbol next to the "up R down I" text is too close to the I. Move it a bit east. The font for "I" does not have the top and bottom bars, so it needs to be pretty clear and isolated so that it's not mistaken for a vertical bar.
+>
+> On the back silkscreen:
+>
+> the github address in the text should include the "https://" bit the QR code is fine as is.
+>
+> The word "fader" is not something we use in class. When you first mention it, say "fader (motorized potentiometer)".
+>
+> There is a lot of room on the back. When you talk about switches or other things, put each option on its own line. You can allow the text column to be wider, especially if it means keeping ideas on their own lines. The silkscreen can overlap the traces. You can even move the QR code to the west and make more room for more text. Making the text column wider might violate my suggestion about not making text columns too wide, but I'd pay that price if each item can be on its own line, somewhat like a bulleted list. Students will *not* read the documentation in the README.md, but they might read this silkscreen, so take advantage of that and include relevant information about inputs, outputs, and switches, along with any warnings here. You don't need to say the line about "PROBE LOOPS" – that's obvious from looking at the front.
+
+## Response 6
+
+*2026-10-25 PDT.*  Build passes end to end (ERC 0, 249 circuit checks, DRC 0, fab checks,
+23 document claims).
+
+![front](docs/history/r4-top.png)
+![back](docs/history/r4-silk-bottom.png)
+
+- **LOOP explained, and it already is the open-loop drive.**  LOOP picks what U1 subtracts
+  from TARGET: POSITION (3, closed) or ground (1, open).  Open, ERROR = TARGET, so
+  DRIVE = P GAIN × TARGET (plus D and I of TARGET if in); with P GAIN fully anticlockwise
+  (gain 1) and D, I off, DRIVE = TARGET exactly.  So no separate DRIVE FROM switch was added;
+  one would need TARGET carried ~80 mm across the board on the back, past the summing
+  stage, and would duplicate this.  Offered if still wanted.  The schematic's SW2 text, its
+  note block, the front legend ("3 = closed loop / 1 = open loop"), the back and the
+  handbook now say this.
+- **Probe loops.**  D (TP4) and I (TP5) and DRIVE (TP7) were already there.  Added BASES
+  (TP12, on the bases wire right of Q2), U6 OUT (TP13) and U7 OUT (TP14): every op-amp output
+  now has a loop.  18 loops.
+- **Ground by "↑R ↓I".**  The I trimmer and R17 moved 0.8 and 0.5 mm west, the ground 0.25
+  mm east (as far as U5's triangle allows): about 1 mm clear of the I.  "I GAIN" moved under
+  the trimmer so no lone I sits beside a line.
+- **Back.**  Rewritten as a one-item-per-line reference: power, the fader (motorized
+  potentiometer) wiring and its check, inputs, outputs, each switch with each position on its
+  own line, the trimmers' direction, a start sequence, warnings.  Column 57 mm wide, two
+  columns for the switch options; QR moved to the other side; URL with https://.
+- **Log pots.**  Answered below: yes for P and especially I, but no log trimmers exist in
+  this package; the useful I range sits in the first 10 % of the 1M trimmer.

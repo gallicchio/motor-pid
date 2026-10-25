@@ -920,11 +920,18 @@ class Board:
         self._text(tx, ty + 4.5, "Jason Gallicchio and Claude, rev " + parts.REV + ", " + parts.BOARD_DATE,
                    1.1, 0.15, layer=pcbnew.B_SilkS)
         for i, line in enumerate(L.BACK_TEXT):
-            self._text(L.BACK_X, L.BACK_Y + i * L.BACK_PITCH, line, L.BACK_SIZE, 0.15, justify="left", layer=pcbnew.B_SilkS)
+            if isinstance(line, str):
+                line = (0, line)
+            y = L.BACK_Y + i * L.BACK_PITCH
+            for k in range(0, len(line), 2):
+                if line[k + 1]:
+                    # mirrored: an indent moves the start toward smaller board x
+                    self._text(L.BACK_X - line[k], y, line[k + 1], L.BACK_SIZE, 0.15,
+                               justify="left", layer=pcbnew.B_SilkS)
         qx, qy = L.QR_AT
         n, rects = self.add_qr("https://" + parts.PROJECT_URL, qx, qy, L.QR_MODULE)
         half = n * L.QR_MODULE / 2
-        self._text(qx, qy + half + 2.4, parts.PROJECT_URL, 1.1, 0.15, layer=pcbnew.B_SilkS)
+        self._text(qx, qy + half + 2.4, "https://" + parts.PROJECT_URL, 1.1, 0.15, layer=pcbnew.B_SilkS)
         self._text(qx, qy + half + 4.6, "circuit, scripts, schematic, this board", 1.0, 0.15, layer=pcbnew.B_SilkS)
         self.qr = (n, rects)
 

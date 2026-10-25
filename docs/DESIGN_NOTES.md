@@ -79,10 +79,10 @@ the one wire on the board a part hides.
 
 ## The board
 
-170 x 120 mm, two layers, every part on the top, the back a ground plane.  197
+170 x 120 mm, two layers, every part on the top, the back a ground plane.  200
 SMT and 27 through-hole joints, 66 vias.  Every wire in `scripts/layout.py` is
 laid as copper on the front and drawn as a silkscreen line, so the picture is
-the netlist; `check_circuit.py` makes 246 assertions on the netlist the
+the netlist; `check_circuit.py` makes 249 assertions on the netlist the
 schematic exports, and `gen_pcb.py` refuses to lay a wire on a pad of another
 net.
 

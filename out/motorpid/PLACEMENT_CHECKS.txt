@@ -42,7 +42,7 @@ scripts/parts.py JLC_ROTATION and rebuild.
             DPAK, the same drawing as the NPN
             look for: DPAK tab; should be: tab pointing DOWN into the copper pour below its circle
 
-[PREDICTED] TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP100, TP101, TP102, TP103  (C5199800, +0 deg)
+[PREDICTED] TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP12, TP13, TP14, TP100, TP101, TP102, TP103  (C5199800, +0 deg)
             RH-5019 test loop: one 4.0 x 2.2 pad, as drawn here; the loop lies along x
 
 [PREDICTED] D1, D2, D3, D4  (C8678, +0 deg)

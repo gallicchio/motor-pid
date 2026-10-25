@@ -69,6 +69,7 @@ FB = 12.5                        # the feedback row under an inverting op-amp
 U1X, U2X, U3X = 62.0, 88.0, 116.0
 U4X, U5X = 94.0, 94.0
 U6X, U7X, U7Y = 135.0, 22.0, 86.0
+RV4X = 78.7                       # the I trimmer, 0.8 west of its old place: room for its arc label
 ERR_X = 70.0                     # the ERROR column, down from U1's output
 SUM_X = U3X - 7.2                # the summing node column, up into U3's - input
 QX = 152.0                       # the push-pull column
@@ -110,7 +111,7 @@ PLACE = {
     "SW3": (106.0, D_Y + 2.75, 90), "R12": (106.5, D_Y - 6.0, 0),
     "TP4": (U4X + 7.2, D_Y + 9.8, 90),
     # the integrator row: 1k + 1M in, U5, 10 uF across
-    "R17": (73.5, I_Y + OA_IN, 0), "RV4": (79.5, I_Y + 6.0, 0),
+    "R17": (73.0, I_Y + OA_IN, 0), "RV4": (RV4X, I_Y + 6.0, 0),
     "U5": (U5X, I_Y, 0),
     "C8": (91.0, I_Y + FB, 0),
     "SW4": (106.0, I_Y + 2.75, 90), "R13": (106.5, I_Y - 14.0, 0),
@@ -135,6 +136,8 @@ PLACE = {
     "TP8": (POS_X, 107.5, 0),
     # the POSITION follower and its jack, at the left under the TARGET block
     "U7": (U7X, U7Y, 0), "R25": (32.0, U7Y, 0), "J2": (5.7, 101.0, 180),
+    # the extra probe loops: every op-amp output, and the bases
+    "TP12": (162.0, 80.0, 90), "TP13": (U6X + 6.5, DRV_Y + 7.0, 90), "TP14": (29.0, U7Y + 7.0, 90),
     # DRIVE OUT: 1k from the DRIVE row to a jack on the bottom edge
     "R24": (112.5, 95.0, 270), "J3": (60.0, 114.3, 270),
     # power: in at the top edge, series diodes, bulk capacitors, lamps
@@ -236,9 +239,9 @@ WIRES = [
     ("+15V", [oa("U4", "v+"), (U4X + 1.14, D_Y - 7.5), ("C26", "1")], W_SIG),
     # ---- the integrator: 1k + 1M in, U5, 10 uF across, the switch shorts it for reset
     ("/ERROR", [(ERR_X, I_Y + OA_IN), ("R17", "1")], W_SIG),
-    ("Net-(R17-Pad2)", [("R17", "2"), (76.96, I_Y + OA_IN), ("RV4", "1")], W_SIG),
+    ("Net-(R17-Pad2)", [("R17", "2"), (RV4X - 2.54, I_Y + OA_IN), ("RV4", "1")], W_SIG),
     ("Net-(SW4-A)", [("RV4", "3"), (84.0, I_Y + 7.27), (84.0, I_Y + OA_IN), oa("U5", "-")], W_SIG),
-    ("Net-(SW4-A)", [("RV4", "2"), (82.04, I_Y + 4.73), ("RV4", "3")], W_SIG),
+    ("Net-(SW4-A)", [("RV4", "2"), (RV4X + 2.54, I_Y + 4.73), ("RV4", "3")], W_SIG),
     ("Net-(SW4-A)", [(U5X - 7.2, I_Y + OA_IN), (U5X - 7.2, FBI), ("C8", "1")], W_SIG),
     ("Net-(SW4-A)", [(U5X - 7.2, FBI), (U5X - 7.2, I_Y + 16.5), (104.05, I_Y + 16.5), ("SW4", "1")], W_SIG),
     ("/I", [oa("U5", "out"), (U5X + 7.2, I_Y), (U5X + 7.2, I_Y + 2.0), ("SW4", "2")], W_SIG),
@@ -346,7 +349,8 @@ GND_STUBS = [
     (("U2", "1"), [(U2X - 7.2, A_Y - OA_IN), (U2X - 9.2, A_Y - OA_IN), (U2X - 9.2, A_Y - 1.5)]),
     (("U3", "1"), [(U3X - 7.2, A_Y - OA_IN), (U3X - 9.2, A_Y - OA_IN), (U3X - 9.2, A_Y - 1.5)]),
     (("U4", "1"), [(U4X - 7.2, D_Y - OA_IN), (U4X - 9.2, D_Y - OA_IN), (U4X - 9.2, D_Y - 1.5)]),
-    (("U5", "1"), [(U5X - 7.2, I_Y - OA_IN), (U5X - 8.4, I_Y - OA_IN), (U5X - 8.4, I_Y - 1.5)]),
+    # east as far as the triangle allows, clear of the "I" of RV4's arc label
+    (("U5", "1"), [(U5X - 7.2, I_Y - OA_IN), (U5X - 8.15, I_Y - OA_IN), (U5X - 8.15, I_Y - 1.5)]),
     (("C20", "2"), (U1X + 4.5, VP_Y + 6.5)), (("C22", "2"), (U2X + 4.5, VP_Y + 6.5)),
     (("C24", "2"), (U3X + 4.5, VP_Y + 6.5)), (("C30", "2"), (U6X + 4.5, VP_Y + 6.5)),
     (("C26", "2"), [(U4X + 7.0, D_Y - 7.5), (U4X + 7.0, D_Y - 5.0)]),
@@ -403,11 +407,14 @@ TEXTS = [
     (36.9, 41.7, "1 = knob", 0.8, 0.15, "right", 0), (36.9, 43.0, "3 = jack", 0.8, 0.15, "right", 0),
     # the loop switch
     (44.0, 44.4, "LOOP", 0.9, 0.18, "center", 0),
-    (44.0, 45.75, "3 = closed", 0.8, 0.15, "center", 0), (44.0, 47.05, "1 = open", 0.8, 0.15, "center", 0),
+    (44.0, 45.75, "3 = closed loop", 0.8, 0.15, "center", 0), (44.0, 47.05, "1 = open loop", 0.8, 0.15, "center", 0),
     # the gain trimmers
     (116.0, 56.2, "P GAIN", 0.8, 0.15, "center", 0),
     (90.6, 75.9, "D", 0.8, 0.15, "right", 0), (90.6, 77.1, "GAIN", 0.8, 0.15, "right", 0),
-    (75.6, 101.8, "I GAIN", 0.8, 0.15, "right", 0),
+    (RV4X, 106.0, "I GAIN", 0.8, 0.15, "center", 0),
+    (U6X + 8.7, DRV_Y + 7.0, "U6 OUT", 0.8, 0.15, "center", 90),
+    (31.2, U7Y + 7.0, "U7 OUT", 0.8, 0.15, "center", 90),
+    (164.8, 80.0, "BASES", 0.8, 0.15, "center", 90),
     # the D and I switches
     (69.0, 62.6, "D CAPACITOR", 0.8, 0.15, "right", 0),
     (69.0, 64.0, "3 = 100 nF", 0.8, 0.15, "right", 0), (69.0, 65.4, "1 = 22 nF", 0.8, 0.15, "right", 0),
@@ -449,7 +456,7 @@ FIELD_AT.update({
     "R12": ((0.0, -3.05), (0.0, -1.75)), "R13": ((0.0, -3.05), (0.0, -1.75)),
     "C3": (None, (0.0, -1.75)), "C4": (None, (0.0, -1.75)),
     "RV1": (None, (-3.5, 4.1)),
-    "RV2": ((-4.3, -1.8), (-4.3, -0.5)), "RV3": ((-3.9, -1.2), (-3.9, 0.0)), "RV4": ((-4.3, 0.0), (0.0, 6.0)),
+    "RV2": ((-4.3, -1.8), (-4.3, -0.5)), "RV3": ((-3.9, -1.2), (-3.9, 0.0)), "RV4": ((-4.3, 0.0), (-4.3, 1.3)),
     "F1": (None, (0.0, 2.7)),
     "R8": ((0.0, 1.75), (0.0, 3.05)), "R10": ((0.0, 1.75), (0.0, 3.05)), "R14": ((0.0, 1.75), (0.0, 3.05)),
     "C7": ((0.0, -3.05), (0.0, -1.75)), "C8": ((2.3, 1.0), (2.3, 2.4)),
@@ -470,6 +477,7 @@ TP_LABEL = {
     "TP4": (-1.6, 0.0, "right"), "TP5": (-1.6, 0.0, "right"), "TP6": (2.6, 0.0, "left"),
     "TP7": (0.0, -3.0, "center"), "TP8": (0.0, -3.3, "center"), "TP9": None, "TP10": None,
     "TP11": (-2.6, 0.0, "right"),
+    "TP12": None, "TP13": None, "TP14": None,
     "TP100": (2.6, 0.0, "left"), "TP101": None, "TP102": (2.6, 0.0, "left"), "TP103": (2.6, 0.0, "left"),
 }
 
@@ -508,31 +516,48 @@ CW_ARCS = {
 }
 
 FIDUCIALS = [(12.0, 10.0), (12.0, 110.0), (158.0, 112.0)]
-QR_AT, QR_MODULE = (64.0, 80.0), 0.6
+QR_AT, QR_MODULE = (133.0, 83.0), 0.6      # seen from the back: left of the text, clear of vias and holes
 BACK_TITLE_AT = (85.0, 44.0)
-BACK_X, BACK_Y, BACK_PITCH, BACK_SIZE = 43.0, 56.0, 1.7, 0.9
+# The back: what a student needs at the bench, one item to a line.  The text is
+# mirrored, so a line starts at BACK_X and runs toward smaller board x; an
+# entry is a string, or (indent, text), or (indent, text, indent2, text2) for a
+# label with its options in a second column.  The column runs from x 70 to
+# about 13 and from y 53 to 107: clear of the J1/J2 posts, the switch slots,
+# the trimmers' pins and J3.
+BACK_X, BACK_Y, BACK_PITCH, BACK_SIZE = 70.0, 52.6, 1.6, 0.9
+_C2 = 17.0                                    # where a switch's options start
 BACK_TEXT = [
-    "LAB 10L: the fader's wiper is held",
-    "where TARGET says, by P, D and I.",
+    "LAB 10L: a PID loop holds a fader (motorized potentiometer) where TARGET says.",
     "",
-    "POWER: +15, GND, -15 V, 1 A each.",
-    "  Both green lamps light.",
-    "FADER: motor to MOTOR + GND; track",
-    "  ends to POT + and -, wiper to 2.",
-    "  POSITION must read +7.7 V at the",
-    "  + end.  If the loop runs away,",
-    "  swap the two motor wires.",
-    "SWITCHES to start: TARGET SOURCE",
-    "  1 (knob), LOOP 1 (open), D OFF 1,",
-    "  I OFF 1, D CAPACITOR 1 (22 nF).",
-    "  Trimmers fully anticlockwise.",
-    "THEN: LOOP 3 closes it.  Raise P",
-    "  GAIN until it rings (~12 Hz),",
-    "  switch D IN and turn D GAIN up;",
-    "  back to low P, I IN, I GAIN up.",
-    "SQUARE WAVE: TARGET SOURCE 3, feed",
-    "  TARGET IN +/-0.5 V at 0.2 Hz.",
-    "STALL: the 0.35 A fuse opens in",
-    "  seconds, red lamps light; resets.",
-    "PROBE LOOPS on every node, GND x4.",
+    "POWER: +15 V, GND, -15 V on the POWER terminal, 1 A per rail.",
+    (3, "Both green lamps light.  A reversed supply is blocked: the lamps stay dark."),
+    "FADER: its motor to MOTOR and GND on the MOTOR terminal.",
+    (3, "Its track's two ends to POT + and -, its wiper to the middle pin."),
+    (3, "Check with LOOP open: slide it by hand, POSITION is +7.7 V at the + end."),
+    (3, "LOOP closed and the slider runs to an end and stays: swap the motor leads."),
+    "INPUTS",
+    (3, "TARGET knob: centre detent = 0 V, clockwise +, up to +/-6.4 V."),
+    (3, "TARGET IN jack: a function generator, +/-12 V max."),
+    (6, "Try a +/-0.5 V square wave at 0.2 Hz: repeatable steps."),
+    "OUTPUTS, each through 1k: for a scope, not a load",
+    (3, "POSITION OUT: the fader's wiper, buffered.   DRIVE OUT: the motor drive."),
+    "SWITCHES",
+    (3, "TARGET SOURCE", _C2, "1 = the knob"),
+    (_C2, "3 = the TARGET IN jack"),
+    (3, "LOOP", _C2, "1 = open: no feedback; DRIVE = P GAIN x TARGET (+ D, I if in)"),
+    (_C2 + 4, "P GAIN anticlockwise, D and I off: DRIVE = TARGET"),
+    (_C2, "3 = closed: POSITION fed back, the loop holds TARGET"),
+    (3, "D IN / OFF", _C2, "1 = off: the differentiator's output shorted"),
+    (_C2, "3 = D into the sum"),
+    (3, "D CAPACITOR", _C2, "1 = 22 nF, for this fader"),
+    (_C2, "3 = 100 nF, for the book's slower rotary pot"),
+    (3, "I IN / OFF", _C2, "1 = off: the 10 uF shorted, so I restarts from zero"),
+    (_C2, "3 = I into the sum"),
+    "TRIMMERS: clockwise = more resistance: more P, more D, but LESS I.",
+    "START: every switch on 1.  P and D GAIN anticlockwise, I GAIN clockwise.",
+    (3, "LOOP to 3: the slider follows the knob.  Raise P GAIN until it rings."),
+    (3, "D IN, raise D GAIN: the ringing dies.  Lower P; I IN: the error goes to 0."),
+    "WARNINGS",
+    (3, "A stall opens the 0.35 A fuse in seconds; red lamps; it resets itself."),
+    (3, "Never short MOTOR to GND or to a rail.  Power off to wire the fader."),
 ]

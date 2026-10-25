@@ -41,9 +41,12 @@ group):
 | SUM | U3's output | ERROR × P GAIN; the trimmer turns it from 0 to about 100 × ERROR, so a small TARGET saturates it at ±13 V |
 | D | U4's output | 0 at rest; a kick when TARGET changes |
 | I | U5's output | 0 with I OFF |
+| U6 OUT | the driver op-amp's own output | = DRIVE plus a jump of about 1.2 V as DRIVE crosses zero |
+| BASES | the two transistors' bases | = DRIVE + 0.6 V when the NPN conducts, − 0.6 V when the PNP does |
 | DRIVE | the push-pull's output | = SUM (the driver's gain is 1), up to about ±13 V |
 | MOTOR | past the fuse | = DRIVE |
 | POSITION | the POT terminal's wiper | floating with nothing on the terminal |
+| U7 OUT | the follower's output | = POSITION |
 
 Turn P GAIN up a little, turn the knob: SUM and DRIVE follow TARGET, amplified.
 That is the whole loop minus the plant.
@@ -113,10 +116,16 @@ I, and the loop hunts: a slow oscillation that the D term cannot touch.  I OFF
 shorts the capacitor, so switching back and forth restarts the integrator from
 zero each time.
 
-**Break the loop.**  Switch LOOP open at any point: the slider stops wherever
-it is, the TARGET knob moves it in open loop (DRIVE = TARGET × gain, the
-slider runs to an end), and the difference between the loop and no loop is the
-point of the lab.
+**Break the loop.**  The LOOP switch chooses what the difference amplifier U1
+subtracts from TARGET.  Closed (3), it subtracts POSITION, the fader's wiper:
+that is the feedback.  Open (1), it subtracts ground, so ERROR = TARGET and
+nothing about the slider reaches the driver: DRIVE = P GAIN × TARGET, plus D
+and I of TARGET if they are switched in.  With P GAIN fully anticlockwise
+(gain 1) and D and I off, DRIVE = TARGET: the knob or a function generator
+drives the motor driver directly.  Try it: the slider runs to an end and
+stays there, whatever the knob says, and a slow triangle wave from the
+generator shows the driver's crossover on U6 OUT and BASES.  The difference
+between the loop and no loop is the point of the lab.
 
 ## 4. Probe loops
 
@@ -127,9 +136,12 @@ point of the lab.
 | P | the inverted error |
 | SUM | the summing amplifier's output, the loop's command |
 | D, I | the differentiator and integrator outputs |
+| U6 OUT | the driver op-amp's output: it jumps about 1.2 V as DRIVE crosses zero, from turning on the NPN to turning on the PNP |
+| BASES | the two bases, after the 270 Ω: the same jump (little base current flows near zero) |
 | DRIVE | the push-pull's output, before the fuse |
 | MOTOR | after the fuse, what the motor sees |
 | POSITION | the fader's wiper |
+| U7 OUT | the follower's output, before the 1k to POSITION OUT |
 | +15 V, −15 V | the rails |
 | GND x 4 | for the scope clip |
 

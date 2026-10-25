@@ -250,6 +250,7 @@ def main(path):
     # --- probe loops on the nodes they claim -------------------------------------------------------
     for tp, net in (("TP1", "TARGET"), ("TP2", "ERROR"), ("TP3", "P"), ("TP4", "D"), ("TP5", "I"), ("TP6", "SUM"),
                     ("TP7", "DRIVE"), ("TP8", "POSITION"), ("TP9", "+15V"), ("TP10", "-15V"), ("TP11", "MOTOR"),
+                    ("TP12", "BASES"), ("TP13", N.net("U6", OUT)), ("TP14", N.net("U7", OUT)),
                     ("TP100", "GND"), ("TP101", "GND"), ("TP102", "GND"), ("TP103", "GND")):
         check(N.net(tp, 1) == net, f"{tp} ({N.value[tp]}) is on {net}")
 
