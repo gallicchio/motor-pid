@@ -90,11 +90,11 @@ def main(path):
 
     # --- target -------------------------------------------------------------------
     check(N.value["RV1"] == "10k", "RV1, the target knob, is 10k")
-    check(N.between("+15V", N.net("RV1", 1)) == ["R1"] and ohms(N.value["R1"]) == 6800, "R1 = 6.8k from +15 V to the knob's top")
-    check(N.between(N.net("RV1", 3), "-15V") == ["R2"] and ohms(N.value["R2"]) == 6800, "R2 = 6.8k from the knob's bottom to -15 V")
+    check(N.between("+15V", N.net("RV1", 3)) == ["R1"] and ohms(N.value["R1"]) == 6800, "R1 = 6.8k from +15 V to the knob's pin 3 (the clockwise end)")
+    check(N.between(N.net("RV1", 1), "-15V") == ["R2"] and ohms(N.value["R2"]) == 6800, "R2 = 6.8k from the knob's pin 1 (the counter-clockwise end) to -15 V")
     v_knob = 30.0 * 10000 / (6800 + 10000 + 6800) / 2
     check(6.0 < v_knob < 6.8 and 7.5 < 30.0 * 10000 / 19400 / 2 < 8.0, f"the knob spans +/-{v_knob:.2f} V")
-    check(N.between(N.net("RV1", 1), "GND", "C") == ["C1"] and N.between(N.net("RV1", 3), "GND", "C") == ["C2"],
+    check(N.between(N.net("RV1", 3), "GND", "C") == ["C1"] and N.between(N.net("RV1", 1), "GND", "C") == ["C2"],
           "C1 and C2 decouple the knob's ends to ground")
     check(N.net("RV1", 2) == "KNOB" and N.net("SW1", 1) == "KNOB", "the knob's wiper is on SW1 pole 1")
     check(N.net("RV1", 1) not in ("GND", "+15V", "-15V") and N.net("RV1", 3) not in ("GND", "+15V", "-15V")
@@ -182,15 +182,13 @@ def main(path):
     check(N.between(N.net("Q2", 3), "DRIVE") == ["R22"] and ohms(N.value["R22"]) == 1, "R22 = 1 ohm from Q2's emitter to DRIVE")
     check(N.footprint["R21"].endswith("R_2512_6332Metric") and N.footprint["R22"].endswith("R_2512_6332Metric"),
           "the sense resistors are 2512, 1 W")
-    # the current limit: Q3 (NPN) across R21, Q4 (PNP) across R22, diodes to the bases
-    check(N.net("Q3", 1) == N.net("Q1", 3) and N.net("Q3", 2) == "DRIVE", "Q3 senses R21 (base on Q1's emitter, emitter on DRIVE)")
-    check(N.net("Q4", 1) == N.net("Q2", 3) and N.net("Q4", 2) == "DRIVE", "Q4 senses R22")
-    check(N.net("D5", 2) == "BASES" and N.net("D5", 1) == N.net("Q3", 3), "D5 lets Q3 pull BASES down, never up")
-    check(N.net("D6", 1) == "BASES" and N.net("D6", 2) == N.net("Q4", 3), "D6 lets Q4 pull BASES up, never down")
-    i_lim = 0.65 / ohms(N.value["R21"])
-    check(0.55 < i_lim < 0.75, f"the output limits at about {i_lim*1e3:.0f} mA: below the motor's 0.4-0.8 A stall, above its running current")
-    p_short = 15.0 * i_lim
-    check(p_short < 12, f"a dead short puts {p_short:.1f} W in one DPAK: seconds, not minutes")
+    # no current limiter: the PTC is the protection.  A stall (0.6 A) must trip it,
+    # a short must trip it fast, and the DPAK must live through both
+    check(not any(r.startswith("Q") and r not in ("Q1", "Q2") for r in N.value), "no small-signal transistors: the limiter is gone, the fuse does that job")
+    i_hold = float(N.value["F1"].rstrip("A"))
+    check(0.55 > i_hold > 0.25, f"the PTC holds {i_hold} A: below the motor's 0.4-0.8 A stall, above its 0.2 A running current")
+    p_stall = (15.0 - 9.0) * 0.6
+    check(p_stall < 5, f"a stall puts {p_stall:.1f} W in one DPAK until the PTC trips (seconds): survivable with its copper")
     # the clamps, the snubber, the fuse and its lamp
     check(N.net("D3", 1) == "+15V" and N.net("D3", 2) == "DRIVE", "D3 clamps DRIVE to +15 V (cathode on the rail)")
     check(N.net("D4", 1) == "DRIVE" and N.net("D4", 2) == "-15V", "D4 clamps DRIVE to -15 V (anode on the rail)")

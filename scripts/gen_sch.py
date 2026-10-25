@@ -264,17 +264,19 @@ def build():
     res("R1", "6.8k", KX, g(36))
     s.wire((KX, VP_Y), (KX, g(36) - 3.81))
     s.junction(KX, VP_Y)
-    s.place(sym("POT_KNOB"), "RV1", "10k", KX, A_Y, footprint=fp("POT_KNOB"),
+    # mirrored so pin 3, the end the wiper reaches turning clockwise, is the + end
+    s.place(sym("POT_KNOB"), "RV1", "10k", KX, A_Y, mirror="x", footprint=fp("POT_KNOB"),
             fields=part_fields("POT_KNOB"), ref_off=(-3.4, -1.4), val_off=(-3.4, 1.4),
             ref_justify="right", val_justify="right")
     k1, k2, k3 = s.pin("RV1", 1, "1"), s.pin("RV1", 1, "2"), s.pin("RV1", 1, "3")
-    s.wire((KX, g(36) + 3.81), k1)
-    s.wire(k3, (KX, g(68) - 3.81))
+    assert k3[1] < k1[1], "RV1 must be drawn with pin 3 on top"
+    s.wire((KX, g(36) + 3.81), k3)
+    s.wire(k1, (KX, g(68) - 3.81))
     res("R2", "6.8k", KX, g(68))
     s.wire((KX, g(68) + 3.81), (KX, VM_Y))
     s.junction(KX, VM_Y)
     s.text("TARGET", g(12), A_Y - 7.0, size=2.5)
-    s.text("knob, centre detent = 0 V", g(12), A_Y - 4.6, size=1.1)
+    s.text("knob, centre detent = 0 V, clockwise = +", g(12), A_Y - 4.6, size=1.1)
     # 10 uF at each end of the knob, as the book's 15 uF
     for ref, yy, up in (("C1", g(42), False), ("C2", g(62), True)):
         ex = KX - 7.62
@@ -536,49 +538,15 @@ def build():
     s.junction(OX, A_Y)
     DX0 = OX + 17.78                                    # DRIVE runs right from here
     s.wire((OX, A_Y), (DX0, A_Y))
-    # the DC feedback from DRIVE back to U6's - node, under everything, tapped past the limiter
+    # the DC feedback from DRIVE back to U6's - node, under everything
     s.wire((U6_X + 6.35, DCY), (DX0, DCY), (DX0, A_Y))
     s.junction(DX0, A_Y)
     label("DRIVE", OX + 7.0, A_Y)
     s.text("MOTOR DRIVER, gain 1  (Fig. 10L.3)", U6_X - 22.0, A_Y - 33.8, size=1.3)
-    # --- the output current limit (not in the book): Q3 senses R21, Q4 senses R22 ---
-    LX = OX + 8.89
-    s.place(sym("NPN"), "Q3", "2N3904", LX, A_Y - 15.24, footprint=fp("NPN"),
-            fields=part_fields("NPN"), ref_off=(3.6, -3.0), val_off=(3.6, -0.6),
-            ref_justify="left", val_justify="left")
-    s.place(sym("PNP"), "Q4", "2N3906", LX, A_Y + 15.24, mirror="x", footprint=fp("PNP"),
-            fields=part_fields("PNP"), ref_off=(3.6, 0.6), val_off=(3.6, 3.0),
-            ref_justify="left", val_justify="left")
-    q3b, q3c, q3e = s.pin("Q3", 1, "1"), s.pin("Q3", 1, "3"), s.pin("Q3", 1, "2")
-    q4b, q4c, q4e = s.pin("Q4", 1, "1"), s.pin("Q4", 1, "3"), s.pin("Q4", 1, "2")
-    s.wire((OX, q3b[1]), q3b)
-    s.junction(OX, q3b[1])
-    s.wire((OX, q4b[1]), q4b)
-    s.junction(OX, q4b[1])
-    s.wire(q3e, (q3e[0], A_Y), q4e)
-    s.junction(q3e[0], A_Y)
-    # the steering diodes back to the bases, round the top and bottom
-    DX = q3c[0]
-    s.place("Device:D", "D5", "1N4148W", DX, A_Y - 27.94, rot=90,
-            footprint=fp("DSW"), fields=part_fields("DSW"),
-            ref_off=(2.4, -1.4), val_off=(2.4, 1.4), ref_justify="left", val_justify="left")
-    s.place("Device:D", "D6", "1N4148W", DX, A_Y + 27.94, rot=90,
-            footprint=fp("DSW"), fields=part_fields("DSW"),
-            ref_off=(2.4, -1.4), val_off=(2.4, 1.4), ref_justify="left", val_justify="left")
-    s.wire(q3c, (DX, A_Y - 24.13))
-    s.wire((DX, A_Y - 31.75), (DX, A_Y - 35.56), (BX, A_Y - 35.56), (BX, q1b[1]))
-    s.junction(BX, q1b[1])
-    s.wire(q4c, (DX, A_Y + 24.13))
-    s.wire((DX, A_Y + 31.75), (DX, A_Y + 35.56), (BX, A_Y + 35.56), (BX, q2b[1]))
-    s.junction(BX, q2b[1])
-    s.rect(LX - 5.5, A_Y - 38.0, LX + 10.0, A_Y + 38.0, style="dash", key="box/limit")
-    s.text("OUTPUT CURRENT LIMIT", LX - 5.5, A_Y + 44.0, size=1.2)
-    s.text("not in the book: a safety net.", LX - 5.5, A_Y + 46.4, size=1.0)
-    s.text("0.65 V across 1 ohm turns Q3 (Q4)", LX - 5.5, A_Y + 48.4, size=1.0)
-    s.text("on and it steals the drive: 0.65 A,", LX - 5.5, A_Y + 50.4, size=1.0)
-    s.text("so a shorted MOTOR terminal lives", LX - 5.5, A_Y + 52.4, size=1.0)
-    s.text("for seconds; a stall (0.4-0.8 A) is", LX - 5.5, A_Y + 54.4, size=1.0)
-    s.text("barely limited.", LX - 5.5, A_Y + 56.4, size=1.0)
+    # the 1 ohm emitter resistors (not in the book): current sharing, and a
+    # place to read the motor current with a scope
+    s.text("R21, R22: 1 ohm, not in the book.  Across either one,", OX + 3.4, A_Y + 44.0, size=1.0)
+    s.text("1 V per ampere of motor current, for a scope.", OX + 3.4, A_Y + 46.0, size=1.0)
     # --- clamps to the rails, the book's snubber, the fuse, the lamp ---------
     CLX = DX0 + 5.08
     s.wire((DX0, A_Y), (CLX, A_Y))
@@ -936,9 +904,10 @@ def build():
           "the brush hash.  Output ±13 V; the motor is rated 10 V,",
           "6-11 V running, and sees full drive only in a step.",
           "",
-          "CURRENT LIMIT and FUSE: not in the book.  1 ohm and a",
-          "small transistor per half hold a short to 0.65 A; the",
-          "0.35 A PTC opens a stall in seconds and resets itself."],
+          "FUSE: not in the book.  The 0.35 A PTC opens a stall",
+          "(0.6 A) in seconds and a short in well under one, then",
+          "resets itself when it cools.  1 ohm per emitter reads",
+          "the motor current: 1 V per A across R21 or R22."],
          col[3], NOTE_Y)
     note(["THE PLANT",
           "Any motorized fader with a 10k track and a 6-11 V motor.",

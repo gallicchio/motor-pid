@@ -15,11 +15,11 @@ BUILD = os.path.join(ROOT, "build")
 sys.path.insert(0, SCRIPTS)
 import kienv                                     # noqa: E402
 
-STEM = "opamp"
+STEM = "motorpid"
 GENERATED = [
     f"hardware/{STEM}.kicad_sch", f"hardware/{STEM}.kicad_pcb", f"hardware/{STEM}.kicad_pro",
     "hardware/sym-lib-table", "hardware/fp-lib-table",
-    "hardware/lib/opamp.pretty/", "hardware/lib/opamp.3dshapes/",
+    "hardware/lib/motorpid.pretty/", "hardware/lib/motorpid.3dshapes/",
     "docs/images/", "docs/MANUFACTURING.md", "out/", "build/",
 ]
 ALSO_TRANSIENT = [f"hardware/{STEM}.kicad_prl", "hardware/fp-info-cache"]
@@ -67,13 +67,13 @@ def stage_libs():
     banner("footprints, models and project files")
     sys_py("gen_models.py")
     sys_py("gen_footprints.py")
-    kienv.cli("fp", "upgrade", os.path.join(HW, "lib", "opamp.pretty"), "--force")
+    kienv.cli("fp", "upgrade", os.path.join(HW, "lib", "motorpid.pretty"), "--force")
     sys_py("gen_project.py")
 
 
 def stage_sim():
     banner("simulation (ngspice)")
-    r = subprocess.run([sys.executable, os.path.join(ROOT, "sim", "opamp_sim.py"), "--json"],
+    r = subprocess.run([sys.executable, os.path.join(ROOT, "sim", "pid_sim.py"), "--plots"],
                        capture_output=True, text=True)
     sys.stdout.write(r.stdout)
     if r.returncode:
@@ -97,7 +97,7 @@ def stage_sch():
     kienv.cli("sch", "export", "netlist", "--format", "kicadsexpr", "-o", net, sch)
     out = sys_py("check_circuit.py", net)
     if "all circuit checks passed" not in out:
-        raise Fail("the netlist does not implement the Lab 5L op-amp")
+        raise Fail("the netlist does not implement the Lab 10L loop")
     out = sys_py("check_schematic.py", sch)
     if "no text overlaps" not in out:
         raise Fail("the schematic sheet has overlapping or stray text")

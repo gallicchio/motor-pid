@@ -1111,194 +1111,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Device:D"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 1.016)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "D"
-				(at 0 2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "D"
-				(at 0 -2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Diode"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Sim.Device" "D"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Sim.Pins" "1=K 2=A"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "diode"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "D_0_1"
-				(polyline
-					(pts
-						(xy -1.27 1.27) (xy -1.27 -1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 0) (xy -1.27 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "D_1_1"
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "K"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "A"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Device:D_Schottky"
 			(pin_numbers
 				(hide yes)
@@ -3034,492 +2846,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Transistor_BJT:MMBT3904"
-			(pin_names
-				(offset 0)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "Q"
-				(at 5.08 1.905 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Value" "MMBT3904"
-				(at 5.08 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-				(at 5.08 -1.905 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-						(italic yes)
-					)
-					(justify left)
-				)
-			)
-			(property "Datasheet" "https://www.onsemi.com/pdf/datasheet/pzt3904-d.pdf"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Description" "0.2A Ic, 40V Vce, Small Signal NPN Transistor, SOT-23"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Sim.Device" "NPN"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Sim.Pins" "1=B 2=E 3=C"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "NPN Transistor"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_fp_filters" "SOT?23*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "MMBT3904_0_1"
-				(polyline
-					(pts
-						(xy -2.54 0) (xy 0.635 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.635 1.905) (xy 0.635 -1.905)
-					)
-					(stroke
-						(width 0.508)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 1.27 0)
-					(radius 2.8194)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "MMBT3904_1_1"
-				(polyline
-					(pts
-						(xy 0.635 0.635) (xy 2.54 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.635 -0.635) (xy 2.54 -2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 -1.778) (xy 1.778 -1.27) (xy 2.286 -2.286) (xy 1.27 -1.778)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(pin input line
-					(at -5.08 0 0)
-					(length 2.54)
-					(name "B"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 -5.08 90)
-					(length 2.54)
-					(name "E"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 5.08 270)
-					(length 2.54)
-					(name "C"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "Transistor_BJT:MMBT3906"
-			(pin_names
-				(offset 0)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "Q"
-				(at 5.08 1.905 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Value" "MMBT3906"
-				(at 5.08 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-				(at 5.08 -1.905 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-						(italic yes)
-					)
-					(justify left)
-				)
-			)
-			(property "Datasheet" "https://www.onsemi.com/pdf/datasheet/pzt3906-d.pdf"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Description" "-0.2A Ic, -40V Vce, Small Signal PNP Transistor, SOT-23"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Sim.Device" "PNP"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Sim.Pins" "1=B 2=E 3=C"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "PNP Transistor"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_fp_filters" "SOT?23*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "MMBT3906_0_1"
-				(polyline
-					(pts
-						(xy -2.54 0) (xy 0.635 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.635 1.905) (xy 0.635 -1.905)
-					)
-					(stroke
-						(width 0.508)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.635 0.635) (xy 2.54 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.635 -0.635) (xy 2.54 -2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 1.27 0)
-					(radius 2.8194)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.286 -1.778) (xy 1.778 -2.286) (xy 1.27 -1.27) (xy 2.286 -1.778)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-			)
-			(symbol "MMBT3906_1_1"
-				(pin input line
-					(at -5.08 0 0)
-					(length 2.54)
-					(name "B"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 -5.08 90)
-					(length 2.54)
-					(name "E"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 5.08 270)
-					(length 2.54)
-					(name "C"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Transistor_BJT:Q_NPN_BCE"
 			(pin_names
 				(offset 0)
@@ -4473,55 +3799,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "023a9606-ae0d-4cf7-a764-185259745dce")
-	)
-	(rectangle
-		(start 394.55 94.08)
-		(end 410.05 170.08)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "25f4b0d3-434a-479e-97f9-c950fff40f89")
-	)
-	(rectangle
-		(start 193.04 166.62)
-		(end 320.04 234.14)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "87b3797e-5b47-497f-b7b2-c993f18f51c1")
-	)
-	(rectangle
-		(start 124.46 100.08)
-		(end 320.04 164.08)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "94e54d72-1b43-4832-a927-503bcac17c0f")
-	)
-	(rectangle
-		(start 454.2 119.08)
-		(end 513.3 193.1)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "f4d191f4-81ef-493b-a2ef-9779718f019b")
+		(uuid "002deb47-7100-4121-8a1c-efa571260216")
 	)
 	(rectangle
 		(start 410.02 96.58)
@@ -4533,7 +3811,43 @@
 		(fill
 			(type none)
 		)
-		(uuid "f8b114fe-7057-40b5-9259-6e4d9c07614e")
+		(uuid "17ba1af6-aed7-4d37-93ee-14e4cbccb0c3")
+	)
+	(rectangle
+		(start 454.2 119.08)
+		(end 513.3 193.1)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "8ee58b15-2cc6-4f41-b9f4-7bfd2a3f1498")
+	)
+	(rectangle
+		(start 193.04 166.62)
+		(end 320.04 234.14)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "a7c413c5-a4f8-4028-a12e-97bb5e5beed9")
+	)
+	(rectangle
+		(start 124.46 100.08)
+		(end 320.04 164.08)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "eaf0ec19-0617-4171-8cdd-2b51a0b2f8fa")
 	)
 	(text "6.8k ends keep it to ±6.4 V, inside what the motor pot"
 		(exclude_from_sim no)
@@ -4568,17 +3882,6 @@
 		)
 		(uuid "05af2140-6439-5e8c-947a-e6da87d3c710")
 	)
-	(text "for seconds; a stall (0.4-0.8 A) is"
-		(exclude_from_sim no)
-		(at 394.55 186.48 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "060e1d00-201f-5bd8-bbf2-48b1ed9c97f0")
-	)
 	(text "it so P, D and I all arrive inverted at U3, which sums"
 		(exclude_from_sim no)
 		(at 132.08 345.43 0)
@@ -4600,6 +3903,17 @@
 			(justify left)
 		)
 		(uuid "096a0166-cbed-55ac-8291-ca1846d8c314")
+	)
+	(text "(0.6 A) in seconds and a short in well under one, then"
+		(exclude_from_sim no)
+		(at 345.44 368.245 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "0a0650c2-bbfd-5fab-984e-9196944e6433")
 	)
 	(text "OFF shorts the capacitor, so I starts from zero.  I"
 		(exclude_from_sim no)
@@ -4634,6 +3948,17 @@
 		)
 		(uuid "0e7dd966-3f89-539f-b6c5-26e9268c6a95")
 	)
+	(text "the motor current: 1 V per A across R21 or R22."
+		(exclude_from_sim no)
+		(at 345.44 373.315 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "0f4dad61-da21-5ee5-a036-acb7b9df1b20")
+	)
 	(text "track and the touch pin of the SparkFun fader stay unused."
 		(exclude_from_sim no)
 		(at 457.2 355.57 0)
@@ -4644,17 +3969,6 @@
 			(justify left)
 		)
 		(uuid "11e28133-ac60-5c6a-8287-3b0bdb8a5021")
-	)
-	(text "OUTPUT CURRENT LIMIT"
-		(exclude_from_sim no)
-		(at 394.55 176.08 0)
-		(effects
-			(font
-				(size 1.2 1.2)
-			)
-			(justify left)
-		)
-		(uuid "121127aa-2eae-5e38-b861-959fb524254a")
 	)
 	(text "PSEUDO OP-AMP  (U1, U2, U3)"
 		(exclude_from_sim no)
@@ -4722,17 +4036,6 @@
 		)
 		(uuid "1f8cd33d-de21-5119-a6c7-0c3b8c9d0098")
 	)
-	(text "not in the book: a safety net."
-		(exclude_from_sim no)
-		(at 394.55 178.48 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "207bdb9b-84f6-5a1c-832f-44810ab7075a")
-	)
 	(text "1: 22 nF, the slide pot"
 		(exclude_from_sim no)
 		(at 193.66 200.28 0)
@@ -4797,17 +4100,6 @@
 			(justify left)
 		)
 		(uuid "25016390-9928-54dd-900a-53e7ab9bc70d")
-	)
-	(text "CURRENT LIMIT and FUSE: not in the book.  1 ohm and a"
-		(exclude_from_sim no)
-		(at 345.44 365.71 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "2a249f88-fbe3-5add-80b6-26b3828b8699")
 	)
 	(text "M3 mounting holes, one per corner"
 		(exclude_from_sim no)
@@ -5025,6 +4317,17 @@
 		)
 		(uuid "4b0e85c2-f9b8-511c-90f5-85746f84d6ad")
 	)
+	(text "FUSE: not in the book.  The 0.35 A PTC opens a stall"
+		(exclude_from_sim no)
+		(at 345.44 365.71 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "4f24160e-6d0e-5289-9e12-4045817d6f93")
+	)
 	(text "to 22 ms (22 nF), 100 ms (100 nF)"
 		(exclude_from_sim no)
 		(at 231.14 219.28 0)
@@ -5069,17 +4372,6 @@
 		)
 		(uuid "52467f44-4ef0-5e24-803d-3515d8a3be9b")
 	)
-	(text "so a shorted MOTOR terminal lives"
-		(exclude_from_sim no)
-		(at 394.55 184.48 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "544e3a24-2e72-514d-942c-d3f6c534c4cd")
-	)
 	(text "3: I OFF, capacitor shorted (reset)"
 		(exclude_from_sim no)
 		(at 258.08 278.24 0)
@@ -5112,17 +4404,6 @@
 			(justify left)
 		)
 		(uuid "586db3ce-6bea-5535-92ee-8b9332940b8c")
-	)
-	(text "on and it steals the drive: 0.65 A,"
-		(exclude_from_sim no)
-		(at 394.55 182.48 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "58943fe5-8ebb-5500-a321-3096e2cbfc43")
 	)
 	(text "SW4  I IN / OFF"
 		(exclude_from_sim no)
@@ -5265,6 +4546,17 @@
 			(justify left)
 		)
 		(uuid "746bac81-c5b9-536c-8225-f319a8e253ff")
+	)
+	(text "resets itself when it cools.  1 ohm per emitter reads"
+		(exclude_from_sim no)
+		(at 345.44 370.78 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "74e46650-acc9-5dee-8b26-fc00aa07e8f9")
 	)
 	(text "THE PLANT: motor and pot  (Fig. 10L.1)"
 		(exclude_from_sim no)
@@ -5506,17 +4798,6 @@
 		)
 		(uuid "951ad693-fcd2-51aa-9073-488c8c8afc68")
 	)
-	(text "0.35 A PTC opens a stall in seconds and resets itself."
-		(exclude_from_sim no)
-		(at 345.44 370.78 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "95859cd3-92b5-53d1-85e9-ca4d5b51619e")
-	)
 	(text "At P gain 1.5 the loop is stable and slow; near 20 it"
 		(exclude_from_sim no)
 		(at 132.08 358.105 0)
@@ -5548,17 +4829,6 @@
 			)
 		)
 		(uuid "a0b5aeab-389c-5df9-9314-4c650498578c")
-	)
-	(text "0.65 V across 1 ohm turns Q3 (Q4)"
-		(exclude_from_sim no)
-		(at 394.55 180.48 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "a3e4cf7d-1577-58e9-97a6-ee3e12bf1f4a")
 	)
 	(text "LOOP (SW2)"
 		(exclude_from_sim no)
@@ -5714,16 +4984,16 @@
 		)
 		(uuid "b4dea645-f08b-500b-b620-ceac1e6ca8a2")
 	)
-	(text "small transistor per half hold a short to 0.65 A; the"
+	(text "1 V per ampere of motor current, for a scope."
 		(exclude_from_sim no)
-		(at 345.44 368.245 0)
+		(at 394.56 178.08 0)
 		(effects
 			(font
-				(size 1.3 1.3)
+				(size 1 1)
 			)
 			(justify left)
 		)
-		(uuid "bba012bd-b617-5755-8b3d-937d45446a5f")
+		(uuid "bb119d1d-5227-5b26-bb6d-14e9c2874088")
 	)
 	(text "overshoots; near 100 (P only) it oscillates: the period"
 		(exclude_from_sim no)
@@ -5779,6 +5049,17 @@
 			(justify left)
 		)
 		(uuid "caf35e19-1498-5e82-857e-3dac80555c70")
+	)
+	(text "R21, R22: 1 ohm, not in the book.  Across either one,"
+		(exclude_from_sim no)
+		(at 394.56 176.08 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "cd180871-eeac-5bdb-9acd-512eb8c40c54")
 	)
 	(text "-90 degrees would make -180 at a few hertz.  The pseudo op-amp has gain 1 to 101 and no phase shift of its own."
 		(exclude_from_sim no)
@@ -5877,17 +5158,6 @@
 			(justify left)
 		)
 		(uuid "d82ead2b-e7c6-5c31-bec2-4b4e70dba554")
-	)
-	(text "barely limited."
-		(exclude_from_sim no)
-		(at 394.55 188.48 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "db31a4a2-92dd-5f32-ad77-65e2c817cabd")
 	)
 	(text "3: the jack"
 		(exclude_from_sim no)
@@ -6020,7 +5290,7 @@
 		)
 		(uuid "f5c01110-640c-5e90-ac30-3a311f229935")
 	)
-	(text "knob, centre detent = 0 V"
+	(text "knob, centre detent = 0 V, clockwise = +"
 		(exclude_from_sim no)
 		(at 30.48 127.48 0)
 		(effects
@@ -6169,12 +5439,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "218f94e0-363d-5694-91d4-36aadfea714e")
-	)
-	(junction
-		(at 402.59 132.08)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "223cffef-ea4c-5cbd-b739-bc42c908ff2d")
 	)
 	(junction
 		(at 485.14 269.24)
@@ -6357,12 +5621,6 @@
 		(uuid "69d139ff-8c39-5e59-8834-1131a4ca8005")
 	)
 	(junction
-		(at 391.16 147.32)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "6ae53322-24f9-56a0-95ad-8f8c1e23c270")
-	)
-	(junction
 		(at 142.24 129.54)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -6423,18 +5681,6 @@
 		(uuid "87d20708-0de9-5ec6-b7a3-6e00339429bc")
 	)
 	(junction
-		(at 381 154.94)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "885e6b81-82a0-5d39-84a7-d23a3c17d872")
-	)
-	(junction
-		(at 391.16 116.84)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8af7eed4-de63-595c-b6aa-a5d9574437a6")
-	)
-	(junction
 		(at 459.74 190.5)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -6481,12 +5727,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a4a982e7-8daf-5e75-9845-9b16d0bd6a95")
-	)
-	(junction
-		(at 381 109.22)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a8011a08-1a8e-58af-8515-57756c4a1c4e")
 	)
 	(junction
 		(at 223.52 132.08)
@@ -6838,16 +6078,6 @@
 	)
 	(wire
 		(pts
-			(xy 391.16 116.84) (xy 394.97 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0f4a5fbc-c8cc-5bdc-bb9e-2852461efbe1")
-	)
-	(wire
-		(pts
 			(xy 276.86 129.54) (xy 271.78 129.54)
 		)
 		(stroke
@@ -7115,26 +6345,6 @@
 			(type default)
 		)
 		(uuid "28efb446-b4a1-5fca-9b0c-6ccfd0fbabbf")
-	)
-	(wire
-		(pts
-			(xy 402.59 132.08) (xy 402.59 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2b658d6c-b65d-5860-8916-0c8e20a8ff69")
-	)
-	(wire
-		(pts
-			(xy 381 167.64) (xy 381 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2d90f6b2-eeef-5c65-8147-e276e3823f45")
 	)
 	(wire
 		(pts
@@ -7548,16 +6758,6 @@
 	)
 	(wire
 		(pts
-			(xy 391.16 147.32) (xy 394.97 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "57147504-6128-5f34-a24d-e69f828a344d")
-	)
-	(wire
-		(pts
 			(xy 281.94 157.48) (xy 304.8 157.48)
 		)
 		(stroke
@@ -7858,16 +7058,6 @@
 	)
 	(wire
 		(pts
-			(xy 402.59 152.4) (xy 402.59 156.21)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6f7e8c1e-9a32-5290-8092-cebec8a61d8d")
-	)
-	(wire
-		(pts
 			(xy 266.7 200.66) (xy 266.7 231.14)
 		)
 		(stroke
@@ -8068,16 +7258,6 @@
 	)
 	(wire
 		(pts
-			(xy 402.59 111.76) (xy 402.59 107.95)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8a0d538d-03ac-5198-815d-1183e571ec9d")
-	)
-	(wire
-		(pts
 			(xy 391.16 104.14) (xy 391.16 66.04)
 		)
 		(stroke
@@ -8085,16 +7265,6 @@
 			(type default)
 		)
 		(uuid "8a17bb08-eda3-5c74-9032-58d1bc96fe9f")
-	)
-	(wire
-		(pts
-			(xy 402.59 163.83) (xy 402.59 167.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8aee64e9-e273-56d4-80cf-2c6dd8cb9cf4")
 	)
 	(wire
 		(pts
@@ -8155,16 +7325,6 @@
 			(type default)
 		)
 		(uuid "8da8bb65-9f14-54e3-8696-1faa88ed640b")
-	)
-	(wire
-		(pts
-			(xy 402.59 96.52) (xy 381 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8dfadd90-550b-5835-9dca-e09e06f2abae")
 	)
 	(wire
 		(pts
@@ -8595,16 +7755,6 @@
 			(type default)
 		)
 		(uuid "c3fdb960-1df0-535f-a605-85edc2bed92b")
-	)
-	(wire
-		(pts
-			(xy 381 96.52) (xy 381 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c4a26372-a827-5cfc-b700-bca258ee74d3")
 	)
 	(wire
 		(pts
@@ -9098,26 +8248,6 @@
 	)
 	(wire
 		(pts
-			(xy 402.59 121.92) (xy 402.59 132.08)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f83c954d-c507-54dd-9be3-258b3674ecfa")
-	)
-	(wire
-		(pts
-			(xy 402.59 167.64) (xy 381 167.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f881f09f-e8e4-52e8-a47e-2d492f59c406")
-	)
-	(wire
-		(pts
 			(xy 194.31 205.74) (xy 195.58 205.74)
 		)
 		(stroke
@@ -9155,16 +8285,6 @@
 			(type default)
 		)
 		(uuid "fba0091a-a731-5dda-bf69-421de4493bc4")
-	)
-	(wire
-		(pts
-			(xy 402.59 100.33) (xy 402.59 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fc02577b-dd09-5904-a74e-890ab001b2e1")
 	)
 	(wire
 		(pts
@@ -9841,109 +8961,6 @@
 			(project "motorpid"
 				(path "/5458a448-49ab-515d-97fb-f36ec2d068a1"
 					(reference "#PWR0008")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:D")
-		(at 402.59 104.14 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "06960e18-763a-500d-9207-9082f263d930")
-		(property "Reference" "D5"
-			(at 404.99 102.74 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "1N4148W"
-			(at 404.99 105.54 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Diode_SMD:D_SOD-123"
-			(at 402.59 104.14 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 402.59 104.14 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" ""
-			(at 402.59 104.14 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC" "C81598"
-			(at 402.59 104.14 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MPN" "1N4148W"
-			(at 402.59 104.14 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0e0c687d-dbed-5825-8abe-2c04fd1964f0")
-		)
-		(pin "2"
-			(uuid "e6d6b59f-9f15-5868-9ace-cff530f498f8")
-		)
-		(instances
-			(project "motorpid"
-				(path "/5458a448-49ab-515d-97fb-f36ec2d068a1"
-					(reference "D5")
 					(unit 1)
 				)
 			)
@@ -16090,109 +15107,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:D")
-		(at 402.59 160.02 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "6df7766a-bb2d-5760-a69c-4f89e2a9d18b")
-		(property "Reference" "D6"
-			(at 404.99 158.62 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "1N4148W"
-			(at 404.99 161.42 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Diode_SMD:D_SOD-123"
-			(at 402.59 160.02 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 402.59 160.02 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" ""
-			(at 402.59 160.02 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC" "C81598"
-			(at 402.59 160.02 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MPN" "1N4148W"
-			(at 402.59 160.02 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "11946ab5-9c4e-55f3-bf91-fd1d7b12181d")
-		)
-		(pin "2"
-			(uuid "e3899682-ed33-53c2-b573-8e454e3126a4")
-		)
-		(instances
-			(project "motorpid"
-				(path "/5458a448-49ab-515d-97fb-f36ec2d068a1"
-					(reference "D6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R_Potentiometer_Trim_US")
 		(at 294.64 142.24 90)
 		(unit 1)
@@ -21454,113 +20368,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Transistor_BJT:MMBT3906")
-		(at 400.05 147.32 0)
-		(mirror x)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "c0b85c8c-a441-517e-a13a-b027913e36b4")
-		(property "Reference" "Q4"
-			(at 403.65 147.92 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "2N3906"
-			(at 403.65 150.32 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 400.05 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 400.05 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" ""
-			(at 400.05 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC" "C53444"
-			(at 400.05 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MPN" "MMBT3906LT1G"
-			(at 400.05 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "6f452949-a5d8-5475-a64f-1acd0cd5114b")
-		)
-		(pin "2"
-			(uuid "183df8d5-d749-54a8-a121-e7cdafc2d6ad")
-		)
-		(pin "3"
-			(uuid "c00446ec-bdab-545e-8e67-e4209937210f")
-		)
-		(instances
-			(project "motorpid"
-				(path "/5458a448-49ab-515d-97fb-f36ec2d068a1"
-					(reference "Q4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Connector:TestPoint")
 		(at 482.6 325.12 180)
 		(unit 1)
@@ -23791,6 +22598,7 @@
 	(symbol
 		(lib_id "Device:R_Potentiometer_US")
 		(at 55.88 132.08 0)
+		(mirror x)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -25570,112 +24378,6 @@
 			(project "motorpid"
 				(path "/5458a448-49ab-515d-97fb-f36ec2d068a1"
 					(reference "J4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_BJT:MMBT3904")
-		(at 400.05 116.84 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "fb6f7cb8-412d-5687-8733-d3b2ecf9d0bd")
-		(property "Reference" "Q3"
-			(at 403.65 113.84 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "2N3904"
-			(at 403.65 116.24 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 400.05 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 400.05 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" ""
-			(at 400.05 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC" "C20526"
-			(at 400.05 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MPN" "MMBT3904"
-			(at 400.05 116.84 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "56a319cb-be05-59e8-a755-1e1e8b62a2e9")
-		)
-		(pin "2"
-			(uuid "4d764bf3-eeb5-5af9-ab1d-c32d120d22ef")
-		)
-		(pin "3"
-			(uuid "980b3fa1-a311-5be0-8397-ade6ff288d8e")
-		)
-		(instances
-			(project "motorpid"
-				(path "/5458a448-49ab-515d-97fb-f36ec2d068a1"
-					(reference "Q3")
 					(unit 1)
 				)
 			)
