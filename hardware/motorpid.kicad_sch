@@ -3790,18 +3790,6 @@
 		)
 	)
 	(rectangle
-		(start 193.04 237.74)
-		(end 320.04 305.26)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "05d0399b-6cec-49d5-84d3-92309072a3b1")
-	)
-	(rectangle
 		(start 454.2 119.08)
 		(end 513.3 193.1)
 		(stroke
@@ -3811,7 +3799,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "29bd805c-bcd3-4f6b-9b44-fe7b1e8c6edd")
+		(uuid "0e6034ba-cede-4776-80a8-9f6e08c115dd")
 	)
 	(rectangle
 		(start 193.04 166.62)
@@ -3823,19 +3811,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "40836d8b-6241-45a7-bef0-20dbdd8243cb")
-	)
-	(rectangle
-		(start 124.46 100.08)
-		(end 320.04 164.08)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "d2ff10c4-ef4e-420f-a97e-560306976fe7")
+		(uuid "12c3c158-8681-49e5-97c2-5c9cc4f8f9b6")
 	)
 	(rectangle
 		(start 410.02 96.58)
@@ -3847,7 +3823,31 @@
 		(fill
 			(type none)
 		)
-		(uuid "effc391f-5cf0-42bd-8c5d-54416f864701")
+		(uuid "1bd297b9-4978-4688-b52b-3812449cb947")
+	)
+	(rectangle
+		(start 193.04 237.74)
+		(end 320.04 305.26)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "661d62df-30cf-4386-aaa2-3d7a610df150")
+	)
+	(rectangle
+		(start 124.46 100.08)
+		(end 320.04 164.08)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "6c869a82-43c9-4ac3-9764-a43ecf0fd641")
 	)
 	(text "6.8k ends keep it to ±6.4 V, inside what the motor pot"
 		(exclude_from_sim no)
@@ -4426,6 +4426,17 @@
 		)
 		(uuid "59be7f9c-6b4c-5752-bb51-20f71236f2d3")
 	)
+	(text "in 90 ms with 1 % overshoot.  I removes the residual error at low P gain."
+		(exclude_from_sim no)
+		(at 33.02 54.42 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+			)
+			(justify left)
+		)
+		(uuid "5ac834cb-b227-5266-a2e4-ee611ab3aae7")
+	)
 	(text "TARGET"
 		(exclude_from_sim no)
 		(at 30.48 125.08 0)
@@ -4448,7 +4459,7 @@
 		)
 		(uuid "6187e38d-0b92-50a5-a1a0-41af9a65851c")
 	)
-	(text "Simulated as drawn (sim/pid_sim.py, the fader modelled from its data sheet): P only rings at 11 Hz when the gain"
+	(text "Simulated as drawn (sim/pid_sim.py, the fader modelled from its data sheet): P only rings at 12 Hz when the gain"
 		(exclude_from_sim no)
 		(at 33.02 48.22 0)
 		(effects
@@ -4820,7 +4831,7 @@
 		)
 		(uuid "97849c77-f8d6-51ed-a714-6957c13757f2")
 	)
-	(text "nears 100; D equal to P there wants RC = 1 / 2 pi f = 14 ms (RV3 near 643k with 22 nF), and then gain 100 settles"
+	(text "nears 100; D equal to P there wants RC = 1 / 2 pi f = 13 ms (RV3 near 611k with 22 nF), and then gain 100 settles"
 		(exclude_from_sim no)
 		(at 33.02 51.32 0)
 		(effects
@@ -5016,17 +5027,6 @@
 			(justify left)
 		)
 		(uuid "c307d3a6-2ce9-5c0b-8e31-afe4f752480b")
-	)
-	(text "in 92 ms with 1 % overshoot.  I removes the residual error at low P gain."
-		(exclude_from_sim no)
-		(at 33.02 54.42 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-			)
-			(justify left)
-		)
-		(uuid "c3f37a3e-3d92-5163-b2e7-b29cf0d3e7d2")
 	)
 	(text "stays inside the rails"
 		(exclude_from_sim no)

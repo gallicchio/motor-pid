@@ -100,8 +100,9 @@ class Deck:
         return self.net[(ref, str(p))]
 
     def lines(self, sw, trim, knob=0.0, source="pulse(0 1 0.1 1m 1m 10 20)", loop_open=False,
-              motor_short=False, pot_pos=0.0, stall_at=None):
+              motor_short=False, pot_pos=0.0, stall_at=None, ic_zero=()):
         """The deck for one scenario.  sw: {"SW1": 1 or 3, ...}; trim: {"RV2": ohms, ...}."""
+        self._ic_zero = tuple(ic_zero)
         L = []
         for ref, val in sorted(self.value.items()):
             kind = re.match(r"[A-Z]+", ref).group(0)
@@ -112,8 +113,8 @@ class Deck:
             elif kind == "C":
                 L.append(f"C{ref} {self.pin(ref, 1)} {self.pin(ref, 2)} {value_si(val):g}")
             elif kind == "RV":
-                if ref == "RV1":                       # the knob: pin 1 top (+), 3 bottom (-), 2 wiper
-                    f = (1.0 - knob) / 2.0             # knob = +1 puts the wiper at the + end
+                if ref == "RV1":                       # the knob: pin 3 is the + end, pin 1 the - end, 2 the wiper
+                    f = (1.0 + knob) / 2.0             # knob = +1 puts the wiper at the + end (pin 3)
                     L.append(f"R{ref}a {self.pin(ref, 1)} {self.pin(ref, 2)} {max(1.0, 10e3 * f):g}")
                     L.append(f"R{ref}b {self.pin(ref, 2)} {self.pin(ref, 3)} {max(1.0, 10e3 * (1 - f)):g}")
                 else:                                  # a rheostat: 1 to 3, the wiper tied to 3
@@ -187,7 +188,7 @@ class Deck:
         """The 10 k track: the wiper at pos (pot volts) between its ends."""
         return [f"Rta {top} {wiper} R = {{ 10e3 * (0.5 - min(max(V(pos), {-V_END}), {V_END}) / {2 * V_END}) + 1 }}",
                 f"Rtb {wiper} {bottom} R = {{ 10e3 * (0.5 + min(max(V(pos), {-V_END}), {V_END}) / {2 * V_END}) + 1 }}",
-                f".ic V(pos)={pos0}"]
+                f".ic V(pos)={pos0}"] + [f".ic V({spice_name(n)})=0" for n in self._ic_zero]
 
 
 def run(deck_lines, tstop, tstep=20e-6, extra_cmds=()):
@@ -230,7 +231,7 @@ def main(plots=False):
     D = Deck()
     R = {"date": "2026-10-24", "plant": dict(v_end=round(V_END, 3), r_motor=R_MOTOR, ke_v_per_vps=round(KE, 4),
                                              tau_m_s=TAU_M, i_stick_a=I_STICK)}
-    base_sw = {"SW1": 3, "SW2": 3, "SW3": 3, "SW4": 3, "SW5": 1}
+    base_sw = {"SW1": 3, "SW2": 3, "SW3": 1, "SW4": 1, "SW5": 1}      # D and I off (pole 1), loop closed, the jack
     base_trim = {"RV2": 0.0, "RV3": 640e3, "RV4": 100e3}
     curves = {}
 
@@ -285,7 +286,7 @@ def main(plots=False):
     PD = {}
     g = 22
     for label, rv3 in (("none", None), ("rule", rc_d / 22e-9), ("third", rc_d / 22e-9 / 3), ("triple", 3 * rc_d / 22e-9)):
-        sw = dict(base_sw, SW3=(3 if rv3 is None else 1))
+        sw = dict(base_sw, SW3=(1 if rv3 is None else 3))
         trim = gain_trim(g)
         if rv3 is not None:
             trim["RV3"] = min(rv3, 1e6)
@@ -299,7 +300,7 @@ def main(plots=False):
         print(f"P {g} + D {label:6s} (RV3 {m['rv3_k']}k): overshoot {m['overshoot_pct']:5.1f} %, settles {m['settle_s']*1e3:5.0f} ms")
     R["pd"] = PD
     # high P gain rescued by D
-    sw = dict(base_sw, SW3=1)
+    sw = dict(base_sw, SW3=3)
     trim = gain_trim(100); trim["RV3"] = min(rc_d / 22e-9, 1e6)
     ng = run(D.lines(sw, trim), 1.6)
     t = np.array(ng.vec("time")); pos = np.array(ng.vec("v(" + spice_name("POSITION") + ")"))
@@ -310,10 +311,10 @@ def main(plots=False):
 
     # ---- I: the residual error at low gain, and its removal ------------------------------
     PI = {}
-    for label, sw4, rv4 in (("P only", 3, 100e3), ("with I", 1, 100e3), ("too much I", 1, 5e3)):
-        sw = dict(base_sw, SW3=1, SW4=sw4)
+    for label, sw4, rv4 in (("P only", 1, 100e3), ("with I", 3, 100e3), ("too much I", 3, 5e3)):
+        sw = dict(base_sw, SW3=3, SW4=sw4)
         trim = gain_trim(5); trim["RV3"] = min(rc_d / 22e-9, 1e6); trim["RV4"] = rv4
-        ng = run(D.lines(sw, trim, source="pulse(0 1 0.1 1m 1m 10 20)"), 8.0)
+        ng = run(D.lines(sw, trim, source="pulse(0 1 0.1 1m 1m 10 20)", ic_zero=("I",)), 8.0)
         t = np.array(ng.vec("time")); pos = np.array(ng.vec("v(" + spice_name("POSITION") + ")"))
         m = step_metrics(t, pos, 0.1, 0.0, 1.0)
         m["residual_mv"] = float((1.0 - pos[-1]) * 1e3)
@@ -339,7 +340,7 @@ def main(plots=False):
                       p_q1_w=round(float(abs(i_s[-1]) * (15 - drv[-1])), 1))
     print("MOTOR shorted to ground:", R["short"])
     # the slew of the motor drive, large step, closed loop at gain 22 with D
-    sw = dict(base_sw, SW3=1)
+    sw = dict(base_sw, SW3=3)
     trim = gain_trim(22); trim["RV3"] = min(rc_d / 22e-9, 1e6)
     ng = run(D.lines(sw, trim, source="pulse(-5 5 0.1 1m 1m 10 20)"), 1.0)
     t = np.array(ng.vec("time")); pos = np.array(ng.vec("v(" + spice_name("POSITION") + ")"))

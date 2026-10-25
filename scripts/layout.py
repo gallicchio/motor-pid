@@ -487,7 +487,31 @@ BOXES = [
 ]
 
 FIDUCIALS = [(12.0, 10.0), (12.0, 110.0), (158.0, 112.0)]
-QR_AT, QR_MODULE = (52.0, 70.0), 0.6
+QR_AT, QR_MODULE = (64.0, 80.0), 0.6
 BACK_TITLE_AT = (85.0, 44.0)
-BACK_X, BACK_Y, BACK_PITCH = 40.0, 46.0, 1.9
-BACK_TEXT = ["(back text to come)"]
+BACK_X, BACK_Y, BACK_PITCH, BACK_SIZE = 43.0, 56.0, 1.7, 0.9
+BACK_TEXT = [
+    "LAB 10L: the fader's wiper is held",
+    "where TARGET says, by P, D and I.",
+    "",
+    "POWER: +15, GND, -15 V, 1 A each.",
+    "  Both green lamps light.",
+    "FADER: motor to MOTOR + GND; track",
+    "  ends to POT + and -, wiper to 2.",
+    "  POSITION must read +7.7 V at the",
+    "  + end.  If the loop runs away,",
+    "  swap the two motor wires.",
+    "SWITCHES to start: TARGET SOURCE",
+    "  1 (knob), LOOP 1 (open), D OFF 1,",
+    "  I OFF 1, D CAPACITOR 1 (22 nF).",
+    "  Trimmers fully anticlockwise.",
+    "THEN: LOOP 3 closes it.  Raise P",
+    "  GAIN until it rings (~12 Hz),",
+    "  switch D IN and turn D GAIN up;",
+    "  back to low P, I IN, I GAIN up.",
+    "SQUARE WAVE: TARGET SOURCE 3, feed",
+    "  TARGET IN +/-0.5 V at 0.2 Hz.",
+    "STALL: the 0.35 A fuse opens in",
+    "  seconds, red lamps light; resets.",
+    "PROBE LOOPS on every node, GND x4.",
+]

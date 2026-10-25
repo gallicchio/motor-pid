@@ -391,12 +391,39 @@ PREVIEW_CHECKS = [
 
 def CLAIMS(parts_cost, nchecks, loops, smt, tht, n_vias, R, p1, p2, each10):
     """Every number the hand-written documents quote from the build."""
+    p5, p22 = R["p_only"]["5"], R["p_only"]["22"]
     return [
         ("README.md", r"about \$([0-9.]+) in parts per board", f"{parts_cost:.2f}"),
         ("README.md", r"(\d+) circuit assertions", str(nchecks)),
-        ("README.md", r"(\d+) probe loops", str(loops)),
-        ("docs/DESIGN_NOTES.md", r"(\d+) SMT and (\d+) through-hole joints", (str(smt), str(tht))),
-        ("docs/DESIGN_NOTES.md", r"(\d+) vias", str(n_vias)),
+        ("README.md", r"\((\d+) probe loops", str(loops)),
+        ("README.md", r"\b(\d+) x (\d+) mm printed circuit board", (f"{layout.BOARD_W:.0f}", f"{layout.BOARD_H:.0f}")),
+        ("docs/HANDBOOK.md", r"draws about (\d+) mA with no motor", f"{R['i_supply_ma']:.0f}"),
+        ("docs/HANDBOOK.md", r"the rails after the diodes \| ±([0-9.]+) V", f"{R['op']['+15V']:.1f}"),
+        ("docs/HANDBOOK.md", r"gain of 5 the simulation leaves (\d+) mV", f"{p5['residual_v'] * 1e3:.0f}"),
+        ("docs/HANDBOOK.md", r"sustains an oscillation near (\d+) Hz", f"{R['f_nat_hz']:.0f}"),
+        ("docs/HANDBOOK.md", r"about (\d+) in the simulation\)", "22"),
+        ("docs/HANDBOOK.md", r"\((\d+) ms; (\d+)k\)", (f"{R['rc_d_ms']:.0f}", f"{R['rv3_k']:.0f}")),
+        ("docs/HANDBOOK.md", r"settles in (\d+) ms with (\d+) % overshoot",
+         (f"{R['pd_gain100']['settle_s'] * 1e3:.0f}", f"{R['pd_gain100']['overshoot_pct']:.0f}")),
+        ("docs/HANDBOOK.md", r"stalls the motor at about ([0-9.]+) A", f"{R['stall']['i_motor_a']:.1f}"),
+        ("docs/HANDBOOK.md", r"pulls about ([0-9.]+) A through the driver", f"{R['short']['i_short_a']:.0f}"),
+        ("docs/DESIGN_NOTES.md", r"draws about ([0-9.]+) A at ([0-9.]+) V in the simulation, ([0-9.]+) W",
+         (f"{R['stall']['i_motor_a']:.2f}", f"{R['stall']['v_motor']:.1f}", f"{R['stall']['p_q1_w']:.1f}")),
+        ("docs/DESIGN_NOTES.md", r"puts ([0-9.]+) A and (\d+) W into one transistor",
+         (f"{R['short']['i_short_a']:.1f}", f"{R['short']['p_q1_w']:.0f}")),
+        ("docs/DESIGN_NOTES.md", r"natural frequency with P gain at the\s+top is about (\d+) Hz", f"{R['f_nat_hz']:.0f}"),
+        ("docs/DESIGN_NOTES.md", r"asks for\s+(\d+) ms, which with 22 nF puts the D GAIN trimmer at (\d+)k",
+         (f"{R['rc_d_ms']:.0f}", f"{R['rv3_k']:.0f}")),
+        ("docs/DESIGN_NOTES.md", r"(\d+) SMT and (\d+) through-hole joints, (\d+) vias", (str(smt), str(tht), str(n_vias))),
+        ("docs/DESIGN_NOTES.md", r"makes (\d+) assertions", str(nchecks)),
+        ("docs/DESIGN_NOTES.md", r"quiescent (\d+) mA", f"{R['i_supply_ma']:.0f}"),
+        ("docs/DESIGN_NOTES.md", r"overshoots (\d+) % at gain 22 and rings at about (\d+) Hz",
+         (f"{p22['overshoot_pct']:.0f}", f"{R['f_nat_hz']:.0f}")),
+        ("docs/DESIGN_NOTES.md", r"with D by the rule: ([0-9.]+) % overshoot at gain 22; at gain 100, (\d+) % and (\d+) ms",
+         (f"{R['pd']['rule']['overshoot_pct']:.1f}", f"{R['pd_gain100']['overshoot_pct']:.0f}",
+          f"{R['pd_gain100']['settle_s'] * 1e3:.0f}")),
+        ("docs/DESIGN_NOTES.md", r"a 10 V step peaks at ([0-9.]+) A and ([0-9.]+) V of drive",
+         (f"{R['big_step']['i_peak_a']:.2f}", f"{R['big_step']['drive_peak_v']:.1f}")),
     ]
 
 

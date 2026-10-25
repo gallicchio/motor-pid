@@ -170,6 +170,7 @@ class Board:
                 f.SetLayer(pcbnew.F_Fab)
             if fp.HasField("Description"):
                 fp.SetField("Description", "")
+            self.swap_missing_models(fp, info["footprint"])
             self.board.Add(fp)
             fp.SetPosition(pt(x, y))
             if rot:
@@ -194,6 +195,26 @@ class Board:
                     net=pad.GetNetname())
         self.board.GetDesignSettings().SetAuxOrigin(pt(0, L.BOARD_H))
         board_outline(self.board)
+
+    STAND_INS = {"Potentiometer_Alps_RK09K_Single_Vertical": "Potentiometer_RK09K.wrl",
+                 "Fuse_1812_4532Metric": "Fuse_1812.wrl"}
+
+    def swap_missing_models(self, fp, fpid):
+        """KiCad's AppImage ships footprints whose 3D models it does not ship;
+        those get a plain stand-in body from lib/motorpid.3dshapes, scaled to
+        millimetres, so the render shows a part and the model check passes."""
+        name = fpid.split(":")[1]
+        if name not in self.STAND_INS:
+            return
+        share3d = os.path.join(os.path.dirname(os.path.dirname(SHARE_FP)), "3dmodels")
+        models = list(fp.Models())
+        if all(os.path.exists(m.m_Filename.replace("${KICAD10_3DMODEL_DIR}", share3d)) for m in models):
+            return
+        fp.Models().clear()
+        m = pcbnew.FP_3DMODEL()
+        m.m_Filename = "${KIPRJMOD}/lib/motorpid.3dshapes/" + self.STAND_INS[name]
+        m.m_Scale = pcbnew.VECTOR3D(1 / 2.54, 1 / 2.54, 1 / 2.54)
+        fp.Models().push_back(m)
 
     # ----------------------------------------------------------- copper --
     def resolve(self, p, net):
@@ -858,7 +879,7 @@ class Board:
         self._text(tx, ty + 4.5, "Jason Gallicchio and Claude, rev " + parts.REV + ", " + parts.BOARD_DATE,
                    1.1, 0.15, layer=pcbnew.B_SilkS)
         for i, line in enumerate(L.BACK_TEXT):
-            self._text(L.BACK_X, L.BACK_Y + i * L.BACK_PITCH, line, 1.1, 0.15, justify="left", layer=pcbnew.B_SilkS)
+            self._text(L.BACK_X, L.BACK_Y + i * L.BACK_PITCH, line, L.BACK_SIZE, 0.15, justify="left", layer=pcbnew.B_SilkS)
         qx, qy = L.QR_AT
         n, rects = self.add_qr("https://" + parts.PROJECT_URL, qx, qy, L.QR_MODULE)
         half = n * L.QR_MODULE / 2

@@ -117,6 +117,35 @@ def kf301(n):
     return f"TerminalBlock_KF301_1x{n:02d}.wrl", s
 
 
+def slide_switch():
+    """Shouhan MSK12C02: 8.0 x 3.8 mm body, 1.5 mm tall, pins toward -y in the
+    footprint; a 1.6 mm travel knob standing up near the middle."""
+    s = HEAD
+    s += box(0, 0, 0.75, 8.0, 3.8, 1.5, (0.15, 0.15, 0.15))       # the body
+    s += box(0.75, 0.0, 2.1, 1.6, 1.3, 1.2, (0.92, 0.92, 0.92))   # the slider (centred on pin 2's x)
+    return "SW_MSK12C02.wrl", s
+
+
+def knob_pot():
+    """ALPS RK09K vertical: 9.5 x 11 mm body between the pins and the posts,
+    a 6 mm shaft 20 mm up.  In the footprint the pins are at x = 0, y = 0, 2.5,
+    5 and the posts at x = 7; the body is centred on (5.0, 2.5)."""
+    s = HEAD
+    s += box(5.0, -2.5, 4.0, 11.0, 9.5, 8.0, (0.2, 0.2, 0.22))     # y_model = -y_fp
+    s += prism_z(5.0, -2.5, 8.0, 10.5, 3.5, SILVER)                # the bushing
+    s += prism_z(5.0, -2.5, 10.5, 25.0, 3.0, (0.85, 0.85, 0.88))   # the shaft
+    return "Potentiometer_RK09K.wrl", s
+
+
+def fuse_1812():
+    """A 1812 chip PTC: 4.5 x 3.2 mm, 1.6 mm tall, pale yellow."""
+    s = HEAD
+    s += box(0, 0, 0.8, 4.5, 3.2, 1.6, (0.85, 0.8, 0.45))
+    s += box(-1.9, 0, 0.8, 0.7, 3.2, 1.62, SILVER)
+    s += box(1.9, 0, 0.8, 0.7, 3.2, 1.62, SILVER)
+    return "Fuse_1812.wrl", s
+
+
 def testloop():
     """RH-5019: a 3.8 mm long wire loop, 2.0 mm wide, standing 1.5 mm up."""
     s = HEAD
@@ -129,7 +158,7 @@ def testloop():
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    for maker in (bnc, trimpot, testloop, lambda: kf301(3)):
+    for maker in (bnc, trimpot, testloop, lambda: kf301(3), slide_switch, knob_pot, fuse_1812):
         name, body = maker()
         with open(os.path.join(OUT, name), "w") as fh:
             fh.write(body)

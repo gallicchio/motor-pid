@@ -1,114 +1,114 @@
 {
  "big_step": {
   "drive_peak_v": 13.34,
-  "i_peak_a": 0.79,
+  "i_peak_a": 1.15,
   "overshoot_pct": 0.4,
-  "settle_s": 0.31
+  "settle_s": 0.305
  },
  "date": "2026-10-24",
- "f_nat_hz": 11.3,
+ "f_nat_hz": 11.8,
  "g_nat": 100,
- "i_supply_ma": 3.6,
+ "i_supply_ma": 4.0,
  "op": {
-  "+15V": 14.785,
-  "-15V": -14.736,
-  "BASES": -0.829,
-  "D": -0.0,
-  "DRIVE": -0.199,
-  "ERROR": -0.02,
-  "I": 0.0,
-  "MOTOR": -0.195,
-  "P": 0.02,
-  "POSITION": 0.02,
-  "SUM": -0.199,
-  "TARGET": 0.0
+  "+15V": 14.782,
+  "-15V": -14.782,
+  "BASES": 0.39,
+  "D": 0.0,
+  "DRIVE": 0.0,
+  "ERROR": 0.0,
+  "I": -0.0,
+  "MOTOR": 0.0,
+  "P": -0.0,
+  "POSITION": -0.0,
+  "SUM": 0.0,
+  "TARGET": -0.0
  },
  "p_only": {
   "1.5": {
-   "drive_peak_v": 1.4846330510264285,
-   "i_motor_peak_a": 0.07892214538644401,
-   "i_motor_rms_a": 0.04885985485296297,
-   "overshoot_pct": -46.36979483729141,
+   "drive_peak_v": 1.491362000310263,
+   "i_motor_peak_a": 0.07935955619633325,
+   "i_motor_rms_a": 0.04892303856889537,
+   "overshoot_pct": -46.364033765002546,
    "period_s": null,
-   "residual_v": 0.4636979483729141,
+   "residual_v": 0.46364033765002544,
    "settle_s": 1.5,
    "sustained": false
   },
   "10": {
-   "drive_peak_v": 9.340614742941243,
-   "i_motor_peak_a": 0.47145827529545536,
-   "i_motor_rms_a": 0.05327945119655812,
-   "overshoot_pct": -1.5285750506979667,
+   "drive_peak_v": 9.630087209617159,
+   "i_motor_peak_a": 0.5093902692809625,
+   "i_motor_rms_a": 0.054443651289569885,
+   "overshoot_pct": -1.5733107469828922,
    "period_s": null,
-   "residual_v": 0.015285750506979667,
-   "settle_s": 1.3654212015238754,
+   "residual_v": 0.015733107469828922,
+   "settle_s": 1.3741941419307377,
    "sustained": false
   },
   "100": {
-   "drive_peak_v": 11.743283347890376,
-   "i_motor_peak_a": 0.738953285558958,
-   "i_motor_rms_a": 0.14253503366385586,
-   "overshoot_pct": 20.588438443712477,
-   "period_s": 0.08885466588000927,
-   "residual_v": 0.0027833035458870725,
-   "settle_s": 0.2712216707194699,
+   "drive_peak_v": 11.741386393327161,
+   "i_motor_peak_a": 0.9285423455604401,
+   "i_motor_rms_a": 0.14339172656307045,
+   "overshoot_pct": 19.091031907065382,
+   "period_s": 0.08443549790167865,
+   "residual_v": 0.016375754108670426,
+   "settle_s": 0.26945438627435003,
    "sustained": false
   },
   "22": {
-   "drive_peak_v": 11.448270311829015,
-   "i_motor_peak_a": 0.5951627235299555,
-   "i_motor_rms_a": 0.07124563381374593,
-   "overshoot_pct": 11.976238037147358,
+   "drive_peak_v": 11.44815100695986,
+   "i_motor_peak_a": 0.5952125867982909,
+   "i_motor_rms_a": 0.07166796609137463,
+   "overshoot_pct": 11.99196126570472,
    "period_s": null,
-   "residual_v": 0.037247702531996496,
+   "residual_v": 0.03522462113166536,
    "settle_s": 1.5,
    "sustained": true
   },
   "5": {
-   "drive_peak_v": 4.8055623274966734,
-   "i_motor_peak_a": 0.23494767693257834,
-   "i_motor_rms_a": 0.045662210602232446,
-   "overshoot_pct": -8.910103120324331,
+   "drive_peak_v": 4.8468540493863,
+   "i_motor_peak_a": 0.23772552387802837,
+   "i_motor_rms_a": 0.045737970706063245,
+   "overshoot_pct": -8.910447842607528,
    "period_s": null,
-   "residual_v": 0.08910103120324331,
+   "residual_v": 0.08910447842607527,
    "settle_s": 1.5,
    "sustained": false
   },
   "50": {
-   "drive_peak_v": 11.678007958947918,
-   "i_motor_peak_a": 0.6422378711241113,
-   "i_motor_rms_a": 0.09977886660410819,
-   "overshoot_pct": 18.616310971174865,
-   "period_s": 0.3653148365431102,
-   "residual_v": -0.00554573763540378,
-   "settle_s": 1.2867726554761285,
+   "drive_peak_v": 11.676216489005876,
+   "i_motor_peak_a": 0.6467285445504897,
+   "i_motor_rms_a": 0.09966002046399206,
+   "overshoot_pct": 18.617448089926427,
+   "period_s": 0.3653947578793195,
+   "residual_v": -0.005827110098400423,
+   "settle_s": 1.288127328066291,
    "sustained": false
   }
  },
  "pd": {
   "none": {
-   "overshoot_pct": 11.976238037147358,
+   "overshoot_pct": 11.99196126570472,
    "period_s": null,
    "rv3_k": null,
    "settle_s": 1.5,
    "sustained": true
   },
   "rule": {
-   "overshoot_pct": 3.792585985359187,
+   "overshoot_pct": 3.8264717986526975,
    "period_s": null,
-   "rv3_k": 643,
-   "settle_s": 1.4029675135145827,
+   "rv3_k": 611,
+   "settle_s": 1.3985153057140305,
    "sustained": false
   },
   "third": {
-   "overshoot_pct": 3.9841019241813935,
+   "overshoot_pct": 4.164386430225142,
    "period_s": null,
-   "rv3_k": 214,
-   "settle_s": 1.387819070108006,
+   "rv3_k": 204,
+   "settle_s": 1.4040071215190026,
    "sustained": false
   },
   "triple": {
-   "overshoot_pct": 3.6707751245241615,
+   "overshoot_pct": 3.6846809694367044,
    "period_s": null,
    "rv3_k": 1000,
    "settle_s": 1.5,
@@ -116,32 +116,32 @@
   }
  },
  "pd_gain100": {
-  "overshoot_pct": 0.9644567597822284,
-  "period_s": 0.35132516704238204,
-  "settle_s": 0.09183553219780291,
+  "overshoot_pct": 0.9795120083979869,
+  "period_s": 0.35506979885976736,
+  "settle_s": 0.0896674537956837,
   "sustained": false
  },
  "pi": {
   "P only": {
-   "overshoot_pct": 0.370269956615199,
+   "overshoot_pct": 0.37548945373113707,
    "period_s": null,
-   "residual_mv": -2.3490739627907153,
+   "residual_mv": -3.7548945373113707,
    "rv4_k": 100.0,
-   "settle_s": 4.782196870941396,
+   "settle_s": 4.809465031503759,
    "sustained": false
   },
   "too much I": {
-   "overshoot_pct": 338.14938144985643,
+   "overshoot_pct": 42.43616363113383,
    "period_s": null,
-   "residual_mv": -24.828825402770647,
+   "residual_mv": 105.92844960851156,
    "rv4_k": 5.0,
    "settle_s": 7.9,
    "sustained": true
   },
   "with I": {
-   "overshoot_pct": 9.186056780382135,
+   "overshoot_pct": 9.762017522110922,
    "period_s": null,
-   "residual_mv": -91.86056780382134,
+   "residual_mv": 84.44424486018943,
    "rv4_k": 100.0,
    "settle_s": 7.9,
    "sustained": false
@@ -154,18 +154,18 @@
   "tau_m_s": 0.015,
   "v_end": 7.732
  },
- "rc_d_ms": 14.14,
- "rv3_k": 643.0,
+ "rc_d_ms": 13.44,
+ "rv3_k": 611.0,
  "short": {
-  "i_short_a": 0.738,
-  "p_q1_w": 10.9,
-  "v_drive": 0.24
+  "i_short_a": 2.008,
+  "p_q1_w": 28.9,
+  "v_drive": 0.63
  },
  "stall": {
-  "i_motor_a": 0.602,
+  "i_motor_a": 0.604,
   "i_peak_a": 0.6,
-  "p_motor_w": 5.43,
-  "p_q1_w": 3.15,
-  "v_motor": 9.03
+  "p_motor_w": 5.47,
+  "p_q1_w": 3.14,
+  "v_motor": 9.06
  }
 }

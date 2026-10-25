@@ -177,7 +177,7 @@ def msk12c02():
           line(-1.6, 1.6, 1.6, 1.6, "F.SilkS", SILK_W, f"{name}/silk/b"))
     rect_lines(f, -4.45, -2.85, 4.45, 1.7, "F.CrtYd", CRT_W, f"{name}/crt")
     text_fab(f, "2=C", 0, 0.6, f"{name}/fabtxt", size=0.6)
-    model(f, "${KICAD10_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/SW_SPDT_Shouhan_MSK12C02.step")
+    model(f, "${KIPRJMOD}/lib/motorpid.3dshapes/SW_MSK12C02.wrl")
     return name, f
 
 

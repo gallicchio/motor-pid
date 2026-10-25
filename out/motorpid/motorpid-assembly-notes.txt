@@ -1,0 +1,29 @@
+PID MOTOR CONTROL LOOP -- notes for the assembler
+================================================
+
+PLACEMENTS
+  Use motorpid_cpl_jlcpcb_upload.csv for JLCPCB.  It is motorpid_cpl_kicad_native.csv
+  with JLCPCB's own per-part rotations and datum offsets applied; use the native
+  file anywhere else.
+
+U1-U7 -- LM321 in SOT-23-5, all at the same orientation: pins 1, 2, 3 on the
+  LEFT (toward the triangle's inputs), 4 and 5 on the right.  Pin 1 is the
+  upper-left pad, under the "+" of the triangle.
+
+Q1, Q2 -- DPAK (TO-252).  Q1's tab points UP toward its copper pour, Q2's tab
+  points DOWN toward its pour.  Each sits inside a silkscreen circle.
+
+SW1-SW5 -- MSK12C02 slide switches.  The three pins are on one side of the
+  body; pin 1 is the end pin nearest the silkscreen "1" legend.
+
+RV1 -- ALPS RK09K knob potentiometer with centre detent, keyed by its two
+  mounting posts: it fits one way, pins toward the switch.
+RV2, RV3, RV4 -- 3362P trimmers, keyed by their three holes.
+
+J1, J2, J3 -- BNC jacks.  The barrel points OFF the board edge: J1 and J2 off
+  the left edge, J3 off the bottom edge.
+J4, J5 -- screw terminal blocks on the bottom edge, wire openings facing the
+  edge.  J6 -- screw terminal block on the top edge, openings facing the edge.
+
+D1-D4 (SMA), LED1-LED4 (0805), C11, C12 (electrolytic) -- polarised; the
+  cathode / negative end is pad 1, at the end the silkscreen bar marks.
