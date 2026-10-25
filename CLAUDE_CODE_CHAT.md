@@ -120,3 +120,82 @@ two 10k linear tracks and a touch track, a 10 V motor (6–11 V, 400–800 mA st
 170 x 120 mm, 102 placements, 45 BOM lines, 12 Extended codes, $9.96 in parts per board,
 197 SMT and 27 through-hole joints, 66 vias, 15 probe loops.  `./make.py` runs every stage
 and check from scratch.
+
+## Prompts 3 and 4
+
+Sent while Response 1 was being built, after context resets:
+
+> keep going
+
+> Keep going, but keep this chat updated as to your progress.
+
+## Prompt 5
+
+> Explain more what you changed: "The D and I switches now put pole 3 into the sum and pole 1 off, and the D capacitor switch sits ahead of its two capacitors, so each slide switch's wires leave its one-sided pins without crossing."
+>
+> Then explicitly ask again the things you need my input on.
+
+## Response 2
+
+*2026-10-25 PDT.*
+
+### The switch and why it dictates the wiring
+
+The MSK12C02 has its three terminals in a row along one edge of the body: pin 1, then
+the common pin 2, then pin 3 (the common sits nearer pin 3).  On this board every slide
+switch is turned so that row is a vertical column on its west face.  Copper follows the
+drawn silkscreen on the front layer, with no second-layer escapes except the deliberate
+back runs, so from a column of three pads the only crossing-free pattern is: top pad goes
+up, middle pad goes straight out west, bottom pad goes down.  Whatever arrives from the
+west must land on the common, and whatever has to head up toward the summing amplifier
+(which sits on the row above the D and I stages) must be on the top pad.  The first draft
+had the poles the other way round, so the "to the sum" wire left the bottom pad and had to
+climb past the other two.
+
+### SW3 and SW4 (D IN / OFF, I IN / OFF)
+
+Before: pole 1 fed the 10 k into the sum; pole 3 shorted the stage (D: output to its
+− input; I: across the 10 µF).  Now: pole 3 is the top pad and goes up through R12 (R13)
+into the sum; pole 1 is the bottom pad and goes down to the feedback return row and back
+to the − input; the op-amp's output comes in from the west straight into the common.
+Electrically nothing changed: the same two states with the same parts, only which pin
+number does which.  In the schematic KiCad's SW_SPDT symbol is drawn mirrored vertically
+so pin 3 is the upper throw, matching the board.
+
+### SW5 (D CAPACITOR)
+
+Before: the 22 nF and the 100 nF sat between ERROR and the two poles, and the common went
+on through R15 (1 k) into U4's − input.  That makes the common the one wire that must get
+east past the switch body while both poles are fed from the west.  Now ERROR goes into the
+common from the west, pole 3 goes up and east to the 100 nF, pole 1 goes down and east to
+the 22 nF, and the two capacitors' far ends join and feed R15 together.  For the selected
+capacitor the path ERROR → C → 1 k → virtual ground is identical.  The unselected capacitor
+has one end on an open pole in both versions, and flipping the switch gives the same small
+kick into the differentiator either way.
+
+The "3: … / 1: …" legends beside each switch, the handbook's set-up table, the netlist
+checks and the simulation's default switch states all follow the new assignment.  Which
+physical slider end is "3" remains item 1 of the unverified list.
+
+### Questions, each with the default I will take if unanswered
+
+1. **Slide switch travel.**  Is there an MSK12C02 (or the Sparkfun switch you would use)
+   on hand to check which slider end closes pin 1?  Default: leave the legends, verify on
+   the first board; nothing is damaged if it is backwards, the words just swap.
+2. **Protection.**  I removed the active current limiter; the board relies on the 0.35 A
+   PTC with the 1 Ω emitter resistors as sense.  A dead short of MOTOR to ground is about
+   2 A through one DPAK for the PTC's trip time.  Keep that, or put the limiter back
+   (two small transistors, two diodes, some board)?  Default: keep the PTC only.
+3. **Fader measurements.**  The model assumes 15 Ω winding, 0.67 A stall at 10 V, 50 mA
+   free-running.  Three bench numbers would pin it and confirm the 0.35 A PTC: winding
+   resistance, free-running current at 5 V, and traverse time at 5 V.  Can you measure, or
+   keep the estimates and tune on the bench?  Default: estimates.
+4. **Board size.**  170 x 120 mm, against the op-amp board's 100 x 100.  Five bare boards
+   are $14, ten are $24; assembled, $28 each at five and $21 each at ten.  Fine, or should
+   it shrink (tighter layout, fewer probe loops, smaller text)?  Default: keep it.
+5. **Next step.**  A design-review round first, like the op-amp board's `design_reviews/`,
+   or straight to ordering?  How many assembled?  Who does the JLCPCB upload: I can drive
+   the browser and check the placement preview (unverified item 4), or you upload and send
+   screenshots.  Default: wait for your answer.
+6. **Minor.**  The knob's clockwise end is assumed from the ALPS drawing (pin 3 = +).  Say
+   if you care which way is +.
