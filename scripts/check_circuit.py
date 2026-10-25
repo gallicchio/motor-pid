@@ -124,8 +124,8 @@ def main(path):
     check(N.net("U3", PLUS) == "GND", "U3's + input is grounded")
     m3 = N.net("U3", MINUS)
     check(N.between("P", m3) == ["R11"] and ohms(N.value["R11"]) == 10e3, "R11 = 10k from P into the summing junction")
-    check(N.between(N.net("SW3", 1), m3) == ["R12"] and ohms(N.value["R12"]) == 10e3, "R12 = 10k from SW3 pole 1 (D IN) into the sum")
-    check(N.between(N.net("SW4", 1), m3) == ["R13"] and ohms(N.value["R13"]) == 10e3, "R13 = 10k from SW4 pole 1 (I IN) into the sum")
+    check(N.between(N.net("SW3", 3), m3) == ["R12"] and ohms(N.value["R12"]) == 10e3, "R12 = 10k from SW3 pole 3 (D IN) into the sum")
+    check(N.between(N.net("SW4", 3), m3) == ["R13"] and ohms(N.value["R13"]) == 10e3, "R13 = 10k from SW4 pole 3 (I IN) into the sum")
     r14 = N.between(m3, N.net("RV2", 1))
     check(r14 == ["R14"] and ohms(N.value["R14"]) == 10e3, "R14 = 10k from the summing junction to RV2")
     check(N.net("RV2", 3) == "SUM" and N.net("RV2", 2) == "SUM" and N.value["RV2"] == "1M",
@@ -137,16 +137,18 @@ def main(path):
     # --- U4: the differentiator --------------------------------------------------------
     check(N.net("U4", PLUS) == "GND", "U4's + input is grounded")
     m4 = N.net("U4", MINUS)
-    check(N.net("SW5", 1) == N.net("C5", 2) and N.net("C5", 1) == "ERROR" and abs(farads(N.value["C5"]) - 22e-9) < 1e-12,
-          "SW5 pole 1 takes ERROR through C5 = 22 nF (the slide pot's capacitor)")
-    check(N.net("SW5", 3) == N.net("C6", 2) and N.net("C6", 1) == "ERROR" and abs(farads(N.value["C6"]) - 100e-9) < 1e-12,
-          "SW5 pole 3 takes ERROR through C6 = 100 nF (the book's capacitor)")
-    check(N.between(N.net("SW5", 2), m4) == ["R15"] and ohms(N.value["R15"]) == 1000, "R15 = 1k from SW5's common into U4's - input")
+    check(N.net("SW5", 2) == "ERROR", "SW5's common is ERROR")
+    check(N.net("SW5", 1) == N.net("C5", 1) and abs(farads(N.value["C5"]) - 22e-9) < 1e-12,
+          "SW5 pole 1 puts C5 = 22 nF in series (the slide pot's capacitor)")
+    check(N.net("SW5", 3) == N.net("C6", 1) and abs(farads(N.value["C6"]) - 100e-9) < 1e-12,
+          "SW5 pole 3 puts C6 = 100 nF in series (the book's capacitor)")
+    check(N.net("C5", 2) == N.net("C6", 2) and N.between(N.net("C5", 2), m4) == ["R15"] and ohms(N.value["R15"]) == 1000,
+          "both capacitors feed R15 = 1k into U4's - input")
     check(N.net("RV3", 1) == m4 and N.net("RV3", 3) == "D" and N.net("RV3", 2) == "D" and N.value["RV3"] == "1M",
           "RV3 (1M) is U4's feedback, wiper tied to the output end")
     check(N.between(m4, "D", "C") == ["C7"] and abs(farads(N.value["C7"]) - 470e-12) < 1e-13, "C7 = 470 pF across RV3")
     check(N.net("U4", OUT) == "D", "U4's output is D")
-    check(N.net("SW3", 2) == "D" and N.net("SW3", 3) == m4, "SW3: common D; pole 3 shorts the output to the - input (D OFF)")
+    check(N.net("SW3", 2) == "D" and N.net("SW3", 1) == m4, "SW3: common D; pole 1 shorts the output to the - input (D OFF)")
     rc_slide = 1e6 * 22e-9
     rc_book = 1e6 * 100e-9
     check(abs(rc_slide - 0.022) < 1e-6 and abs(rc_book - 0.1) < 1e-6,
@@ -163,7 +165,7 @@ def main(path):
     check(N.net("RV4", 3) == m5 and N.net("RV4", 2) == m5 and N.value["RV4"] == "1M", "RV4 (1M) from R17 into U5's - input, wiper tied")
     check(N.between(m5, "I", "C") == ["C8"] and abs(farads(N.value["C8"]) - 10e-6) < 1e-9, "C8 = 10 uF from U5's - input to its output")
     check(N.net("U5", OUT) == "I", "U5's output is I")
-    check(N.net("SW4", 2) == "I" and N.net("SW4", 3) == m5, "SW4: common I; pole 3 shorts the capacitor (I OFF, reset)")
+    check(N.net("SW4", 2) == "I" and N.net("SW4", 1) == m5, "SW4: common I; pole 1 shorts the capacitor (I OFF, reset)")
     tau_min, tau_max = 1e3 * 10e-6, 1.001e6 * 10e-6
     check(abs(tau_min - 0.01) < 1e-6 and abs(tau_max - 10.01) < 0.1, f"I's RC runs from {tau_min*1e3:.0f} ms to {tau_max:.0f} s")
 

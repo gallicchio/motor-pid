@@ -246,7 +246,7 @@ def build():
             s.text(up_txt, tx, y + 11.2, size=1.0)
             s.text(low_txt, tx, y + 13.2, size=1.0)
         else:
-            tx = x - 7.0 if mirror else x - 1.0
+            tx = x - 7.0 if mirror == "y" else x - 1.0
             s.text(f"{ref}  {name}", tx, y - 10.5, size=1.1)
             s.text(up_txt, tx, y - 8.0, size=1.0)
             s.text(low_txt, tx, y + 9.0, size=1.0)
@@ -395,21 +395,23 @@ def build():
     p4, m4, o4 = opamp("U4", U4_X, D_Y, drop_dx=15.24)
     ground_plus(p4)
     n4 = inverting_node("U4", m4, D_Y)
-    # the capacitor selector: poles on the left, 1 = 10 nF (slide pot), 3 = 100 nF (book)
-    SW5_X = EX_D + 17.78
-    v1, v2, v3 = switch("SW5", "D CAPACITOR", SW5_X, n4[1], "y",
-                        "1: 22 nF, the slide pot", "3: 100 nF, the rotary pot (the book)")
-    cap("C5", "22nF", EX_D + 7.62, v1[1], rot=90, fields_at="above")
-    cap("C6", "100nF", EX_D + 7.62, v3[1], rot=90, fields_at="below")
-    s.wire((EX_D, v1[1]), (EX_D + 3.81, v1[1]))
-    s.wire((EX_D + 11.43, v1[1]), v1)
-    s.wire((EX_D, v3[1]), (EX_D + 3.81, v3[1]))
-    s.wire((EX_D + 11.43, v3[1]), v3)
-    s.junction(EX_D, v1[1])
-    s.junction(EX_D, v3[1])
-    res("R15", "1k", v2[0] + 6.35, v2[1], rot=90, above=False)
-    s.wire(v2, (v2[0] + 2.54, v2[1]))
-    s.wire((v2[0] + 10.16, v2[1]), n4)
+    # the capacitor selector: ERROR into the common, each pole through its own
+    # capacitor to the 1k (so the switch sits where its wiring leaves cleanly)
+    SW5_X = EX_D + 5.08
+    v1, v2, v3 = switch("SW5", "D CAPACITOR", SW5_X, n4[1], "x",
+                        "3: 100 nF, the rotary pot (the book)", "1: 22 nF, the slide pot", below=True)
+    s.junction(EX_D, v2[1])
+    cap("C5", "22nF", v1[0] + 6.35, v1[1], rot=90, fields_at="below")
+    cap("C6", "100nF", v3[0] + 6.35, v3[1], rot=90, fields_at="above")
+    RX = v1[0] + 12.7
+    s.wire(v1, (v1[0] + 2.54, v1[1]))
+    s.wire((v1[0] + 10.16, v1[1]), (RX, v1[1]), (RX, n4[1]))
+    s.wire(v3, (v3[0] + 2.54, v3[1]))
+    s.wire((v3[0] + 10.16, v3[1]), (RX, v3[1]), (RX, n4[1]))
+    s.junction(RX, n4[1])
+    res("R15", "1k", RX + 5.08, n4[1], rot=90, above=False)
+    s.wire((RX, n4[1]), (RX + 1.27, n4[1]))
+    s.wire((RX + 8.89, n4[1]), n4)
     s.junction(n4[0], n4[1])
     # feedback: the trimmer (rheostat) on the row, 470 pF across it one row up
     RV3_X = U4_X + 10.16
@@ -434,15 +436,15 @@ def build():
     testpoint(o4[0] + 12.7, o4[1], "D", rot=0)
     label("D", o4[0] + 14.2, o4[1])
     SW3_X = o4[0] + 22.86
-    a1, a2, a3 = switch("SW3", "D IN / OFF", SW3_X, o4[1], None,
-                        "1: D IN, to the sum", "3: D OFF, output shorted to its - input")
+    a1, a2, a3 = switch("SW3", "D IN / OFF", SW3_X, o4[1], "x",
+                        "3: D IN, to the sum", "1: D OFF, output shorted to its - input")
     s.wire((o4[0] + 12.7, o4[1]), a2)
-    res("R12", "10k", a1[0] + 6.35, a1[1], rot=90)
-    s.wire(a1, (a1[0] + 2.54, a1[1]))
-    s.wire((a1[0] + 10.16, a1[1]), (SUMX, a1[1]), (SUMX, n3[1]))
+    res("R12", "10k", a3[0] + 6.35, a3[1], rot=90)
+    s.wire(a3, (a3[0] + 2.54, a3[1]))
+    s.wire((a3[0] + 10.16, a3[1]), (SUMX, a3[1]), (SUMX, n3[1]))
     # D off: the switch's lower pole back to the - input node (shorts the feedback)
     RET_D = D_Y + 33.02
-    s.wire(a3, (a3[0] + 2.54, a3[1]), (a3[0] + 2.54, RET_D), (n4[0], RET_D), (n4[0], n4[1]))
+    s.wire(a1, (a1[0] + 2.54, a1[1]), (a1[0] + 2.54, RET_D), (n4[0], RET_D), (n4[0], n4[1]))
     s.text("D = -RV3 C dERROR/dt", U4_X - 2.0, D_Y - 29.21, size=1.3, justify=None)
     s.text("differentiator; 470 pF rolls it off above 500 Hz", U4_X - 2.0, D_Y - 26.67, size=1.1, justify=None)
     s.rect(g(76), D_Y - 31.5, g(126), RET_D + 3.0, style="dash", key="box/D")
@@ -476,17 +478,17 @@ def build():
     testpoint(o5[0] + 12.7, o5[1], "I", rot=0)
     label("I", o5[0] + 14.2, o5[1])
     SW4_X = o5[0] + 22.86
-    b1, b2, b3 = switch("SW4", "I IN / OFF", SW4_X, o5[1], None,
-                        "1: I IN, to the sum", "3: I OFF, capacitor shorted (reset)")
+    b1, b2, b3 = switch("SW4", "I IN / OFF", SW4_X, o5[1], "x",
+                        "3: I IN, to the sum", "1: I OFF, capacitor shorted (reset)")
     s.wire((o5[0] + 12.7, o5[1]), b2)
-    res("R13", "10k", b1[0] + 6.35, b1[1], rot=90)
-    s.wire(b1, (b1[0] + 2.54, b1[1]))
-    s.wire((b1[0] + 10.16, b1[1]), (SUMX, b1[1]))
-    s.wire((SUMX, a1[1]), (SUMX, b1[1]))
-    s.junction(SUMX, a1[1])
+    res("R13", "10k", b3[0] + 6.35, b3[1], rot=90)
+    s.wire(b3, (b3[0] + 2.54, b3[1]))
+    s.wire((b3[0] + 10.16, b3[1]), (SUMX, b3[1]))
+    s.wire((SUMX, a3[1]), (SUMX, b3[1]))
+    s.junction(SUMX, a3[1])
     # I off: shorts the capacitor, so the integrator starts from zero when switched in
     RET_I = I_Y + 33.02
-    s.wire(b3, (b3[0] + 2.54, b3[1]), (b3[0] + 2.54, RET_I), (n5[0], RET_I), (n5[0], n5[1]))
+    s.wire(b1, (b1[0] + 2.54, b1[1]), (b1[0] + 2.54, RET_I), (n5[0], RET_I), (n5[0], n5[1]))
     s.text("I = -(1/RC) integral of ERROR dt", U5_X - 2.0, I_Y - 29.21, size=1.3, justify=None)
     s.text("integrator; the loop itself keeps it from drifting away", U5_X - 2.0, I_Y - 26.67, size=1.1, justify=None)
     s.rect(g(76), I_Y - 31.5, g(126), RET_I + 3.0, style="dash", key="box/I")

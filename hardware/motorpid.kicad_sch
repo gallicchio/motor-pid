@@ -3799,19 +3799,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "002deb47-7100-4121-8a1c-efa571260216")
-	)
-	(rectangle
-		(start 410.02 96.58)
-		(end 452.85 162.08)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "17ba1af6-aed7-4d37-93ee-14e4cbccb0c3")
+		(uuid "05d0399b-6cec-49d5-84d3-92309072a3b1")
 	)
 	(rectangle
 		(start 454.2 119.08)
@@ -3823,7 +3811,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "8ee58b15-2cc6-4f41-b9f4-7bfd2a3f1498")
+		(uuid "29bd805c-bcd3-4f6b-9b44-fe7b1e8c6edd")
 	)
 	(rectangle
 		(start 193.04 166.62)
@@ -3835,7 +3823,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "a7c413c5-a4f8-4028-a12e-97bb5e5beed9")
+		(uuid "40836d8b-6241-45a7-bef0-20dbdd8243cb")
 	)
 	(rectangle
 		(start 124.46 100.08)
@@ -3847,7 +3835,19 @@
 		(fill
 			(type none)
 		)
-		(uuid "eaf0ec19-0617-4171-8cdd-2b51a0b2f8fa")
+		(uuid "d2ff10c4-ef4e-420f-a97e-560306976fe7")
+	)
+	(rectangle
+		(start 410.02 96.58)
+		(end 452.85 162.08)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "effc391f-5cf0-42bd-8c5d-54416f864701")
 	)
 	(text "6.8k ends keep it to ±6.4 V, inside what the motor pot"
 		(exclude_from_sim no)
@@ -3870,17 +3870,6 @@
 			(justify left)
 		)
 		(uuid "040c28b9-9980-52d3-bd02-ec11d3fd3fef")
-	)
-	(text "1: D IN, to the sum"
-		(exclude_from_sim no)
-		(at 258.08 190.12 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "05af2140-6439-5e8c-947a-e6da87d3c710")
 	)
 	(text "it so P, D and I all arrive inverted at U3, which sums"
 		(exclude_from_sim no)
@@ -3936,6 +3925,17 @@
 			(justify left)
 		)
 		(uuid "0c24590c-5ed0-5b1a-8719-618f00d58a83")
+	)
+	(text "1: 22 nF, the slide pot"
+		(exclude_from_sim no)
+		(at 188.96 221.48 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "0cb6c6ff-416c-5907-8d40-f6de0a138551")
 	)
 	(text "Quiescent about 10 mA.  100 nF at every op-amp pin."
 		(exclude_from_sim no)
@@ -4036,17 +4036,6 @@
 		)
 		(uuid "1f8cd33d-de21-5119-a6c7-0c3b8c9d0098")
 	)
-	(text "1: 22 nF, the slide pot"
-		(exclude_from_sim no)
-		(at 193.66 200.28 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "20a288bc-f03a-5378-9ca8-2edd2101d625")
-	)
 	(text "PSEUDO OP-AMP: the book's home-made control amplifier, modest gain and no phase shift (Fig. 10L.6)"
 		(exclude_from_sim no)
 		(at 125.73 98.28 0)
@@ -4057,17 +4046,6 @@
 			(justify left)
 		)
 		(uuid "21272f03-d0d3-5e3f-8d3f-94bf9d48b783")
-	)
-	(text "SW5  D CAPACITOR"
-		(exclude_from_sim no)
-		(at 193.66 197.78 0)
-		(effects
-			(font
-				(size 1.1 1.1)
-			)
-			(justify left)
-		)
-		(uuid "2191144e-663b-568e-8497-81e80bc7f212")
 	)
 	(text "THE PLANT"
 		(exclude_from_sim no)
@@ -4100,6 +4078,28 @@
 			(justify left)
 		)
 		(uuid "25016390-9928-54dd-900a-53e7ab9bc70d")
+	)
+	(text "SW5  D CAPACITOR"
+		(exclude_from_sim no)
+		(at 188.96 217.28 0)
+		(effects
+			(font
+				(size 1.1 1.1)
+			)
+			(justify left)
+		)
+		(uuid "276b091c-872d-5f98-a1f9-173bc207d875")
+	)
+	(text "3: D IN, to the sum"
+		(exclude_from_sim no)
+		(at 258.08 190.12 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "2cd1f299-5fe8-5583-b86c-428ab9ced5bd")
 	)
 	(text "M3 mounting holes, one per corner"
 		(exclude_from_sim no)
@@ -4242,6 +4242,28 @@
 		)
 		(uuid "3f8e2a60-18e1-5409-b154-639e8bf0f1bb")
 	)
+	(text "1: I OFF, capacitor shorted (reset)"
+		(exclude_from_sim no)
+		(at 258.08 278.24 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "3fbfee89-4b1a-596a-9a2a-1aa5bdf34674")
+	)
+	(text "3: 100 nF, the rotary pot (the book)"
+		(exclude_from_sim no)
+		(at 188.96 219.48 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "40ab9080-f2be-5a40-9eb1-7f94fc6b6814")
+	)
 	(text "gain, with the derivative and the integral of the error summed in.  The board is the book's Fig. 10L.10 with every amplifier its"
 		(exclude_from_sim no)
 		(at 33.02 32.72 0)
@@ -4284,17 +4306,6 @@
 			(justify left)
 		)
 		(uuid "446d4c86-c47b-582b-979b-ec993e70a70a")
-	)
-	(text "1: I IN, to the sum"
-		(exclude_from_sim no)
-		(at 258.08 261.24 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "48295af6-b26a-5454-ac84-d7a7565e0eed")
 	)
 	(text "stops.  The loop runs the motor at 50-150 mA rms."
 		(exclude_from_sim no)
@@ -4372,17 +4383,6 @@
 		)
 		(uuid "52467f44-4ef0-5e24-803d-3515d8a3be9b")
 	)
-	(text "3: I OFF, capacitor shorted (reset)"
-		(exclude_from_sim no)
-		(at 258.08 278.24 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "55fdc4b1-c987-5d82-9b69-6d45073cfbc1")
-	)
 	(text "the motorized slide pot (external, on flying"
 		(exclude_from_sim no)
 		(at 485.3 184.1 0)
@@ -4393,17 +4393,6 @@
 			(justify left)
 		)
 		(uuid "5863e85d-b121-5c63-82b9-d4ad76df6ae2")
-	)
-	(text "3: D OFF, output shorted to its - input"
-		(exclude_from_sim no)
-		(at 258.08 207.12 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "586db3ce-6bea-5535-92ee-8b9332940b8c")
 	)
 	(text "SW4  I IN / OFF"
 		(exclude_from_sim no)
@@ -4470,6 +4459,17 @@
 		)
 		(uuid "638e1a6f-dc6a-50c6-97a9-61f57a7236d8")
 	)
+	(text "3: I IN, to the sum"
+		(exclude_from_sim no)
+		(at 258.08 261.24 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "64863fda-4733-5118-8cd3-bfb326fbef50")
+	)
 	(text "the other, 2 to the wiper; MOTOR + and - so that a"
 		(exclude_from_sim no)
 		(at 457.2 347.965 0)
@@ -4524,6 +4524,17 @@
 			(justify left)
 		)
 		(uuid "6ea5f557-e4b0-5dcf-bbdb-c13ead761546")
+	)
+	(text "1: D OFF, output shorted to its - input"
+		(exclude_from_sim no)
+		(at 258.08 207.12 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "70362e9a-b946-5a38-bb71-d40bfae2f2b8")
 	)
 	(text "The book's Fig. 10L.3: the op-amp drives the push-pull"
 		(exclude_from_sim no)
@@ -5039,17 +5050,6 @@
 		)
 		(uuid "c904041b-5016-5d7f-ae0e-741cc5444a9b")
 	)
-	(text "3: 100 nF, the rotary pot (the book)"
-		(exclude_from_sim no)
-		(at 193.66 217.28 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "caf35e19-1498-5e82-857e-3dac80555c70")
-	)
 	(text "R21, R22: 1 ohm, not in the book.  Across either one,"
 		(exclude_from_sim no)
 		(at 394.56 176.08 0)
@@ -5387,12 +5387,6 @@
 		(uuid "0de07945-cfcb-5f83-b192-9fe1ad18c4fe")
 	)
 	(junction
-		(at 182.88 210.82)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "13e77ce7-3eac-5c01-bc08-763042bb5942")
-	)
-	(junction
 		(at 408.94 132.08)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5463,12 +5457,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "25aff120-b480-5b65-aa56-94a7b9f40409")
-	)
-	(junction
-		(at 182.88 205.74)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "26407bcf-5dc8-5567-867c-b15ba73bb60f")
 	)
 	(junction
 		(at 55.88 106.68)
@@ -5655,6 +5643,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "77a4c73a-de50-551f-be57-84240c799085")
+	)
+	(junction
+		(at 182.88 208.28)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7aaa507e-53b0-5b33-8b94-d9ac7b69b353")
 	)
 	(junction
 		(at 238.76 203.2)
@@ -5879,6 +5873,12 @@
 		(uuid "eeae50a3-c1cf-5cf8-bd4b-c147f823a648")
 	)
 	(junction
+		(at 205.74 208.28)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f3466fd9-f4a9-5fde-86f2-eea6ba2c5336")
+	)
+	(junction
 		(at 238.76 132.08)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5985,6 +5985,16 @@
 			(type default)
 		)
 		(uuid "05a4b2a3-8ffa-58ea-83f4-e35cc547a825")
+	)
+	(wire
+		(pts
+			(xy 205.74 210.82) (xy 205.74 208.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "062bd491-dd6a-5803-b78c-6475f512356f")
 	)
 	(wire
 		(pts
@@ -6138,16 +6148,6 @@
 	)
 	(wire
 		(pts
-			(xy 182.88 205.74) (xy 186.69 205.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "18ccf18b-b26d-56cc-86c9-31f4047f468f")
-	)
-	(wire
-		(pts
 			(xy 472.44 251.46) (xy 477.52 251.46)
 		)
 		(stroke
@@ -6298,6 +6298,16 @@
 	)
 	(wire
 		(pts
+			(xy 205.74 208.28) (xy 207.01 208.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "262a7be0-fb67-5f0a-b2da-2a52802e678a")
+	)
+	(wire
+		(pts
 			(xy 96.52 132.08) (xy 101.6 132.08)
 		)
 		(stroke
@@ -6398,6 +6408,16 @@
 	)
 	(wire
 		(pts
+			(xy 193.04 210.82) (xy 195.58 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "35772491-414e-5894-8510-ba5bedc0fd2a")
+	)
+	(wire
+		(pts
 			(xy 104.14 144.78) (xy 106.68 144.78)
 		)
 		(stroke
@@ -6405,6 +6425,16 @@
 			(type default)
 		)
 		(uuid "360d0398-ba5e-50a8-8841-07c52bd64213")
+	)
+	(wire
+		(pts
+			(xy 203.2 210.82) (xy 205.74 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "36d79a8d-2851-5a3b-bace-af5a32f55183")
 	)
 	(wire
 		(pts
@@ -6865,16 +6895,6 @@
 			(type default)
 		)
 		(uuid "5e652c2b-d9de-58d6-ac56-bb2ff0a49cd2")
-	)
-	(wire
-		(pts
-			(xy 194.31 210.82) (xy 195.58 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5f254c53-1b11-5dbc-8e46-7bf70f70f353")
 	)
 	(wire
 		(pts
@@ -7428,6 +7448,16 @@
 	)
 	(wire
 		(pts
+			(xy 205.74 205.74) (xy 205.74 208.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "98c6e751-7099-5a32-9d5f-289005f0e102")
+	)
+	(wire
+		(pts
 			(xy 495.3 121.92) (xy 495.3 129.54)
 		)
 		(stroke
@@ -7435,16 +7465,6 @@
 			(type default)
 		)
 		(uuid "9942a6fe-07cc-57da-a3b2-c10fd74205b2")
-	)
-	(wire
-		(pts
-			(xy 205.74 208.28) (xy 208.28 208.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9b22312b-a8cc-53d7-9899-8e9e79e4e74d")
 	)
 	(wire
 		(pts
@@ -7515,6 +7535,16 @@
 			(type default)
 		)
 		(uuid "a1c71e8b-47d6-5920-959f-4ca7e0dbd975")
+	)
+	(wire
+		(pts
+			(xy 203.2 205.74) (xy 205.74 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a3619dc0-aa59-5b29-a17d-9480a7128939")
 	)
 	(wire
 		(pts
@@ -7605,16 +7635,6 @@
 			(type default)
 		)
 		(uuid "b13486a4-5dcb-584e-9b44-33417945be71")
-	)
-	(wire
-		(pts
-			(xy 182.88 210.82) (xy 186.69 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b1445b17-96bc-5183-8121-cc630c890e37")
 	)
 	(wire
 		(pts
@@ -8068,6 +8088,16 @@
 	)
 	(wire
 		(pts
+			(xy 214.63 208.28) (xy 220.98 208.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e7e78c81-70db-58c3-984a-e82aafa5506b")
+	)
+	(wire
+		(pts
 			(xy 530.86 295.91) (xy 530.86 289.56)
 		)
 		(stroke
@@ -8085,16 +8115,6 @@
 			(type default)
 		)
 		(uuid "e9b5ecf8-df3d-5b2b-bf43-75264f7367bc")
-	)
-	(wire
-		(pts
-			(xy 215.9 208.28) (xy 220.98 208.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ea7192c1-505f-5604-9026-ad2cccb59e1a")
 	)
 	(wire
 		(pts
@@ -8238,6 +8258,16 @@
 	)
 	(wire
 		(pts
+			(xy 193.04 205.74) (xy 195.58 205.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f7a04045-75a3-5288-8763-fb079718700c")
+	)
+	(wire
+		(pts
 			(xy 414.02 146.05) (xy 414.02 325.12)
 		)
 		(stroke
@@ -8245,16 +8275,6 @@
 			(type default)
 		)
 		(uuid "f8358e97-dec3-52e0-8778-1bb9d2e65b0d")
-	)
-	(wire
-		(pts
-			(xy 194.31 205.74) (xy 195.58 205.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f99470b3-ea6c-5188-be56-a89f5a2a7abb")
 	)
 	(wire
 		(pts
@@ -13465,6 +13485,7 @@
 	(symbol
 		(lib_id "Switch:SW_SPDT")
 		(at 259.08 198.12 0)
+		(mirror x)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -15286,7 +15307,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 190.5 205.74 90)
+		(at 199.39 210.82 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -15296,7 +15317,7 @@
 		(dnp no)
 		(uuid "7269756b-9c62-5eb2-975d-a9be277bdc7b")
 		(property "Reference" "C5"
-			(at 190.5 201.14 90)
+			(at 199.39 213.62 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -15306,7 +15327,7 @@
 			)
 		)
 		(property "Value" "22nF"
-			(at 190.5 202.94 90)
+			(at 199.39 215.42 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -15316,7 +15337,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 190.5 205.74 90)
+			(at 199.39 210.82 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15327,7 +15348,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 205.74 90)
+			(at 199.39 210.82 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15338,7 +15359,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 190.5 205.74 90)
+			(at 199.39 210.82 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15349,7 +15370,7 @@
 			)
 		)
 		(property "LCSC" "C1729"
-			(at 190.5 205.74 90)
+			(at 199.39 210.82 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15360,7 +15381,7 @@
 			)
 		)
 		(property "MPN" "CL21B223KBANNNC"
-			(at 190.5 205.74 90)
+			(at 199.39 210.82 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16679,7 +16700,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 190.5 210.82 90)
+		(at 199.39 205.74 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -16689,7 +16710,7 @@
 		(dnp no)
 		(uuid "8c459e53-ea71-516b-a77c-590267f94dca")
 		(property "Reference" "C6"
-			(at 190.5 213.62 90)
+			(at 199.39 201.14 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -16699,7 +16720,7 @@
 			)
 		)
 		(property "Value" "100nF"
-			(at 190.5 215.42 90)
+			(at 199.39 202.94 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -16709,7 +16730,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 190.5 210.82 90)
+			(at 199.39 205.74 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16720,7 +16741,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 210.82 90)
+			(at 199.39 205.74 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16731,7 +16752,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 190.5 210.82 90)
+			(at 199.39 205.74 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16742,7 +16763,7 @@
 			)
 		)
 		(property "LCSC" "C49678"
-			(at 190.5 210.82 90)
+			(at 199.39 205.74 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16753,7 +16774,7 @@
 			)
 		)
 		(property "MPN" "CC0805KRX7R9BB104"
-			(at 190.5 210.82 90)
+			(at 199.39 205.74 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -18974,6 +18995,7 @@
 	(symbol
 		(lib_id "Switch:SW_SPDT")
 		(at 259.08 269.24 0)
+		(mirror x)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -21324,8 +21346,8 @@
 	)
 	(symbol
 		(lib_id "Switch:SW_SPDT")
-		(at 200.66 208.28 0)
-		(mirror y)
+		(at 187.96 208.28 0)
+		(mirror x)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -21335,7 +21357,7 @@
 		(dnp no)
 		(uuid "cc5ef330-e43a-5fe9-90ee-1bee5d0c7c11")
 		(property "Reference" "SW5"
-			(at 200.66 200.66 0)
+			(at 187.96 200.66 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21346,7 +21368,7 @@
 			)
 		)
 		(property "Value" "D CAPACITOR"
-			(at 200.66 215.9 0)
+			(at 187.96 215.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21357,7 +21379,7 @@
 			)
 		)
 		(property "Footprint" "motorpid:SW_SPDT_Shouhan_MSK12C02"
-			(at 200.66 208.28 0)
+			(at 187.96 208.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21368,7 +21390,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 200.66 208.28 0)
+			(at 187.96 208.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21379,7 +21401,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 200.66 208.28 0)
+			(at 187.96 208.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21390,7 +21412,7 @@
 			)
 		)
 		(property "LCSC" "C431540"
-			(at 200.66 208.28 0)
+			(at 187.96 208.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21401,7 +21423,7 @@
 			)
 		)
 		(property "MPN" "MSK12C02"
-			(at 200.66 208.28 0)
+			(at 187.96 208.28 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21795,7 +21817,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 212.09 208.28 90)
+		(at 210.82 208.28 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -21805,7 +21827,7 @@
 		(dnp no)
 		(uuid "d59cd930-b1be-5e61-b8c0-61c1096afe66")
 		(property "Reference" "R15"
-			(at 209.09 210.88 90)
+			(at 207.82 210.88 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -21815,7 +21837,7 @@
 			)
 		)
 		(property "Value" "1k"
-			(at 215.09 210.88 90)
+			(at 213.82 210.88 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -21825,7 +21847,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
-			(at 212.09 208.28 90)
+			(at 210.82 208.28 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21836,7 +21858,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 212.09 208.28 90)
+			(at 210.82 208.28 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21847,7 +21869,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 212.09 208.28 90)
+			(at 210.82 208.28 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21858,7 +21880,7 @@
 			)
 		)
 		(property "LCSC" "C17513"
-			(at 212.09 208.28 90)
+			(at 210.82 208.28 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21869,7 +21891,7 @@
 			)
 		)
 		(property "MPN" "0805W8F1001T5E"
-			(at 212.09 208.28 90)
+			(at 210.82 208.28 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)

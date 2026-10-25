@@ -144,6 +144,7 @@ class Board:
         self.fps = {}
         self.pads = {}            # (ref, pad) -> dict(x, y, w, h, through, net)
         self.qgeom = {}           # ref -> the symbol round each transistor (q_geometry)
+        self.oageom = {}          # ref -> the triangle round each op-amp (oa_geometry)
         self.problems = []
 
     # ------------------------------------------------------------ parts --
@@ -206,6 +207,8 @@ class Board:
                 # a wire reaches a transistor where the symbol's lead leaves
                 # the circle; the copper inside follows the symbol (q_geometry)
                 return self.q_geometry(p[0])["exit"][p[1]]
+            if p[0] in L.OPAMPS:
+                return self.oa_geometry(p[0])["exit"][p[1]]
             return (pad["x"], pad["y"])
         return (float(p[0]), float(p[1]))
 
@@ -220,6 +223,12 @@ class Board:
         self.segments.append((net, a, b, layer))
 
     def via(self, x, y, net):
+        key = (round(x, 3), round(y, 3))
+        if key in self.via_at:
+            if self.via_at[key] != net:
+                self.problems.append(f"two vias at {key}: {self.via_at[key]!r} and {net!r}")
+            return
+        self.via_at[key] = net
         v = pcbnew.PCB_VIA(self.board)
         v.SetPosition(pt(x, y))
         v.SetViaType(pcbnew.VIATYPE_THROUGH)
@@ -232,7 +241,7 @@ class Board:
         self.vias.append((net, x, y))
 
     def wires(self):
-        self.segments, self.vias, self.hops = [], [], []
+        self.segments, self.vias, self.hops, self.via_at = [], [], [], {}
         hops = {(n, a, b): True for (n, a, b) in L.HOPS}
         hops.update({(n, b, a): True for (n, a, b) in L.HOPS})
         for (net, points, width) in L.WIRES:
@@ -252,6 +261,28 @@ class Board:
                 net = self.pads[(ref, num)]["net"]
                 for a, b in zip(path, path[1:]):
                     self.track(a, b, L.W_SIG, net)
+        for ref in L.OPAMPS:
+            g = self.oa_geometry(ref)
+            for num, path in g["copper"].items():
+                net = self.pads[(ref, num)]["net"]
+                for a, b in zip(path, path[1:]):
+                    self.track(a, b, L.W_SIG, net)
+            # V-: pad 2 is trapped between the inputs, so it dives to the back
+            # inside the triangle and surfaces under the triangle's bottom edge
+            net = self.pads[(ref, "2")]["net"]
+            self.via(*g["via_in"], net); self.via(*g["exit"]["2"], net)
+            self.track(g["via_in"], g["exit"]["2"], L.W_SIG, net, pcbnew.B_Cu)
+        # the back-only copper: -15 V from the entry to every flag
+        for (net, points, width) in L.BACK:
+            pts = [self.resolve(p, net) for p in points]
+            for a, b in zip(pts, pts[1:]):
+                self.track(a, b, width, net, pcbnew.B_Cu)
+            for e, p in ((pts[0], points[0]), (pts[-1], points[-1])):
+                if isinstance(p[0], str) and self.pads[(p[0], p[1])]["through"]:
+                    continue
+                self.via(*e, net)
+        for (net, x, y) in L.FLAGS:
+            self.via(x, y, net)
         self.stub_dir = {}
         for (padref, path) in L.GND_STUBS:
             pad = self.pads[padref]
@@ -266,6 +297,23 @@ class Board:
             n = math.hypot(dx, dy) or 1.0
             self.stub_dir[(round(vx, 3), round(vy, 3))] = (dx / n, dy / n)
 
+
+    def pours(self):
+        """Copper under each power transistor's tab, on its collector's net,
+        as a heat spreader; the rail's wire runs into it."""
+        for ref, (x0, y0, x1, y1) in L.POURS.items():
+            net = self.pads[(ref, "2")]["net"]
+            z = pcbnew.ZONE(self.board)
+            z.SetLayer(pcbnew.F_Cu)
+            z.SetNet(self.netmap[net])
+            z.SetAssignedPriority(1)
+            z.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
+            z.SetLocalClearance(mm(0.3)); z.SetMinThickness(mm(0.25))
+            z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
+            o = z.Outline(); o.NewOutline()
+            for (x, y) in ((x0, y0), (x1, y0), (x1, y1), (x0, y1)):
+                o.Append(mm(x), mm(y))
+            self.board.Add(z)
 
     def plane(self):
         z = pcbnew.ZONE(self.board)
@@ -425,6 +473,8 @@ class Board:
             if net == "GND":
                 continue
             key = (round(a[0], 3), round(a[1], 3), round(b[0], 3), round(b[1], 3))
+            if layer == pcbnew.B_Cu and key not in hopset:
+                continue                     # back-only copper is not drawn: its flags are
             if key in hopset:
                 # a hop: a semicircle over the wire it crosses, at the middle
                 cx, cy = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
@@ -444,15 +494,16 @@ class Board:
         # junction dots: a point where three or more segment ends of one net meet,
         # or where a segment ends on the interior of another of the same net
         count = {}
-        for (net, a, b, layer) in self.segments:
+        front = [sg for sg in self.segments if sg[3] != pcbnew.B_Cu]
+        for (net, a, b, layer) in front:
             for e in (a, b):
                 k = (net, round(e[0], 2), round(e[1], 2))
                 count[k] = count.get(k, 0) + 1
-        for (net, a, b, layer) in self.segments:
+        for (net, a, b, layer) in front:
             if net == "GND":
                 continue
             for e in (a, b):
-                for (n2, c, d, l2) in self.segments:
+                for (n2, c, d, l2) in front:
                     if n2 != net or (c, d) == (a, b):
                         continue
                     if self._interior(e, c, d):
@@ -487,6 +538,8 @@ class Board:
             self.ground_symbol(x, y, ux, uy)
         for (x, y) in L.GND_MARKS:
             self.ground_symbol(x, y, 0, 1, start=1.3 + 0.4)
+        for (net, x, y) in L.FLAGS:
+            self.flag_symbol(x, y, net.replace("-15V", "-15 V").replace("+15V", "+15 V"))
 
     def ground_symbol(self, x, y, ux, uy, start=0.55):
         """Three shortening bars across the direction (ux, uy), beyond `start`
@@ -515,20 +568,26 @@ class Board:
         cx, cy = tomm(fp.GetPosition().x), tomm(fp.GetPosition().y)
         m = 1 if side == "left" else -1
         n = 1 if kind == "NPN" else -1
+        dpak = "TO-252" in self.comps[ref]["footprint"]
 
         def P(x, y):
             return (cx + m * x, cy + n * y)
 
-        R, BX, BH, BEND = L.Q_RADIUS, Q_BAR_X, Q_BAR_H, Q_BEND
+        if dpak:
+            R, BX, BH, BEND = L.Q_RADIUS, 3.4, 2.0, 5.4
+            roles = (("1", "B"), ("2", "C"), ("3", "E"))
+        else:
+            R, BX, BH, BEND = 4.0, Q_BAR_X, Q_BAR_H, Q_BEND
+            roles = (("1", "B"), ("2", "E"), ("3", "C"))
         pins = {}
-        for num, name in (("1", "B"), ("2", "E"), ("3", "C")):
+        for num, name in roles:
             p = self.pads[(ref, num)]
             pins[name] = (m * (p["x"] - cx), n * (p["y"] - cy), (p["x1"] - p["x0"]) / 2, (p["y1"] - p["y0"]) / 2)
         xb, yb, hwb, hhb = pins["B"]
         xe, ye, hwe, hhe = pins["E"]
         xc, yc, hwc, hhc = pins["C"]
         if not (xb < -0.5 and xe > 0.5 and abs(xc) < 0.1):
-            raise SystemExit(f"{ref}: the SOT-23 is not turned with its base pad on the bar's side")
+            raise SystemExit(f"{ref}: the package is not turned with its base pad on the bar's side (B {xb:.2f}, E {xe:.2f}, C {xc:.2f})")
         u = (math.sqrt(0.5), math.sqrt(0.5))          # along the emitter leg, bar to bend
 
         def foot(sx, sy):                             # the point of the emitter leg square on to (sx, sy)
@@ -537,14 +596,29 @@ class Board:
 
         g = Q_STUB_GAP
         stubs, copper = {}, {}
+        numof = {name: num for num, name in roles}
+        nB, nC, nE = numof["B"], numof["C"], numof["E"]
+        if dpak:
+            # the DPAK: base and emitter pads side by side below the tab; the
+            # base hairline runs up to the bar's end, the emitter's across to its leg
+            stubs[nB] = [(xb, yb - hhb - g), (-BX + 0.2, BH + 0.2)]
+            copper[nB] = [(-R, 0), (-BX, 0), (-BX, BH), (xb, yb)]
+            stubs[nC] = [(0, yc - hhc - g), (0, -BEND)]
+            copper[nC] = [(0, -R), (0, yc)]
+            ex_leg = (ye - BEND) if ye < BEND else 0.0
+            stubs[nE] = [(xe - hwe - g, ye), (ex_leg, ye)]
+            copper[nE] = [(0, R), (0, BEND), (ex_leg, ye), (xe, ye)]
         # B: a hairline from the pad's inner edge straight across to the bar
-        stubs["1"] = [(xb + hwb + g, yb), (-BX + Q_W_BAR / 2, yb)]
-        copper["1"] = [(-R, 0), (-BX, 0), (-BX, yb), (xb, yb)]
-        # C: straight along the collector's vertical, pad to bend
-        stubs["3"] = [(0, yc - hhc - g), (0, -BEND)]
-        copper["3"] = [(0, -R), (0, yc)]
+        if not dpak:
+            stubs["1"] = [(xb + hwb + g, yb), (-BX + Q_W_BAR / 2, yb)]
+            copper["1"] = [(-R, 0), (-BX, 0), (-BX, yb), (xb, yb)]
+            # C: straight along the collector's vertical, pad to bend
+            stubs["3"] = [(0, yc - hhc - g), (0, -BEND)]
+            copper["3"] = [(0, -R), (0, yc)]
         # E: square on to the emitter leg; round the lone pad first if it is in the way
-        if ye > 0:
+        if dpak:
+            pass
+        elif ye > 0:
             e_s = (xe, ye + hhe + g)
             e_f = foot(*e_s)
             stubs["2"] = [e_s, e_f]
@@ -566,7 +640,7 @@ class Board:
         arrow = [tip, (tail[0] + px * 0.5, tail[1] + py * 0.5), (tail[0] - px * 0.5, tail[1] - py * 0.5)]
         geom = dict(
             cx=cx, cy=cy, R=R,
-            exit={"1": P(-R, 0), "3": P(0, -R), "2": P(0, R)},
+            exit={nB: P(-R, 0), nC: P(0, -R), nE: P(0, R)},
             bar=[P(-BX, -BH), P(-BX, BH)],
             leads=[[P(-R, 0), P(-BX, 0)],
                    [P(-BX, -BH), P(0, -BEND), P(0, -R)],
@@ -574,10 +648,82 @@ class Board:
             arrow=[P(*q) for q in arrow],
             stubs={k: [P(*q) for q in v] for k, v in stubs.items()},
             copper={k: [P(*q) for q in v] for k, v in copper.items()},
-            letters={"B": P(-3.0, -0.9), "C": P(1.15, -3.0), "E": P(1.15, 3.0)},
+            letters={"B": P(-BX - 0.8, -0.9), "C": P(1.15 * R / 4, -BEND + 0.6), "E": P(1.15 * R / 4, BEND - 0.6)},
         )
         self.qgeom[ref] = geom
         return geom
+
+    def oa_geometry(self, ref):
+        """The triangle round op-amp `ref` (SOT-23-5 at rotation 0): where the
+        wires meet it, the hairline from each pad to its lead, and the copper
+        under the hairlines.  exit: "1" + input, "3" - input, "4" output,
+        "5" V+ (straight up from its pad through the top edge), "2" V- (the
+        via under the bottom edge; pad 2's copper reaches it on the back)."""
+        if ref in self.oageom:
+            return self.oageom[ref]
+        fp = self.fps[ref]
+        cx, cy = tomm(fp.GetPosition().x), tomm(fp.GetPosition().y)
+        if abs(fp.GetOrientationDegrees()) > 0.01:
+            raise SystemExit(f"{ref}: op-amps are drawn at rotation 0 only")
+        H, W, d = L.OA_H, L.OA_W, L.OA_IN
+        xl, xr = cx - W / 2, cx + W / 2
+        px, py = {}, {}
+        for num in ("1", "2", "3", "4", "5"):
+            p = self.pads[(ref, num)]
+            px[num], py[num] = p["x"], p["y"]
+        hw, hh = 0.66, 0.30                 # the pad's half size
+        g = Q_STUB_GAP
+        top_at = lambda x: cy - H / 2 + (x - xl) * (H / 2) / W      # the top edge's y at x
+        vplus_x = px["5"]
+        exit = {"1": (xl, cy - d), "3": (xl, cy + d), "4": (xr, cy),
+                "5": (vplus_x, top_at(vplus_x)), "2": (cx, cy + L.OA_VM_DY)}
+        via_in = (px["2"] - hw - g - 1.3, py["2"])
+        stubs = {
+            "1": [(px["1"], py["1"] - hh - g), (px["1"], cy - d), (xl, cy - d)],
+            "3": [(px["3"], py["3"] + hh + g), (px["3"], cy + d), (xl, cy + d)],
+            "4": [(px["4"] + hw + g, py["4"]), (px["4"] + 1.7, py["4"]), (px["4"] + 1.7, cy), (xr, cy)],
+            "5": [(px["5"], py["5"] - hh - g), exit["5"]],
+            "2": [(px["2"] - hw - g, py["2"]), via_in],
+        }
+        copper = {
+            "1": [(px["1"], py["1"]), (px["1"], cy - d), (xl, cy - d)],
+            "3": [(px["3"], py["3"]), (px["3"], cy + d), (xl, cy + d)],
+            "4": [(px["4"], py["4"]), (px["4"] + 1.7, py["4"]), (px["4"] + 1.7, cy), (xr, cy)],
+            "5": [(px["5"], py["5"]), exit["5"]],
+            "2": [(px["2"], py["2"]), via_in],
+        }
+        geom = dict(cx=cx, cy=cy, exit=exit, via_in=via_in, stubs=stubs, copper=copper,
+                    tri=[(xl, cy - H / 2), (xr, cy), (xl, cy + H / 2)],
+                    plus=(xl + 1.5, cy - d + 1.4), minus=(xl + 1.5, cy + d - 1.4))
+        self.oageom[ref] = geom
+        return geom
+
+    def silk_opamps(self):
+        """The triangle round each op-amp, + and - inside at the inputs, a
+        hairline from each pad to its lead, the V- flag under it."""
+        for ref in L.OPAMPS:
+            fp = self.fps[ref]
+            for item in list(fp.GraphicalItems()):
+                if item.GetLayer() == pcbnew.F_SilkS:
+                    fp.Remove(item)
+            g = self.oa_geometry(ref)
+            t = g["tri"]
+            for a, b in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
+                self._line(a, b, width=Q_W_LEAD)
+            for num, path in g["stubs"].items():
+                for a, b in zip(path, path[1:]):
+                    self._line(a, b, width=Q_W_STUB)
+            # the dashed hairline: V- on its way to the back, out through the bottom
+            self._dashed(g["via_in"], g["exit"]["2"], dash=0.5, gap=0.35, width=Q_W_STUB)
+            self._text(*g["plus"], "+", 1.1, 0.2)
+            self._text(*g["minus"], "-", 1.1, 0.2)
+            self.flag_symbol(*g["exit"]["2"], "-15 V")
+
+    def flag_symbol(self, x, y, text):
+        """A power flag the way the sheet draws one: a bar across the point and
+        the rail's name beside it."""
+        self._line((x - 1.1, y), (x + 1.1, y), width=0.3)
+        self._text(x + 1.6, y + 0.05, text, 0.8, 0.15, justify="left")
 
     def silk_transistors(self):
         """The textbook symbol round each SOT-23: a circle, the base bar, the
@@ -625,6 +771,8 @@ class Board:
                 continue
             cx, cy = tomm(fp.GetPosition().x), tomm(fp.GetPosition().y)
             at = L.FIELD_AT.get(ref)
+            if at is None and ref in L.OPAMPS:
+                at = ((2.9, -5.7), (2.9, -4.3))
             r = fp.Reference()
             r.SetTextSize(pcbnew.VECTOR2I(mm(0.8), mm(0.8))); r.SetTextThickness(mm(0.15))
             r.SetTextAngleDegrees(0); r.SetLayer(pcbnew.F_SilkS)
@@ -681,11 +829,12 @@ class Board:
         """The back: the title, how to use the board and a QR code to the
         project, mirrored so they read from the back; nothing is printed over
         the through-hole pads."""
-        self._text(50, 14.0, parts.BOARD_NAME.upper(), 3.0, 0.5, layer=pcbnew.B_SilkS)
-        self._text(50, 18.5, "Jason Gallicchio and Claude, rev " + parts.REV + ", " + parts.BOARD_DATE,
+        tx, ty = L.BACK_TITLE_AT
+        self._text(tx, ty, parts.BOARD_NAME.upper(), 3.0, 0.5, layer=pcbnew.B_SilkS)
+        self._text(tx, ty + 4.5, "Jason Gallicchio and Claude, rev " + parts.REV + ", " + parts.BOARD_DATE,
                    1.1, 0.15, layer=pcbnew.B_SilkS)
         for i, line in enumerate(L.BACK_TEXT):
-            self._text(85.0, L.BACK_Y + i * L.BACK_PITCH, line, 1.1, 0.15, justify="left", layer=pcbnew.B_SilkS)
+            self._text(L.BACK_X, L.BACK_Y + i * L.BACK_PITCH, line, 1.1, 0.15, justify="left", layer=pcbnew.B_SilkS)
         qx, qy = L.QR_AT
         n, rects = self.add_qr("https://" + parts.PROJECT_URL, qx, qy, L.QR_MODULE)
         half = n * L.QR_MODULE / 2
@@ -742,9 +891,11 @@ class Board:
     def build(self):
         self.place()
         self.wires()
+        self.pours()
         self.plane()
         self.silk_wires()
         self.silk_grounds()
+        self.silk_opamps()
         self.silk_transistors()
         self.silk_fields()
         self.silk_boxes()
