@@ -4464,18 +4464,6 @@
 		)
 	)
 	(rectangle
-		(start 193.04 166.62)
-		(end 320.04 234.14)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "3fcbfbf5-446d-43ea-8f02-2c3c1efc589e")
-	)
-	(rectangle
 		(start 193.04 237.74)
 		(end 320.04 305.26)
 		(stroke
@@ -4485,43 +4473,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "a4376f23-ae14-4bf4-bb87-5bec3850b684")
-	)
-	(rectangle
-		(start 410.02 96.58)
-		(end 452.85 162.08)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "c59fa727-b9ab-49e7-94be-9d0b7ca5d4f5")
-	)
-	(rectangle
-		(start 124.46 100.08)
-		(end 320.04 164.08)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "ec48dc10-6c13-426d-875d-e1c43f3dc6a2")
-	)
-	(rectangle
-		(start 454.2 119.08)
-		(end 513.3 193.1)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "efec6efe-0190-4cf2-9c2f-f4e4cf7db477")
+		(uuid "023a9606-ae0d-4cf7-a764-185259745dce")
 	)
 	(rectangle
 		(start 394.55 94.08)
@@ -4533,7 +4485,55 @@
 		(fill
 			(type none)
 		)
-		(uuid "f2ea5be0-38ba-411b-9a8f-77c9e042f4ca")
+		(uuid "25f4b0d3-434a-479e-97f9-c950fff40f89")
+	)
+	(rectangle
+		(start 193.04 166.62)
+		(end 320.04 234.14)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "87b3797e-5b47-497f-b7b2-c993f18f51c1")
+	)
+	(rectangle
+		(start 124.46 100.08)
+		(end 320.04 164.08)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "94e54d72-1b43-4832-a927-503bcac17c0f")
+	)
+	(rectangle
+		(start 454.2 119.08)
+		(end 513.3 193.1)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "f4d191f4-81ef-493b-a2ef-9779718f019b")
+	)
+	(rectangle
+		(start 410.02 96.58)
+		(end 452.85 162.08)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "f8b114fe-7057-40b5-9259-6e4d9c07614e")
 	)
 	(text "6.8k ends keep it to ±6.4 V, inside what the motor pot"
 		(exclude_from_sim no)
@@ -4623,17 +4623,6 @@
 		)
 		(uuid "0c24590c-5ed0-5b1a-8719-618f00d58a83")
 	)
-	(text "in 74 ms with 1 % overshoot.  I removes the residual error at low P gain."
-		(exclude_from_sim no)
-		(at 33.02 54.42 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-			)
-			(justify left)
-		)
-		(uuid "0d036014-37ee-57b7-9c90-5824d5971e8d")
-	)
 	(text "Quiescent about 10 mA.  100 nF at every op-amp pin."
 		(exclude_from_sim no)
 		(at 457.2 365.71 0)
@@ -4699,6 +4688,17 @@
 			(justify left)
 		)
 		(uuid "18dc6e96-d56e-5b72-bc40-0686430910ad")
+	)
+	(text "(±0.5 V at 0.2 Hz) replaces the knob"
+		(exclude_from_sim no)
+		(at 33.02 147.066 0)
+		(effects
+			(font
+				(size 1.1 1.1)
+			)
+			(justify left)
+		)
+		(uuid "1b31fb7e-7ebf-5f7e-a813-a0cee116b538")
 	)
 	(text "= 1 to 101"
 		(exclude_from_sim no)
@@ -5343,6 +5343,17 @@
 		)
 		(uuid "7d6370b1-2bbb-5504-982e-c34ef5d06817")
 	)
+	(text "TARGET IN"
+		(exclude_from_sim no)
+		(at 33.02 139.7 0)
+		(effects
+			(font
+				(size 2.2 2.2)
+			)
+			(justify left)
+		)
+		(uuid "7f503c57-8109-5c59-b4ff-673432e20d91")
+	)
 	(text "D = -RV3 C dERROR/dt, rolled off above 500 Hz by the"
 		(exclude_from_sim no)
 		(at 238.76 342.895 0)
@@ -5517,7 +5528,7 @@
 		)
 		(uuid "97849c77-f8d6-51ed-a714-6957c13757f2")
 	)
-	(text "nears 100; D equal to P there wants RC = 1 / 2 pi f = 14 ms (RV3 near 1414k with 22 nF), and then gain 100 settles"
+	(text "nears 100; D equal to P there wants RC = 1 / 2 pi f = 14 ms (RV3 near 643k with 22 nF), and then gain 100 settles"
 		(exclude_from_sim no)
 		(at 33.02 51.32 0)
 		(effects
@@ -5581,6 +5592,17 @@
 			(justify left)
 		)
 		(uuid "a8102688-d0b4-5ec3-a4d7-00b0e0dff48d")
+	)
+	(text "±12 V max; a slow square wave"
+		(exclude_from_sim no)
+		(at 33.02 144.018 0)
+		(effects
+			(font
+				(size 1.1 1.1)
+			)
+			(justify left)
+		)
+		(uuid "a9162288-8984-5deb-b7cc-05dfd4029e7e")
 	)
 	(text "A ±0.5 V square wave at 0.2 Hz from a generator on the"
 		(exclude_from_sim no)
@@ -5714,6 +5736,17 @@
 		)
 		(uuid "c307d3a6-2ce9-5c0b-8e31-afe4f752480b")
 	)
+	(text "in 92 ms with 1 % overshoot.  I removes the residual error at low P gain."
+		(exclude_from_sim no)
+		(at 33.02 54.42 0)
+		(effects
+			(font
+				(size 1.5 1.5)
+			)
+			(justify left)
+		)
+		(uuid "c3f37a3e-3d92-5163-b2e7-b29cf0d3e7d2")
+	)
 	(text "stays inside the rails"
 		(exclude_from_sim no)
 		(at 417.02 101.08 0)
@@ -5746,17 +5779,6 @@
 			(justify left)
 		)
 		(uuid "caf35e19-1498-5e82-857e-3dac80555c70")
-	)
-	(text "TARGET IN"
-		(exclude_from_sim no)
-		(at 33.02 143.51 0)
-		(effects
-			(font
-				(size 2.2 2.2)
-			)
-			(justify left)
-		)
-		(uuid "cb6cb02f-f951-50a4-9ef0-2eba1a433961")
 	)
 	(text "-90 degrees would make -180 at a few hertz.  The pseudo op-amp has gain 1 to 101 and no phase shift of its own."
 		(exclude_from_sim no)
@@ -5855,17 +5877,6 @@
 			(justify left)
 		)
 		(uuid "d82ead2b-e7c6-5c31-bec2-4b4e70dba554")
-	)
-	(text "±12 V max; a slow square wave (±0.5 V at 0.2 Hz) replaces the knob"
-		(exclude_from_sim no)
-		(at 33.02 147.828 0)
-		(effects
-			(font
-				(size 1.1 1.1)
-			)
-			(justify left)
-		)
-		(uuid "da594de7-1c1e-5054-89fb-c6f2b5e9d6bb")
 	)
 	(text "barely limited."
 		(exclude_from_sim no)
@@ -6122,12 +6133,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "15782595-e013-5403-9b2e-6ae1ddc8f751")
-	)
-	(junction
-		(at 55.88 160.02)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "16821bae-5818-552e-bfed-49ce49a6d31d")
 	)
 	(junction
 		(at 172.72 157.48)
@@ -6490,12 +6495,6 @@
 		(uuid "a9f0e211-0df1-5fb9-8f03-85d027a78ddb")
 	)
 	(junction
-		(at 55.88 167.64)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "aaa56e9b-2b97-59e1-a496-016869e887c3")
-	)
-	(junction
 		(at 414.02 325.12)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -6656,16 +6655,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ffceee62-2aa3-5991-848c-811bcff3e987")
-	)
-	(wire
-		(pts
-			(xy 60.96 154.94) (xy 83.82 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "001300cd-abc5-5d14-bef5-4e63264420f5")
 	)
 	(wire
 		(pts
@@ -8029,6 +8018,16 @@
 	)
 	(wire
 		(pts
+			(xy 48.26 154.94) (xy 83.82 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "866909c0-d08f-5ad3-b3b5-99279c111f36")
+	)
+	(wire
+		(pts
 			(xy 266.7 302.26) (xy 220.98 302.26)
 		)
 		(stroke
@@ -8549,16 +8548,6 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 160.02) (xy 55.88 167.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bd4c1718-dfcd-5b24-a3c2-87095efb9e73")
-	)
-	(wire
-		(pts
 			(xy 220.98 231.14) (xy 220.98 208.28)
 		)
 		(stroke
@@ -9069,6 +9058,16 @@
 	)
 	(wire
 		(pts
+			(xy 43.18 160.02) (xy 43.18 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f4dd560e-68a5-5a74-8fda-b74e496c67b6")
+	)
+	(wire
+		(pts
 			(xy 474.98 162.56) (xy 474.98 154.94)
 		)
 		(stroke
@@ -9237,16 +9236,6 @@
 		)
 		(uuid "2122d4f2-285f-51f0-a929-b47f94f8077b")
 	)
-	(label "TARGET IN"
-		(at 66.04 154.94 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "32bcb464-0480-59c0-85ba-c111dcca05d7")
-	)
 	(label "I"
 		(at 250.42 269.24 0)
 		(effects
@@ -9336,6 +9325,16 @@
 			(justify left)
 		)
 		(uuid "b3c3d2d8-4f21-55c1-917f-18e01f9309ef")
+	)
+	(label "TARGET IN"
+		(at 53.34 154.94 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "b779be9d-14e3-5833-be2d-b8b71a86ec11")
 	)
 	(label "BASES"
 		(at 375.92 132.08 0)
@@ -16577,7 +16576,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 55.88 167.64 0)
+		(at 43.18 167.64 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -16587,7 +16586,7 @@
 		(dnp no)
 		(uuid "74295fa8-0135-540f-95a0-1daa49588e18")
 		(property "Reference" "#PWR0003"
-			(at 55.88 160.02 0)
+			(at 43.18 160.02 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16598,7 +16597,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 55.88 175.26 0)
+			(at 43.18 175.26 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16609,7 +16608,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 55.88 167.64 0)
+			(at 43.18 167.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16620,7 +16619,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 55.88 167.64 0)
+			(at 43.18 167.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16631,7 +16630,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 55.88 167.64 0)
+			(at 43.18 167.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22129,7 +22128,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_Coaxial")
-		(at 55.88 154.94 0)
+		(at 43.18 154.94 0)
 		(mirror y)
 		(unit 1)
 		(body_style 1)
@@ -22140,7 +22139,7 @@
 		(dnp no)
 		(uuid "ca050daf-f6a3-5474-bd53-f849f24b7151")
 		(property "Reference" "J1"
-			(at 51.88 156.54 0)
+			(at 39.18 156.54 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22151,7 +22150,7 @@
 			)
 		)
 		(property "Value" "BNC"
-			(at 51.88 158.34 0)
+			(at 39.18 158.34 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22162,7 +22161,7 @@
 			)
 		)
 		(property "Footprint" "motorpid:BNC_KYWE_RightAngle"
-			(at 55.88 154.94 0)
+			(at 43.18 154.94 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22173,7 +22172,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 55.88 154.94 0)
+			(at 43.18 154.94 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22184,7 +22183,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 55.88 154.94 0)
+			(at 43.18 154.94 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22195,7 +22194,7 @@
 			)
 		)
 		(property "LCSC" "C41416668"
-			(at 55.88 154.94 0)
+			(at 43.18 154.94 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22206,7 +22205,7 @@
 			)
 		)
 		(property "MPN" "BNC-KYWE-295-W4-N"
-			(at 55.88 154.94 0)
+			(at 43.18 154.94 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)

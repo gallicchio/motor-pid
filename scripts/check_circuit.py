@@ -97,6 +97,8 @@ def main(path):
     check(N.between(N.net("RV1", 1), "GND", "C") == ["C1"] and N.between(N.net("RV1", 3), "GND", "C") == ["C2"],
           "C1 and C2 decouple the knob's ends to ground")
     check(N.net("RV1", 2) == "KNOB" and N.net("SW1", 1) == "KNOB", "the knob's wiper is on SW1 pole 1")
+    check(N.net("RV1", 1) not in ("GND", "+15V", "-15V") and N.net("RV1", 3) not in ("GND", "+15V", "-15V")
+          and N.net("RV1", 1) != N.net("RV1", 3), "the knob's ends are their own nodes, neither a rail nor ground")
     check(N.net("J1", 1) == "TARGET IN" and N.net("SW1", 3) == "TARGET IN" and N.net("J1", 2) == "GND",
           "the TARGET IN jack is on SW1 pole 3, its shell grounded")
     check(N.net("SW1", 2) == "TARGET", "SW1's common is TARGET")
@@ -249,8 +251,9 @@ def main(path):
     single = [n for n, nodes in N.nets.items() if len(nodes) == 1]
     check(not single, f"no one-pin nets ({single})")
     for ref in N.value:
-        if ref[0] in "RC" and not ref.startswith("RV"):
+        if ref[0] in "RCDF" and not ref.startswith("RV"):
             check(N.net(ref, 1) is not None and N.net(ref, 2) is not None, f"{ref} has both pins connected")
+            check(N.net(ref, 1) != N.net(ref, 2), f"{ref} is not shorted (its two pins are on different nets)")
 
     print(f"  {len(ok)} circuit checks passed" + (f", {len(bad)} FAILED" if bad else ""))
     for b in bad:

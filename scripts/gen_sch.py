@@ -287,15 +287,17 @@ def build():
     w1, w2, w3 = switch("SW1", "TARGET SOURCE", SW1_X, A_Y, "y", "1: the knob", "3: the jack")
     s.wire(k2, (k2[0] + 2.54, k2[1]), (k2[0] + 2.54, w1[1]), w1)
     label("KNOB", k2[0] + 2.54, w1[1], justify="left")
-    s.place("Connector:Conn_Coaxial", "J1", "BNC", KX, g(60) + 2.54, mirror="y",
+    JX = KX - 12.7                                    # left of the knob's own column
+    s.place("Connector:Conn_Coaxial", "J1", "BNC", JX, g(60) + 2.54, mirror="y",
             footprint=fp("BNC"), fields=part_fields("BNC"),
             ref_off=(-4.0, 1.6), val_off=(-4.0, 3.4), ref_justify="right", val_justify="right")
     j1 = s.pin("J1", 1, "1")
     s.wire(j1, (w3[0] - 2.54, j1[1]), (w3[0] - 2.54, w3[1]), w3)
-    s.wire(s.pin("J1", 1, "2"), (KX, g(66)))
-    gnd(KX, g(66))
-    s.text("TARGET IN", g(13), g(56.5), size=2.2)
-    s.text("±12 V max; a slow square wave (±0.5 V at 0.2 Hz) replaces the knob", g(13), g(58.2), size=1.1)
+    s.wire(s.pin("J1", 1, "2"), (JX, g(66)))
+    gnd(JX, g(66))
+    s.text("TARGET IN", g(13), g(55.0), size=2.2)
+    s.text("±12 V max; a slow square wave", g(13), g(56.7), size=1.1)
+    s.text("(±0.5 V at 0.2 Hz) replaces the knob", g(13), g(57.9), size=1.1)
     label("TARGET IN", j1[0] + 5.08, j1[1], justify="left")
     # the switched target, then on to the difference amplifier
     TX = w2[0] + 5.08
