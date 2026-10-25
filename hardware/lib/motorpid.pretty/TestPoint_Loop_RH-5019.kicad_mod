@@ -1,0 +1,167 @@
+(footprint "TestPoint_Loop_RH-5019"
+	(version 20260206)
+	(generator "motorpid-gen")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "SMT test loop, 3.8 x 2.0 mm, RH-5019 / Keystone 5019 (LCSC C5199800)")
+	(tags "test point loop probe")
+	(attr smd)
+	(property "Reference" "REF**"
+		(at 0 2.6)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "ef40765b-474a-5e58-98f2-ba87e91c02ac")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "TestPoint_Loop_RH-5019"
+		(at 0 -2.6)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "92949edf-6700-5823-8d10-5c691d72bbea")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 -2.6)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "bd4a0aaf-d253-58af-91ce-882b5105ee4f")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "SMT test loop, 3.8 x 2.0 mm, RH-5019 / Keystone 5019 (LCSC C5199800)"
+		(at 0 -2.6)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "88bf04b2-a2f6-52a5-b397-9ba8b19149b1")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" smd roundrect
+		(at 0 0)
+		(size 4 2.2)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(roundrect_rratio 0.25)
+		(uuid "4c3928d5-15b5-5304-bee6-d471ae696501")
+	)
+	(fp_line
+		(start -1.9 -1)
+		(end 1.9 -1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "a57c1b76-6fe5-5606-84b7-81150d80dc3e")
+	)
+	(fp_line
+		(start 1.9 -1)
+		(end 1.9 1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "99ba0d62-185d-59cb-b87b-9aad1d57d271")
+	)
+	(fp_line
+		(start 1.9 1)
+		(end -1.9 1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "00c8fc8f-a9b6-52fd-a25c-2284e7b69f4c")
+	)
+	(fp_line
+		(start -1.9 1)
+		(end -1.9 -1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "a85c8725-2780-518c-a876-e9e7e4b5bf24")
+	)
+	(fp_line
+		(start -1.9 -1)
+		(end 1.9 -1)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "a57c1b76-6fe5-5606-84b7-81150d80dc3e")
+	)
+	(fp_line
+		(start -2.3 -1.4)
+		(end 2.3 -1.4)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "8ad579bf-3c74-560e-bde8-56360c656eca")
+	)
+	(fp_line
+		(start 2.3 -1.4)
+		(end 2.3 1.4)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "79566b08-c037-56d0-b21c-609cbf0fbc5f")
+	)
+	(fp_line
+		(start 2.3 1.4)
+		(end -2.3 1.4)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "18d63746-299c-58da-b5d4-9212e500cce8")
+	)
+	(fp_line
+		(start -2.3 1.4)
+		(end -2.3 -1.4)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "9b6c8fe9-cfcc-5457-aca7-e884ef79ac24")
+	)
+	(model "${KIPRJMOD}/lib/motorpid.3dshapes/TestLoop_RH-5019.wrl"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 0.393701 0.393701 0.393701)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)

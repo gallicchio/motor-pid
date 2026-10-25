@@ -1,0 +1,246 @@
+(footprint "Potentiometer_Bourns_3362P_Vertical"
+	(version 20260206)
+	(generator "motorpid-gen")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Bourns 3362P, 6.6 mm square single-turn cermet trimmer, top adjust (LCSC C118945)")
+	(tags "potentiometer trimmer trimpot Bourns 3362P vertical")
+	(attr through_hole)
+	(property "Reference" "REF**"
+		(at 0 4.9)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "8005a194-bd25-5b43-9fbd-33d5355f3241")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "Potentiometer_Bourns_3362P_Vertical"
+		(at 0 -4.9)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "c2a5b68c-50c3-5f11-a2fb-c29b68048da5")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 -4.9)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "640da44d-759d-58d6-a6f3-0973ae56d0fb")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "Bourns 3362P, 6.6 mm square single-turn cermet trimmer, top adjust (LCSC C118945)"
+		(at 0 -4.9)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "d2290204-a02b-52a5-90d6-0b2336840553")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole rect
+		(at -2.54 1.27)
+		(size 1.6 1.6)
+		(drill 0.9)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "c3c462ca-be57-5888-a976-dc4f5a8dc13e")
+	)
+	(pad "2" thru_hole circle
+		(at 0 -1.27)
+		(size 1.6 1.6)
+		(drill 0.9)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "3a551c24-16dc-52a8-979b-ff1f48c0344e")
+	)
+	(pad "3" thru_hole circle
+		(at 2.54 1.27)
+		(size 1.6 1.6)
+		(drill 0.9)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "28bad8f8-f68d-5d76-b197-5d72f4935fc2")
+	)
+	(fp_line
+		(start -3.3 -3.495)
+		(end 3.3 -3.495)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "ec6b2d9b-d3af-5aab-ac25-8cc27ebbf369")
+	)
+	(fp_line
+		(start 3.3 -3.495)
+		(end 3.3 3.495)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "467b1130-c540-52b3-ad15-d4681de0e82e")
+	)
+	(fp_line
+		(start 3.3 3.495)
+		(end -3.3 3.495)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "ac1ba02f-1864-56a8-b645-19058fd81b64")
+	)
+	(fp_line
+		(start -3.3 3.495)
+		(end -3.3 -3.495)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "02d0fcda-7f7d-5a83-8fb7-21c9df4aaabc")
+	)
+	(fp_circle
+		(center 0 0)
+		(end 1.6 0)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "65e8dcd3-7db0-5e50-a61a-5dabafec110d")
+	)
+	(fp_line
+		(start -3.6 -3.795)
+		(end 3.6 -3.795)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "0e05afca-b7d2-5411-b79d-0be6f8f131ec")
+	)
+	(fp_line
+		(start 3.6 -3.795)
+		(end 3.6 3.795)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "a94bd83b-b828-51a2-9931-e8b67009ea6b")
+	)
+	(fp_line
+		(start 3.6 3.795)
+		(end -3.6 3.795)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "b1d2138e-7dd6-5122-9a2d-af73350978ab")
+	)
+	(fp_line
+		(start -3.6 3.795)
+		(end -3.6 -3.795)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "20284a5e-4a2c-5584-90b2-144fe3a2a641")
+	)
+	(fp_line
+		(start -3.6 2.495)
+		(end -2.4 3.795)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "a7ab62a5-9b0c-5c28-a819-93636fe68da3")
+	)
+	(fp_line
+		(start -3.65 -3.845)
+		(end 3.65 -3.845)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "2ce782dd-f7cf-560a-9334-5c88d84ba3b2")
+	)
+	(fp_line
+		(start 3.65 -3.845)
+		(end 3.65 3.845)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "c69f775f-698a-58b1-a1db-96fdaa52f279")
+	)
+	(fp_line
+		(start 3.65 3.845)
+		(end -3.65 3.845)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "15e59999-3e46-5227-9340-273013abf385")
+	)
+	(fp_line
+		(start -3.65 3.845)
+		(end -3.65 -3.845)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "69fd4188-3c08-5836-a024-6c92eca3ec49")
+	)
+	(fp_text user "1"
+		(at -2.54 2.6 0)
+		(layer "F.Fab")
+		(uuid "258779dc-8116-5b05-98bd-2d13165cadfe")
+		(effects
+			(font
+				(size 0.7 0.7)
+				(thickness 0.12)
+			)
+		)
+	)
+	(model "${KIPRJMOD}/lib/motorpid.3dshapes/Potentiometer_3362P.wrl"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 0.393701 0.393701 0.393701)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
