@@ -14,11 +14,15 @@ PROJECT_URL = "github.com/gallicchio/motor-pid"   # the git remote of this check
 STOCK_DATE = "2026-10-24"
 
 # The plant: the motorized slide potentiometer the lab owns.
+# Bourns PSM01-082A-103B2 (PSP01-082A-103B2: the same in a metal-framed body);
+# the motor numbers are Jason's bench measurements of 2026-10-26.
 FADER = dict(
-    name="SparkFun COM-10976, TOP-UP MD100AM2B-D (100 mm motorized slide pot)",
-    pot_ohms=10e3, travel_mm=100.0,
+    name="Bourns PSM01-082A-103B2 (100 mm motorized slide pot, 10k, taper B2)",
+    pot_ohms=10e3, travel_mm=100.0, linear_mm=80.0,       # B2: linear from 10 % to 90 % of the travel
     motor_v_rated=10.0, motor_v_range=(6.0, 11.0),
-    motor_i_stall_a=(0.4, 0.8), motor_speed_mm_s=200.0,   # 20 mm per 0.1 s at 10 V
+    motor_r_ohm=14.0,                                     # 0.36 A stalled at 5 V (18 ohm on an ohmmeter)
+    motor_i_break_a=0.18, motor_i_running_a=0.16,         # 2-3 V to break loose; 0.16 A running at 3 V
+    pins=dict(motor_plus="A", motor_minus="B", pot_plus="1", wiper="2", pot_minus="3"),   # A + moves the lever toward 1
 )
 
 # lcsc       : JLCPCB / LCSC order code

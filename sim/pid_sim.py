@@ -9,8 +9,9 @@ behavioural macro (1 MHz, 0.4 V/us, output to V+ - 1.5 V), the slide
 switches as the positions a scenario sets, the trimmers as the resistance a
 scenario sets, the fuse as its cold resistance, and the three terminals as
 the world outside the board: a bench supply on J6, the fader's motor on J4
-and its track on J5 (a behavioural model: 15 ohm, back EMF, an effective
-inertia, stiction and end stops, scaled to the TOP-UP MD100 data sheet).
+and its track on J5 (a behavioural model of the lab's Bourns PSM01-082A-103B2:
+14 ohm, back EMF, an effective inertia, sticking friction and end stops, from
+Jason's bench measurements of 2026-10-26 and the Bourns data sheet).
 
     python3 sim/pid_sim.py           prints the results and writes sim/results.json
     python3 sim/pid_sim.py --plots   also draws docs/images/sim-*.png
@@ -29,21 +30,37 @@ RESULTS = os.path.join(ROOT, "sim", "results.json")
 IMAGES = os.path.join(ROOT, "docs", "images")
 
 # ---------------------------------------------------------------- the plant --
-# TOP-UP MD100AM2B (SparkFun COM-10976): 10 V rated, 6-11 V, stall 0.4-0.8 A at
-# 10 V, at least 200 mm/s at 10 V, 100 mm of travel, 10 k track.  On the board
-# the track sits between +7.73 V and -7.73 V (4.7 k to each rail), so position
-# is measured in "pot volts": 0.1546 V per mm, 30.9 V/s at full speed.
+# Bourns PSM01-082A-103B2, the lab's fader (PSP01-082A-103B2 is the same motor
+# and tracks in a metal-framed body): 100 mm of travel; the 10k line track
+# (terminals 1-2-3) has taper B2, linear over the middle 80 mm and flat for
+# about 10 mm at each end; a 10 V motor (6-11 V, 800 mA max starting).
+# Measured by Jason, 2026-10-26: 18 ohm on an ohmmeter, 0.36 A stalled at 5 V
+# (14 ohm working: the ohmmeter's few mA read the brushes high); 2-3 V to
+# break the slider loose and keep it going; 0.16 A running at 3 V; end to end
+# in under a second at 5 V (taken as 0.8 s).
+# On the board the track sits between +7.73 V and -7.73 V (4.7 k to each rail),
+# so position is in "pot volts": 0.193 V per mm along the linear 80 mm, with
+# the end stops 10 mm (1.93 V) past the ends of the linear part.
 V_END = 30.0 * 10e3 / (4.7e3 + 10e3 + 4.7e3) / 2        # 7.73 V at the track's ends
-R_MOTOR = 15.0                                          # ohm: 10 V / 0.67 A stall
+MM_LINEAR = 80.0                                        # taper B2: 10 % to 90 % of the travel
+V_PER_MM = 2 * V_END / MM_LINEAR                        # 0.193 V/mm
+V_STOP = V_END + 10.0 * V_PER_MM                        # the end stops, in pot volts: 9.66
+R_MOTOR = 14.0                                          # ohm: 5 V / 0.36 A stalled
 L_MOTOR = 1e-3
-KE = (10.0 - 0.05 * R_MOTOR) / (200.0 * V_END * 2 / 100.0)   # V per (pot volt / s): 0.30
+I_COULOMB = 0.15                                        # A of friction while sliding (0.16 A at 3 V)
+I_BREAK = 0.18                                          # A to break it loose: 2-3 V / 14 ohm
+I_VISC_5V = 0.02                                        # A of viscous drag at the 5 V speed (a guess)
+SPEED_5V = 100.0 / 0.8 * V_PER_MM                        # pot volts/s at 5 V: 100 mm in 0.8 s
+KE = (5.0 - (I_COULOMB + I_VISC_5V) * R_MOTOR) / SPEED_5V   # V per (pot volt / s): 0.11
 KT = KE                                                 # the same constant the other way (effective)
 TAU_M = 0.015                                           # s: mechanical time constant (reflected inertia)
 MASS = TAU_M * KE * KT / R_MOTOR                         # effective mass in these units
-I_STICK = 0.05                                          # A needed to break the slider loose
-F_STICK = KT * I_STICK
-B_VISC = KT * 0.05 / (200.0 * V_END * 2 / 100.0)          # 50 mA at full speed, no load
-
+F_COULOMB = KT * I_COULOMB
+F_BREAK = KT * I_BREAK
+V_STRIBECK = 1.0                                        # pot volts/s (5 mm/s): below it, friction rises to F_BREAK
+                                                        # (a guess, set so a slow triangle sticks and slips as on the bench)
+V_STICK = 0.002                                         # pot volts/s (10 um/s): slower than this counts as stuck
+B_VISC = KT * I_VISC_5V / SPEED_5V
 MODELS = [
     ".model Q3904 NPN(IS=1E-14 VAF=100 Bf=300 IKF=0.4 XTB=1.5 BR=4 CJC=4E-12 CJE=8E-12 RB=20 RC=0.1 RE=0.1 TR=250E-9 TF=350E-12 ITF=1 VTF=2 XTF=3)",
     ".model Q3906 PNP(IS=1E-14 VAF=100 Bf=200 IKF=0.4 XTB=1.5 BR=4 CJC=4.5E-12 CJE=10E-12 RB=20 RC=0.1 RE=0.1 TR=250E-9 TF=350E-12 ITF=1 VTF=2 XTF=3)",
@@ -164,19 +181,24 @@ class Deck:
         """The fader's motor between `node` and ground, and its mechanics.
 
         vel is the slider's speed in pot volts per second, pos its position in
-        pot volts (+/- V_END at the end stops).  The force is KT * I less viscous
-        and Coulomb friction; past an end stop a stiff spring and a heavy damper
-        hold it; `stall_at` clamps the slider wherever it is (a finger on it)."""
+        pot volts (+/- V_END at the ends of the track's linear part, +/- V_STOP
+        at the end stops).  The force is KT * I less friction; past an end stop
+        a stiff spring and a heavy damper hold it; `stall_at` clamps the slider
+        wherever it is (a finger on it)."""
         L = []
         if short:
             L.append(f"Rshort {node} 0 0.01")
         L.append(f"Rm {node} m1 {R_MOTOR}")
         L.append(f"Lm m1 m2 {L_MOTOR}")
         L.append(f"Bemf m2 0 V = {{ {KE} * V(vel) }}")
-        stop = (f"((V(pos) > {V_END}) ? ( -200*(V(pos)-{V_END}) - 5*V(vel) ) : 0)"
-                f" + ((V(pos) < {-V_END}) ? ( -200*(V(pos)+{V_END}) - 5*V(vel) ) : 0)")
+        stop = (f"((V(pos) > {V_STOP}) ? ( -200*(V(pos)-{V_STOP}) - 5*V(vel) ) : 0)"
+                f" + ((V(pos) < {-V_STOP}) ? ( -200*(V(pos)+{V_STOP}) - 5*V(vel) ) : 0)")
+        # friction: Coulomb, rising to the break-loose force below V_STRIBECK
+        # (the stick-slip Jason sees on a slow triangle), and a little viscous
+        fric = (f"( {F_COULOMB} + {F_BREAK - F_COULOMB}*exp(-(V(vel)/{V_STRIBECK})^2) )"
+                f"*tanh(V(vel)/{V_STICK}) + {B_VISC}*V(vel)")
         hold = f" - 5*V(vel) - 200*(V(pos)-({stall_at}))" if stall_at is not None else ""
-        L.append(f"Bfor 0 vel I = {{ ( {KT}*I(Bemf) - {B_VISC}*V(vel) - {F_STICK}*tanh(V(vel)/0.05) + {stop}{hold} ) / {MASS} }}")
+        L.append(f"Bfor 0 vel I = {{ ( {KT}*I(Bemf) - {fric} + {stop}{hold} ) / {MASS} }}")
         L.append("Cvel vel 0 1")
         L.append("Rvel vel 0 1e12")
         L.append("Bpos 0 pos I = { V(vel) }")
@@ -185,7 +207,8 @@ class Deck:
         return L
 
     def track(self, top, wiper, bottom, pos0):
-        """The 10 k track: the wiper at pos (pot volts) between its ends."""
+        """The 10 k track: the wiper at pos (pot volts) between its ends; past
+        +/- V_END (the B2 taper's flat 10 mm) it reads the end."""
         return [f"Rta {top} {wiper} R = {{ 10e3 * (0.5 - min(max(V(pos), {-V_END}), {V_END}) / {2 * V_END}) + 1 }}",
                 f"Rtb {wiper} {bottom} R = {{ 10e3 * (0.5 + min(max(V(pos), {-V_END}), {V_END}) / {2 * V_END}) + 1 }}",
                 f".ic V(pos)={pos0}"] + [f".ic V({spice_name(n)})=0" for n in self._ic_zero]
@@ -204,8 +227,10 @@ def run(deck_lines, tstop, tstep=20e-6, extra_cmds=()):
     return ng
 
 
-def step_metrics(t, y, t0, y0, y1):
-    """Overshoot (%), 2 % settling time and the period of any ringing after a step at t0."""
+def step_metrics(t, y, t0, y0, y1, band=0.05):
+    """Overshoot (%), settling time (into +/- band of the step; 5 %, because
+    the fader's sticking friction leaves a few per cent of dead band) and the
+    period of any ringing after a step at t0."""
     import numpy as np
     t, y = np.asarray(t), np.asarray(y)
     sel = t >= t0
@@ -213,24 +238,38 @@ def step_metrics(t, y, t0, y0, y1):
     span = y1 - y0
     over = (yy.max() - y1) / span * 100 if span > 0 else (y1 - yy.min()) / abs(span) * 100
     err = np.abs(yy - y1) / abs(span)
-    outside = np.where(err > 0.02)[0]
+    outside = np.where(err > band)[0]
     ts = (tt[outside[-1]] - t0) if len(outside) else 0.0
     # period from the zero crossings of the error about the final value, in the first second
     e = yy - y1
     zc = np.where(np.diff(np.sign(e)) != 0)[0]
     zc = zc[tt[zc] < t0 + 1.0]
     period = float(2 * np.mean(np.diff(tt[zc]))) if len(zc) > 3 else None
-    # sustained: the last 0.4 s still swings by more than 5 % of the step
-    tail = yy[tt > tt[-1] - 0.4]
+    # sustained: the last quarter of the run (at least 0.4 s) still swings by
+    # more than 5 % of the step; a stick-slip hunt sticks for a while each cycle
+    tail = yy[tt > tt[-1] - max(0.4, 0.25 * (tt[-1] - t0))]
     sustained = (tail.max() - tail.min()) > 0.05 * abs(span) if len(tail) else False
     return dict(overshoot_pct=float(over), settle_s=float(ts), period_s=period, sustained=bool(sustained))
+
+
+def ring_period(t, y, t0, y1, window=0.15):
+    """The period of the ringing just after a step at t0: the crossings of the
+    final value in the first `window` seconds, skipping the first half-cycle
+    (slewed, not rung).  Friction stops the ringing; the slow hunt that
+    follows is a different thing and is not counted."""
+    import numpy as np
+    t, y = np.asarray(t), np.asarray(y)
+    sel = (t >= t0) & (t <= t0 + window)
+    tt, e = t[sel], y[sel] - y1
+    zc = tt[np.where(np.diff(np.sign(e)) != 0)[0]]
+    return float(2 * np.mean(np.diff(zc[1:]))) if len(zc) > 3 else None
 
 
 def main(plots=False):
     import numpy as np
     D = Deck()
-    R = {"date": "2026-10-24", "plant": dict(v_end=round(V_END, 3), r_motor=R_MOTOR, ke_v_per_vps=round(KE, 4),
-                                             tau_m_s=TAU_M, i_stick_a=I_STICK)}
+    R = {"date": "2026-10-26", "plant": dict(v_end=round(V_END, 3), r_motor=R_MOTOR, ke_v_per_vps=round(KE, 4),
+                                             tau_m_s=TAU_M, i_coulomb_a=I_COULOMB, i_break_a=I_BREAK)}
     base_sw = {"SW1": 3, "SW2": 3, "SW3": 1, "SW4": 1, "SW5": 1}      # D and I off (pole 1), loop closed, the jack
     base_trim = {"RV2": 0.0, "RV3": 640e3, "RV4": 100e3}
     curves = {}
@@ -260,6 +299,7 @@ def main(plots=False):
         m = step_metrics(t, pos, 0.1, 0.0, 1.0)
         m["drive_peak_v"] = float(np.abs(drv).max())
         m["residual_v"] = float(1.0 - pos[-1])
+        m["ring_period_s"] = ring_period(t, pos, 0.1, 1.0)
         im = np.array(ng.vec("i(bemf)"))
         sel = t > 0.1
         m["i_motor_rms_a"] = float(np.sqrt(np.mean(im[sel] ** 2)))
@@ -272,9 +312,10 @@ def main(plots=False):
               f"motor {m['i_motor_rms_a']*1e3:.0f} mA rms / {m['i_motor_peak_a']*1e3:.0f} peak")
     R["p_only"] = P
     # the natural oscillation: the ringing period right after the step at the
-    # highest gain (the slow hunt that stiction makes at lower gains is not it)
+    # highest gain (the slow hunt that sticking friction makes is not it)
     m = P["100"]
-    f_nat, g_nat = (1.0 / m["period_s"] if m["period_s"] else 25.0), 100
+    f_nat, g_nat = (1.0 / m["ring_period_s"] if m["ring_period_s"] else 25.0), 100
+    R["hunt_period_s"] = m["period_s"]
     rc_d = 1.0 / (2 * math.pi * f_nat)
     R["f_nat_hz"] = round(f_nat, 1)
     R["g_nat"] = g_nat
@@ -324,6 +365,24 @@ def main(plots=False):
         print(f"P 5 {label:10s} (RV4 {rv4/1e3:.0f}k): residual {m['residual_mv']:6.0f} mV, overshoot {m['overshoot_pct']:.1f} %, sustained {m['sustained']}")
     R["pi"] = PI
 
+    # ---- a slow triangle: the stick-slip Jason sees on the bench ------------------------
+    # +/-3 V at 0.05 Hz (3 mm/s).  The slider sticks, the error grows until the
+    # drive breaks it loose, it jumps, and sticks again: a sawtooth in the
+    # error at P 22, a staircase at P 5 with I.
+    TRI = {}
+    for label, g, sw4 in (("P 22 + D", 22, 1), ("P 5 + D + I", 5, 3)):
+        sw = dict(base_sw, SW3=3, SW4=sw4)
+        trim = gain_trim(g); trim["RV3"] = min(rc_d / 22e-9, 1e6); trim["RV4"] = 100e3
+        ng = run(D.lines(sw, trim, source="pulse(-3 3 0 10 10 1n 20)", pot_pos=-3.0, ic_zero=("I",)), 20.0, tstep=50e-6)
+        t = np.array(ng.vec("time")); pos = np.array(ng.vec("v(" + spice_name("POSITION") + ")"))
+        tgt = np.array(ng.vec("v(" + spice_name("TARGET") + ")"))
+        sel = (t > 3.0) & (t < 9.0)                    # the rising ramp, after the start
+        e = pos[sel] - tgt[sel]
+        TRI[label] = dict(err_mean_mv=round(float(np.mean(e)) * 1e3), err_pp_mv=round(float(np.ptp(e)) * 1e3))
+        curves[f"tri_{label}"] = (t, pos, tgt)
+        print(f"triangle, {label}: {TRI[label]}")
+    R["triangle"] = TRI
+
     # ---- the driver: a stall, and a short ------------------------------------------------
     sw = dict(base_sw, SW2=1)                             # loop open: the motor runs to the stop
     ng = run(D.lines(sw, gain_trim(22), source="dc 1"), 1.0)
@@ -333,6 +392,18 @@ def main(plots=False):
                       p_q1_w=round(float(abs(i_m[-1]) * vc[-1]), 2), p_motor_w=round(float(abs(i_m[-1] * v_m[-1])), 2),
                       i_peak_a=round(float(np.abs(i_m).max()), 2))
     print("open loop, end stop:", R["stall"])
+    # a stall at every drive: loop open, P GAIN at 1, so DRIVE = TARGET; the
+    # slider runs to its stop and sits there.  The fuse holds 0.35 A, so the
+    # low drives never trip it and the transistor carries the difference.
+    sweep = []
+    for vt in (2.0, 3.0, 5.0, 7.0, 9.0, 11.0):
+        ng = run(D.lines(sw, gain_trim(1), source=f"dc {vt}"), 1.5)
+        i_m = np.array(ng.vec("i(bemf)")); v_m = np.array(ng.vec("v(" + spice_name("MOTOR") + ")"))
+        vc = np.array(ng.vec("v(" + spice_name("+15V") + ")")) - np.array(ng.vec("v(" + spice_name("DRIVE") + ")"))
+        sweep.append(dict(target_v=vt, i_motor_a=round(float(abs(i_m[-1])), 3), v_motor=round(float(v_m[-1]), 2),
+                          p_q1_w=round(float(abs(i_m[-1]) * vc[-1]), 2)))
+        print(f"  stalled with DRIVE = {vt:4.1f} V: {sweep[-1]}")
+    R["stall_sweep"] = sweep
     ng = run(D.lines(sw, gain_trim(22), source="dc 1", motor_short=True), 0.3)
     i_s = np.array(ng.vec("i(vpos)"))
     drv = np.array(ng.vec("v(" + spice_name("DRIVE") + ")"))
@@ -406,6 +477,20 @@ def draw(curves, R):
     ax[1].plot(t, drv, color="#F58518", lw=1.0); ax[1].set_ylabel("motor drive (V)"); ax[1].set_xlabel("time (s)")
     ax[1].set_xlim(0.05, 1.0)
     fig.tight_layout(); fig.savefig(os.path.join(IMAGES, "sim-big-step.png"), dpi=130); plt.close(fig)
+    fig, ax = plt.subplots(2, 1, figsize=(7, 5.2))
+    t, pos, tgt = curves["tri_P 22 + D"]
+    z = (t > 5.0) & (t < 6.0)
+    ax[0].plot(t[z], tgt[z], color="k", lw=0.7, ls="--", label="TARGET")
+    for label, c in (("P 22 + D", "#E45756"), ("P 5 + D + I", "#4C78A8")):
+        t, pos, tgt = curves[f"tri_{label}"]
+        z = (t > 5.0) & (t < 6.0)
+        ax[0].plot(t[z], pos[z], color=c, lw=1.1, label=f"POSITION, {label}")
+        z = t > 1.0
+        ax[1].plot(t[z], (pos[z] - tgt[z]) * 1e3, color=c, lw=0.6)
+    ax[0].set_ylabel("pot volts"); ax[0].legend(fontsize=8, loc="upper left")
+    ax[0].set_title("A slow triangle (+/-3 V, 0.05 Hz), one second of it: the slider sticks and slips")
+    ax[1].set_ylabel("POSITION - TARGET (mV)"); ax[1].set_xlabel("time (s), the whole 20 s period")
+    fig.tight_layout(); fig.savefig(os.path.join(IMAGES, "sim-triangle.png"), dpi=130); plt.close(fig)
     print(f"wrote docs/images/sim-*.png")
 
 

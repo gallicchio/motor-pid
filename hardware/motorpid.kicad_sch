@@ -3799,31 +3799,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "54e6a84c-4c83-4302-8b96-844fd8b5392b")
-	)
-	(rectangle
-		(start 124.46 100.08)
-		(end 320.04 164.08)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "c2e05683-818f-4dfd-b9f5-a98801792768")
-	)
-	(rectangle
-		(start 193.04 237.74)
-		(end 320.04 305.26)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "c7d09e1b-ada9-4607-bd5a-6afb6a8860f5")
+		(uuid "0939317a-85af-438a-9786-28dc433fc9a2")
 	)
 	(rectangle
 		(start 193.04 166.62)
@@ -3835,7 +3811,19 @@
 		(fill
 			(type none)
 		)
-		(uuid "eb9c9233-f360-4277-b0f3-df4c1fdaa933")
+		(uuid "25cd7d1a-d807-4a45-b29a-01772d6fba21")
+	)
+	(rectangle
+		(start 124.46 100.08)
+		(end 320.04 164.08)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "c04b62a2-ed96-41da-bd90-91b0f5ed1c52")
 	)
 	(rectangle
 		(start 454.2 119.08)
@@ -3847,7 +3835,19 @@
 		(fill
 			(type none)
 		)
-		(uuid "ec5bcdd2-7981-4a52-b4d0-d9224a7ae092")
+		(uuid "dd74f14b-cd8b-4e8d-af29-ce1441bff6c1")
+	)
+	(rectangle
+		(start 193.04 237.74)
+		(end 320.04 305.26)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "fd81ede9-c085-4135-9383-85b86fc1b941")
 	)
 	(text "6.8k ends keep it to ±6.4 V, inside what the motor pot"
 		(exclude_from_sim no)
@@ -3871,7 +3871,18 @@
 		)
 		(uuid "040c28b9-9980-52d3-bd02-ec11d3fd3fef")
 	)
-	(text "anticlockwise, D and I off).  The slider runs to an end."
+	(text "this slide pot (T about 32 ms) that is 5 ms, about"
+		(exclude_from_sim no)
+		(at 238.76 347.965 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "05092fe9-d869-5c71-840b-699c9f698b3a")
+	)
+	(text "anticlockwise, D and I off).  The slider runs to an end"
 		(exclude_from_sim no)
 		(at 33.02 370.78 0)
 		(effects
@@ -3893,6 +3904,17 @@
 		)
 		(uuid "07255d6d-0498-57ab-b9e9-6b68c30fa55f")
 	)
+	(text "B to GND; track 1, 2, 3 to POT 1, 2, 3 (A + moves the"
+		(exclude_from_sim no)
+		(at 457.2 347.965 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "078f4435-1e1d-5f2b-9c2e-cc8d0880756a")
+	)
 	(text "motor side, so crossover distortion is inside the loop;"
 		(exclude_from_sim no)
 		(at 345.44 347.965 0)
@@ -3903,17 +3925,6 @@
 			(justify left)
 		)
 		(uuid "096a0166-cbed-55ac-8291-ca1846d8c314")
-	)
-	(text "(0.6 A) in seconds and a short in well under one, then"
-		(exclude_from_sim no)
-		(at 345.44 368.245 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "0a0650c2-bbfd-5fab-984e-9196944e6433")
 	)
 	(text "OFF shorts the capacitor, so I starts from zero.  I"
 		(exclude_from_sim no)
@@ -3959,28 +3970,6 @@
 		)
 		(uuid "0e7dd966-3f89-539f-b6c5-26e9268c6a95")
 	)
-	(text "the motor current: 1 V per A across R21 or R22."
-		(exclude_from_sim no)
-		(at 345.44 373.315 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "0f4dad61-da21-5ee5-a036-acb7b9df1b20")
-	)
-	(text "track and the touch pin of the SparkFun fader stay unused."
-		(exclude_from_sim no)
-		(at 457.2 355.57 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "11e28133-ac60-5c6a-8287-3b0bdb8a5021")
-	)
 	(text "PSEUDO OP-AMP  (U1, U2, U3)"
 		(exclude_from_sim no)
 		(at 132.08 340.36 0)
@@ -4003,6 +3992,17 @@
 		)
 		(uuid "167e3074-88e2-5149-a2d7-947cb0f130e2")
 	)
+	(text "10k track and a 6-11 V motor.  Bourns: motor A to MOTOR,"
+		(exclude_from_sim no)
+		(at 457.2 345.43 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "186db5c4-109f-5e98-b291-0b17b4a72283")
+	)
 	(text "±13 V, 0.65 A max"
 		(exclude_from_sim no)
 		(at 468.06 146.08 0)
@@ -4014,6 +4014,17 @@
 		)
 		(uuid "18dc6e96-d56e-5b72-bc40-0686430910ad")
 	)
+	(text "stall (0.6 A) in seconds and a short in well under one,"
+		(exclude_from_sim no)
+		(at 345.44 368.245 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "1a98e4da-ac88-5335-9c3d-d00d49a8d6c4")
+	)
 	(text "(±0.5 V at 0.2 Hz) replaces the knob"
 		(exclude_from_sim no)
 		(at 33.02 147.066 0)
@@ -4024,6 +4035,28 @@
 			(justify left)
 		)
 		(uuid "1b31fb7e-7ebf-5f7e-a813-a0cee116b538")
+	)
+	(text "with a 10k track and a 6-11 V motor"
+		(exclude_from_sim no)
+		(at 485.3 187.7 0)
+		(effects
+			(font
+				(size 1 1)
+			)
+			(justify left)
+		)
+		(uuid "1bf9d45b-6686-5358-a07e-baf8a04d7db4")
+	)
+	(text "The servo track (1' 2' 3') and touch pin T stay free."
+		(exclude_from_sim no)
+		(at 457.2 355.57 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "1d3eda8f-0391-5213-989f-4b6a36839477")
 	)
 	(text "= 1 to 101"
 		(exclude_from_sim no)
@@ -4046,6 +4079,17 @@
 			(justify left)
 		)
 		(uuid "1f8cd33d-de21-5119-a6c7-0c3b8c9d0098")
+	)
+	(text "then resets itself.  A stall at a few volts it holds, and"
+		(exclude_from_sim no)
+		(at 345.44 370.78 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "1fbbfb22-96a4-5808-af3d-962b8a6580d9")
 	)
 	(text "PSEUDO OP-AMP: the book's home-made control amplifier, modest gain and no phase shift (Fig. 10L.6)"
 		(exclude_from_sim no)
@@ -4133,6 +4177,17 @@
 			(justify left)
 		)
 		(uuid "31bb3f99-e7f8-5684-8a9c-b9fbfa8c5deb")
+	)
+	(text "234k with the 22 nF; for the book's rotary motor-pot"
+		(exclude_from_sim no)
+		(at 238.76 350.5 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "31cb4b24-aa55-56d7-ba7d-34b30cc9d912")
 	)
 	(text "DERIVATIVE  (Fig. 10L.9)"
 		(exclude_from_sim no)
@@ -4230,6 +4285,17 @@
 			)
 		)
 		(uuid "3ab7a8fa-2497-5527-9c53-6d76c712b226")
+	)
+	(text "A ±3 V square wave at 0.2 Hz on the jack gives steps;"
+		(exclude_from_sim no)
+		(at 33.02 350.5 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "3c272b8e-8f67-5dd9-b357-803a6653407a")
 	)
 	(text "Series Schottkys against a reversed supply; 100 uF a"
 		(exclude_from_sim no)
@@ -4351,6 +4417,17 @@
 		)
 		(uuid "493250fd-f6dd-595b-8d7d-584ad6382aa2")
 	)
+	(text "and stalls there: bring TARGET back to 0 within seconds."
+		(exclude_from_sim no)
+		(at 33.02 373.315 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "494f2c31-7d8d-5468-82bb-cb187d3b627c")
+	)
 	(text "P = -ERROR"
 		(exclude_from_sim no)
 		(at 211.36 102.87 0)
@@ -4361,7 +4438,7 @@
 		)
 		(uuid "4b0e85c2-f9b8-511c-90f5-85746f84d6ad")
 	)
-	(text "FUSE: not in the book.  The 0.35 A PTC opens a stall"
+	(text "FUSE: not in the book.  The 0.35 A PTC opens a full-drive"
 		(exclude_from_sim no)
 		(at 345.44 365.71 0)
 		(effects
@@ -4470,17 +4547,6 @@
 		)
 		(uuid "59be7f9c-6b4c-5752-bb51-20f71236f2d3")
 	)
-	(text "in 90 ms with 1 % overshoot.  I removes the residual error at low P gain."
-		(exclude_from_sim no)
-		(at 33.02 54.42 0)
-		(effects
-			(font
-				(size 1.5 1.5)
-			)
-			(justify left)
-		)
-		(uuid "5ac834cb-b227-5266-a2e4-ee611ab3aae7")
-	)
 	(text "TARGET"
 		(exclude_from_sim no)
 		(at 30.48 125.08 0)
@@ -4492,18 +4558,7 @@
 		)
 		(uuid "5fea0a33-3637-5e7b-9538-b424a517cadb")
 	)
-	(text "leads): SparkFun COM-10976 or any fader with"
-		(exclude_from_sim no)
-		(at 485.3 185.9 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "6187e38d-0b92-50a5-a1a0-41af9a65851c")
-	)
-	(text "Simulated as drawn (sim/pid_sim.py, the fader modelled from its data sheet): P only rings at 12 Hz when the gain"
+	(text "Simulated as drawn (sim/pid_sim.py, the fader modelled from bench measurements): P only rings at 31 Hz when the gain"
 		(exclude_from_sim no)
 		(at 33.02 48.22 0)
 		(effects
@@ -4524,17 +4579,6 @@
 			(justify left)
 		)
 		(uuid "64863fda-4733-5118-8cd3-bfb326fbef50")
-	)
-	(text "the other, 2 to the wiper; MOTOR + and - so that a"
-		(exclude_from_sim no)
-		(at 457.2 347.965 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "68baf894-c969-5c11-881f-ed3fa1e595df")
 	)
 	(text "PID MOTOR CONTROL LOOP"
 		(exclude_from_sim no)
@@ -4613,16 +4657,16 @@
 		)
 		(uuid "746bac81-c5b9-536c-8225-f319a8e253ff")
 	)
-	(text "resets itself when it cools.  1 ohm per emitter reads"
+	(text "the motor current: 1 V per A across R21 or R22."
 		(exclude_from_sim no)
-		(at 345.44 370.78 0)
+		(at 345.44 375.85 0)
 		(effects
 			(font
 				(size 1.3 1.3)
 			)
 			(justify left)
 		)
-		(uuid "74e46650-acc9-5dee-8b26-fc00aa07e8f9")
+		(uuid "77d0883f-d1c5-5eaa-a892-61740ae1fc85")
 	)
 	(text "THE PLANT: motor and pot  (Fig. 10L.1)"
 		(exclude_from_sim no)
@@ -4679,27 +4723,16 @@
 		)
 		(uuid "7b6ceca9-cec7-5c98-965a-bec2e33b74e5")
 	)
-	(text "640k with the 22 nF; for the book's rotary motor-pot"
+	(text "in 28 ms with 3 % overshoot.  I removes the residual error at low P gain."
 		(exclude_from_sim no)
-		(at 238.76 350.5 0)
+		(at 33.02 54.42 0)
 		(effects
 			(font
-				(size 1.3 1.3)
+				(size 1.5 1.5)
 			)
 			(justify left)
 		)
-		(uuid "7c8cead7-a913-57c4-a2a0-741cc1fe60d6")
-	)
-	(text "the slide pot (T of 40-90 ms) that is 6-14 ms, 300k-"
-		(exclude_from_sim no)
-		(at 238.76 347.965 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "7d6370b1-2bbb-5504-982e-c34ef5d06817")
+		(uuid "7d1774c1-49f2-5275-945f-a1efa0a541bc")
 	)
 	(text "TARGET IN"
 		(exclude_from_sim no)
@@ -4722,17 +4755,6 @@
 			(justify left)
 		)
 		(uuid "808a01f7-b3e2-56e0-a153-e5cdafcad9ab")
-	)
-	(text "jack gives repeatable steps.  TARGET IN ±12 V max."
-		(exclude_from_sim no)
-		(at 33.02 353.035 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "834776b1-0915-5b7c-9f4e-258502311fb4")
 	)
 	(text "summing amplifier, gain -Rgain/10k"
 		(exclude_from_sim no)
@@ -4764,17 +4786,6 @@
 			)
 		)
 		(uuid "89c8b91e-7d28-56f8-b0a2-36cef4c6e886")
-	)
-	(text "Wire POT 1 to the track end that must read +7.7 V, 3 to"
-		(exclude_from_sim no)
-		(at 457.2 345.43 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "8b33e8b9-f88d-5648-abdf-682081c2a5ba")
 	)
 	(text "a stalled motor (0.6 A at full drive) trips it in 5-10 s; the"
 		(exclude_from_sim no)
@@ -4820,6 +4831,28 @@
 		)
 		(uuid "9078b694-e534-57c3-b227-a30871c5d068")
 	)
+	(text "20 it overshoots; near 100 (P only) it rings: the period"
+		(exclude_from_sim no)
+		(at 132.08 360.64 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "9119c819-a12d-5ad9-a2dc-856383321f59")
+	)
+	(text "The lab's Bourns PSM01-082A-103B2, or any fader with a"
+		(exclude_from_sim no)
+		(at 457.2 342.895 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "9306465d-09f6-5753-bc9c-a97cacc62608")
+	)
 	(text "Why a home-made op-amp: the motor integrates (voltage in, position out: -90 degrees from DC), so an ordinary op-amp's own"
 		(exclude_from_sim no)
 		(at 33.02 42.02 0)
@@ -4842,7 +4875,7 @@
 		)
 		(uuid "951ad693-fcd2-51aa-9073-488c8c8afc68")
 	)
-	(text "At P gain 1.5 the loop is stable and slow; near 20 it"
+	(text "At P gain 1.5 a 1 V step cannot unstick the slider; near"
 		(exclude_from_sim no)
 		(at 132.08 358.105 0)
 		(effects
@@ -4851,9 +4884,9 @@
 			)
 			(justify left)
 		)
-		(uuid "97849c77-f8d6-51ed-a714-6957c13757f2")
+		(uuid "9573c909-0446-5a08-a986-e49a49a01e81")
 	)
-	(text "nears 100; D equal to P there wants RC = 1 / 2 pi f = 13 ms (RV3 near 611k with 22 nF), and then gain 100 settles"
+	(text "nears 100; D equal to P there wants RC = 1 / 2 pi f = 5 ms (RV3 near 234k with 22 nF), and then gain 100 settles"
 		(exclude_from_sim no)
 		(at 33.02 51.32 0)
 		(effects
@@ -4873,6 +4906,17 @@
 			)
 		)
 		(uuid "a0b5aeab-389c-5df9-9314-4c650498578c")
+	)
+	(text "lever toward 1).  Others: POT 1 to the end that must"
+		(exclude_from_sim no)
+		(at 457.2 350.5 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "a3a2dd99-965b-5fbb-a64b-47a613dcabac")
 	)
 	(text "DRIVE OUT"
 		(exclude_from_sim no)
@@ -4896,6 +4940,17 @@
 		)
 		(uuid "a8102688-d0b4-5ec3-a4d7-00b0e0dff48d")
 	)
+	(text "a ±3 V triangle at 0.05 Hz, stick-slip.  ±12 V max."
+		(exclude_from_sim no)
+		(at 33.02 353.035 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "a8e8745d-728f-5e24-a2f6-929239f08795")
+	)
 	(text "±12 V max; a slow square wave"
 		(exclude_from_sim no)
 		(at 33.02 144.018 0)
@@ -4917,17 +4972,6 @@
 			(justify left)
 		)
 		(uuid "a94ad038-6d89-5b42-9c45-77b632f79442")
-	)
-	(text "A ±0.5 V square wave at 0.2 Hz from a generator on the"
-		(exclude_from_sim no)
-		(at 33.02 350.5 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "a9e957e0-512a-552e-a188-3ad10349eaf7")
 	)
 	(text "CLOSED (3): POSITION, the fader's wiper: the loop."
 		(exclude_from_sim no)
@@ -5006,17 +5050,6 @@
 		)
 		(uuid "afc8cde2-91b4-5fd2-9938-12713eab121a")
 	)
-	(text "Watch the fuse lamp: a stall trips it."
-		(exclude_from_sim no)
-		(at 33.02 373.315 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "b11a96dd-5a50-58b2-bdc9-ac37bc0e6117")
-	)
 	(text "red lamp lights while it is tripped; it resets when the drive"
 		(exclude_from_sim no)
 		(at 425.26 109.08 0)
@@ -5083,16 +5116,16 @@
 		)
 		(uuid "bb119d1d-5227-5b26-bb6d-14e9c2874088")
 	)
-	(text "overshoots; near 100 (P only) it oscillates: the period"
+	(text "leads): Bourns PSM01-082A-103B2 or any fader"
 		(exclude_from_sim no)
-		(at 132.08 360.64 0)
+		(at 485.3 185.9 0)
 		(effects
 			(font
-				(size 1.3 1.3)
+				(size 1 1)
 			)
 			(justify left)
 		)
-		(uuid "c307d3a6-2ce9-5c0b-8e31-afe4f752480b")
+		(uuid "c6dedc15-056c-58ec-abf7-5a42c350ff91")
 	)
 	(text "stays inside the rails"
 		(exclude_from_sim no)
@@ -5127,6 +5160,17 @@
 		)
 		(uuid "ca15fe13-954b-5136-b08b-c7ad318d5b64")
 	)
+	(text "a transistor takes up to 3.7 W.  1 ohm per emitter reads"
+		(exclude_from_sim no)
+		(at 345.44 373.315 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "cc9a8f97-bcb6-52eb-beee-6e1bc1ac85fb")
+	)
 	(text "R21, R22: 1 ohm, not in the book.  Across either one,"
 		(exclude_from_sim no)
 		(at 394.56 176.08 0)
@@ -5148,17 +5192,6 @@
 			(justify left)
 		)
 		(uuid "cf21bba5-a71b-56b6-b71b-e55e78abef66")
-	)
-	(text "a 10k track and a 6-11 V motor"
-		(exclude_from_sim no)
-		(at 485.3 187.7 0)
-		(effects
-			(font
-				(size 1 1)
-			)
-			(justify left)
-		)
-		(uuid "d28edefc-d9b4-5801-8346-7fd7d064c53a")
 	)
 	(text "differentiator; 470 pF rolls it off above 500 Hz"
 		(exclude_from_sim no)
@@ -5224,28 +5257,6 @@
 			(justify left)
 		)
 		(uuid "d6c8ea8d-6014-5982-9f7f-cd8fd3344253")
-	)
-	(text "Any motorized fader with a 10k track and a 6-11 V motor."
-		(exclude_from_sim no)
-		(at 457.2 342.895 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "d6d0f1b9-4797-5bcb-86fe-12d8feb7dadd")
-	)
-	(text "loop runs away, swap the two motor wires.  The second"
-		(exclude_from_sim no)
-		(at 457.2 353.035 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "d82ead2b-e7c6-5c31-bec2-4b4e70dba554")
 	)
 	(text "3: the jack"
 		(exclude_from_sim no)
@@ -5323,6 +5334,17 @@
 		)
 		(uuid "e782360f-2a11-569b-86f1-16b1665ed935")
 	)
+	(text "read +7.7 V; if the loop runs away, swap the motor wires."
+		(exclude_from_sim no)
+		(at 457.2 353.035 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "e8896ccb-fdf4-5ff7-bfab-d0bbfdf29e0b")
+	)
 	(text "INTEGRAL  (Fig. 10L.10)"
 		(exclude_from_sim no)
 		(at 194.31 235.94 0)
@@ -5366,17 +5388,6 @@
 			(justify left)
 		)
 		(uuid "f353bd74-4556-5ec7-ac35-4036924fce2e")
-	)
-	(text "positive drive moves the wiper toward POT 1.  If the"
-		(exclude_from_sim no)
-		(at 457.2 350.5 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "f5c01110-640c-5e90-ac30-3a311f229935")
 	)
 	(text "LOOP (SW2): which voltage U1 subtracts from TARGET."
 		(exclude_from_sim no)

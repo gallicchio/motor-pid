@@ -2,8 +2,8 @@
 
 The motor-position feedback loop of *Learning the Art of Electronics* (Hayes &
 Horowitz), Lab 10L, as a 170 x 120 mm printed circuit board whose silkscreen *is*
-the schematic.  A motorized slide fader (the SparkFun COM-10976, or any 100 mm
-fader with a 10k track and a 6–11 V motor) wires to two screw terminals; the
+the schematic.  A motorized slide fader (the lab's Bourns PSM01-082A-103B2, or
+any 100 mm fader with a 10k track and a 6–11 V motor) wires to two screw terminals; the
 board holds the fader's wiper at the position a knob or a signal generator asks
 for, with proportional, derivative and integral terms the student switches in
 and turns up one at a time, exactly as the lab does.

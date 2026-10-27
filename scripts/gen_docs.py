@@ -392,6 +392,8 @@ PREVIEW_CHECKS = [
 def CLAIMS(parts_cost, nchecks, loops, smt, tht, n_vias, R, p1, p2, each10):
     """Every number the hand-written documents quote from the build."""
     p5, p22 = R["p_only"]["5"], R["p_only"]["22"]
+    sweep = {x["target_v"]: x for x in R["stall_sweep"]}
+    stall_max = max(x["p_q1_w"] for x in R["stall_sweep"])
     return [
         ("README.md", r"about \$([0-9.]+) in parts per board", f"{parts_cost:.2f}"),
         ("README.md", r"(\d+) circuit assertions", str(nchecks)),
@@ -400,13 +402,16 @@ def CLAIMS(parts_cost, nchecks, loops, smt, tht, n_vias, R, p1, p2, each10):
         ("docs/HANDBOOK.md", r"draws about (\d+) mA with no motor", f"{R['i_supply_ma']:.0f}"),
         ("docs/HANDBOOK.md", r"the rails after the diodes \| ±([0-9.]+) V", f"{R['op']['+15V']:.1f}"),
         ("docs/HANDBOOK.md", r"gain of 5 the simulation leaves (\d+) mV", f"{p5['residual_v'] * 1e3:.0f}"),
-        ("docs/HANDBOOK.md", r"sustains an oscillation near (\d+) Hz", f"{R['f_nat_hz']:.0f}"),
+        ("docs/HANDBOOK.md", r"each step rings near (\d+) Hz", f"{R['f_nat_hz']:.0f}"),
         ("docs/HANDBOOK.md", r"about (\d+) in the simulation\)", "22"),
         ("docs/HANDBOOK.md", r"\((\d+) ms; (\d+)k\)", (f"{R['rc_d_ms']:.0f}", f"{R['rv3_k']:.0f}")),
-        ("docs/HANDBOOK.md", r"settles in (\d+) ms with (\d+) % overshoot",
+        ("docs/HANDBOOK.md", r"settles \(to 5 %\) in (\d+) ms with (\d+) % overshoot",
          (f"{R['pd_gain100']['settle_s'] * 1e3:.0f}", f"{R['pd_gain100']['overshoot_pct']:.0f}")),
         ("docs/HANDBOOK.md", r"stalls the motor at about ([0-9.]+) A", f"{R['stall']['i_motor_a']:.1f}"),
         ("docs/HANDBOOK.md", r"pulls about ([0-9.]+) A through the driver", f"{R['short']['i_short_a']:.0f}"),
+        ("docs/HANDBOOK.md", r"at that current, 2 to ([0-9.]+) W", f"{stall_max:.1f}"),
+        ("docs/DESIGN_NOTES.md", r"from ([0-9.]+) W at 2 V to ([0-9.]+) W at 7 V",
+         (f"{sweep[2.0]['p_q1_w']:.1f}", f"{sweep[7.0]['p_q1_w']:.1f}")),
         ("docs/DESIGN_NOTES.md", r"draws about ([0-9.]+) A at ([0-9.]+) V in the simulation, ([0-9.]+) W",
          (f"{R['stall']['i_motor_a']:.2f}", f"{R['stall']['v_motor']:.1f}", f"{R['stall']['p_q1_w']:.1f}")),
         ("docs/DESIGN_NOTES.md", r"puts ([0-9.]+) A and (\d+) W into one transistor",

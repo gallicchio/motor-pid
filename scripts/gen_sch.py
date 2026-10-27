@@ -704,8 +704,8 @@ def build():
     label("POSITION", POSX - 15.0, FB_Y)
     testpoint(POSX - 7.62, FB_Y, "POSITION", rot=0)
     s.text("the motorized slide pot (external, on flying", MX - 10.0, JP_Y + 19.0, size=1.0)
-    s.text("leads): SparkFun COM-10976 or any fader with", MX - 10.0, JP_Y + 20.8, size=1.0)
-    s.text("a 10k track and a 6-11 V motor", MX - 10.0, JP_Y + 22.6, size=1.0)
+    s.text("leads): Bourns PSM01-082A-103B2 or any fader", MX - 10.0, JP_Y + 20.8, size=1.0)
+    s.text("with a 10k track and a 6-11 V motor", MX - 10.0, JP_Y + 22.6, size=1.0)
     s.rect(CX3 - 3.0, A_Y - 13.0, MX + 18.0, JP_Y + 28.0, style="dash", key="box/plant")
     s.text("THE PLANT: motor and pot  (Fig. 10L.1)", CX3 - 2.5, A_Y - 14.8, size=1.3)
 
@@ -860,7 +860,7 @@ def build():
           "",
           "Why a home-made op-amp: the motor integrates (voltage in, position out: -90 degrees from DC), so an ordinary op-amp's own",
           "-90 degrees would make -180 at a few hertz.  The pseudo op-amp has gain 1 to 101 and no phase shift of its own.",
-          f"Simulated as drawn (sim/pid_sim.py, the fader modelled from its data sheet): P only rings at {R.get('f_nat_hz', 11):.0f} Hz when the gain",
+          f"Simulated as drawn (sim/pid_sim.py, the fader modelled from bench measurements): P only rings at {R.get('f_nat_hz', 11):.0f} Hz when the gain",
           f"nears 100; D equal to P there wants RC = 1 / 2 pi f = {R.get('rc_d_ms', 14):.0f} ms (RV3 near {R.get('rv3_k', 640):.0f}k with 22 nF), and then gain 100 settles",
           f"in {R.get('pd_gain100', {}).get('settle_s', 0.07)*1e3:.0f} ms with {R.get('pd_gain100', {}).get('overshoot_pct', 1):.0f} % overshoot.  I removes the residual error at low P gain."],
          g(13), g(8), size=1.5, pitch=3.1)
@@ -871,16 +871,16 @@ def build():
           "Knob or jack, on the TARGET SOURCE switch.  The knob's",
           "6.8k ends keep it to ±6.4 V, inside what the motor pot",
           "can reach (±7.7 V): a target the loop can always meet.",
-          "A ±0.5 V square wave at 0.2 Hz from a generator on the",
-          "jack gives repeatable steps.  TARGET IN ±12 V max.",
+          "A ±3 V square wave at 0.2 Hz on the jack gives steps;",
+          "a ±3 V triangle at 0.05 Hz, stick-slip.  ±12 V max.",
           "",
           "LOOP (SW2): which voltage U1 subtracts from TARGET.",
           "CLOSED (3): POSITION, the fader's wiper: the loop.",
           "OPEN (1): ground, so ERROR = TARGET and the motor",
           "driver gets P GAIN x TARGET, open loop: the knob or a",
           "generator drives the motor directly (x1 with P GAIN",
-          "anticlockwise, D and I off).  The slider runs to an end.",
-          "Watch the fuse lamp: a stall trips it."],
+          "anticlockwise, D and I off).  The slider runs to an end",
+          "and stalls there: bring TARGET back to 0 within seconds."],
          col[0], NOTE_Y)
     note(["PSEUDO OP-AMP  (U1, U2, U3)",
           "U1 takes TARGET - POSITION with four 100k.  U2 inverts",
@@ -889,8 +889,8 @@ def build():
           "(10k + RV2)/10k = 1 to 101: the P GAIN.  All three op-amps",
           "work at low closed-loop gain, so the chain has no phase",
           "shift where the loop's crossover is (a few hertz).",
-          "At P gain 1.5 the loop is stable and slow; near 20 it",
-          "overshoots; near 100 (P only) it oscillates: the period",
+          "At P gain 1.5 a 1 V step cannot unstick the slider; near",
+          "20 it overshoots; near 100 (P only) it rings: the period",
           "of that 'natural oscillation' sets D below.",
           "",
           "Op-amps are drawn + on top: that is how the SOT-23-5 sits."],
@@ -898,8 +898,8 @@ def build():
     note(["DERIVATIVE  (U4, SW3, SW5)",
           "D = -RV3 C dERROR/dt, rolled off above 500 Hz by the",
           "470 pF.  Set RV3 C to 1/6 of the natural period: for",
-          "the slide pot (T of 40-90 ms) that is 6-14 ms, 300k-",
-          "640k with the 22 nF; for the book's rotary motor-pot",
+          f"this slide pot (T about {1e3 / R.get('f_nat_hz', 31):.0f} ms) that is {R.get('rc_d_ms', 5):.0f} ms, about",
+          f"{R.get('rv3_k', 234):.0f}k with the 22 nF; for the book's rotary motor-pot",
           "(T 0.6 s) use 100 nF and 1M.  SW5 picks the capacitor,",
           "SW3 puts D into the sum or shorts it out.",
           "",
@@ -920,18 +920,19 @@ def build():
           "the brush hash.  Output ±13 V; the motor is rated 10 V,",
           "6-11 V running, and sees full drive only in a step.",
           "",
-          "FUSE: not in the book.  The 0.35 A PTC opens a stall",
-          "(0.6 A) in seconds and a short in well under one, then",
-          "resets itself when it cools.  1 ohm per emitter reads",
+          "FUSE: not in the book.  The 0.35 A PTC opens a full-drive",
+          "stall (0.6 A) in seconds and a short in well under one,",
+          "then resets itself.  A stall at a few volts it holds, and",
+          f"a transistor takes up to {max((x['p_q1_w'] for x in R.get('stall_sweep', [])), default=3.7):.1f} W.  1 ohm per emitter reads",
           "the motor current: 1 V per A across R21 or R22."],
          col[3], NOTE_Y)
     note(["THE PLANT",
-          "Any motorized fader with a 10k track and a 6-11 V motor.",
-          "Wire POT 1 to the track end that must read +7.7 V, 3 to",
-          "the other, 2 to the wiper; MOTOR + and - so that a",
-          "positive drive moves the wiper toward POT 1.  If the",
-          "loop runs away, swap the two motor wires.  The second",
-          "track and the touch pin of the SparkFun fader stay unused.",
+          "The lab's Bourns PSM01-082A-103B2, or any fader with a",
+          "10k track and a 6-11 V motor.  Bourns: motor A to MOTOR,",
+          "B to GND; track 1, 2, 3 to POT 1, 2, 3 (A + moves the",
+          "lever toward 1).  Others: POT 1 to the end that must",
+          "read +7.7 V; if the loop runs away, swap the motor wires.",
+          "The servo track (1' 2' 3') and touch pin T stay free.",
           "POWER: ±15 V, 1 A (the motor's stall current).",
           "Series Schottkys against a reversed supply; 100 uF a",
           "rail for the motor's pulses; a green LED per rail.",

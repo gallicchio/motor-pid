@@ -350,3 +350,47 @@ linear trimmer plus a series resistor, reaching k× too far each way puts the go
 1/(k+1) of the turn, so linear meets the 10 % rule only for about k ≤ 3.  Waiting on the
 breadboard measurements (R at sluggish / right / too much for P, D, I).  Recorded in
 DESIGN_NOTES under "The trimmers' ranges".
+
+## Prompt 11
+
+> Our slider pots are:
+> PSM01-082A-103B2
+> We also have PSP01-082A-103B2, which may just have a different metal housing
+> I have added datasheets: bourns_psm_slider_pot.pdf and bourns_psp_slider_pot.pdf
+> With a multimeter, I measured the motor coil as 18 ohms.
+> With 5V power, the stall current was 0.36 A at the end of the range (corresponding to 14 ohms). At 5V, the motor moves to the end in under a second, so it's hard to measure.
+> It takes between 2 and 3 V to get the motor and slider unstuck, and to go across without getting stuck again.
+> When it's moving at 3V, it draws about 0.16 A free running (19 ohms). If the voltage was any higher, it went too fast to measure the current.
+> The potentiometer goes from 0 to 10k. There are occasional drop outs of infinite resistance, but as long as it moves a tiny bit, things come back.
+> I often test the motor with a square wave +/-3V or +/-4V.
+> With this square wave test, the 1 MOhm knobs did make the response go from too sluggish to too aggressive, so stick with 1 MOhm. The perfect value wasn't in the center of the range, but I didn't feel like all of the action was completely crammed onto one side of the range.
+> The other test I like to do is with a slow sine or triangle wave, where you see a lot more of the stick-slip behavior. The best settings for the square wave were not the same as the best settings for a nice, smooth, slow triangle wave, but this all seems to have more to do with the sticky and friction-filled mechanics of the belt and slider mechanism. This is not an ideal plant, but maybe that's not a bad thing for this "real world" application.
+
+## Response 8
+
+*2026-10-26 PDT.*
+- **The fader.**  PSM01-082A-103B2 decodes as 100 mm travel, 8.2 mm lever, snap-in
+  connectors (2-pin motor B A, 7-pin 3' 2' 1' T 1 2 3, 2.5 mm pitch), metal lever, 10k,
+  taper B2.  The PSP is the same motor and tracks with one 10-pin connector.  Bourns'
+  drawing: A positive moves the lever toward terminal 1, so A to MOTOR, B to GND, 1-2-3 to
+  POT 1-2-3: the numbers match.  The SparkFun/TOP-UP references are gone everywhere.
+- **Taper B2** (read from the chart's vector paths): linear from 10.5 % to 90.5 % of the
+  travel, flat outside, so the last ~10 mm each way reads the end voltage.  The servo track
+  (1' 2' 3') is linear to 2 mm of each end, resistance unstated: if it measures 10k it is
+  the better track.
+- **The model.**  14 Ω (the ohmmeter's 18 Ω is brush film), 0.15 A sliding friction rising to
+  0.18 A to break loose below 5 mm/s, 0.8 s end to end at 5 V.  P 1.5 no longer moves a 1 V
+  step; P 100 rings at 31 Hz until friction stops it, then hunts.  The D rule moved from
+  611k to 234k with 22 nF (a quarter of the turn), so 22 nF stays the right default.  A new
+  ±3 V, 0.05 Hz triangle run shows the stick-slip (sim-triangle.png): steps of 0.04 V at
+  P 22, a 0.15 V staircase at P 5 + I.  Settling is now to 5 %.
+- **1M trimmers kept**; the log/linear question closed.
+- **Found: a stall at a few volts cooks the driver.**  A stalled 14 Ω motor draws
+  DRIVE/14 Ω; at 2-7 V that is 0.14-0.49 A, which the 0.35 A fuse holds, and the transistor
+  takes 1.8-3.7 W on a pour good for about 70 °C/W.  LOOP open with P GAIN at 1 (DRIVE =
+  TARGET) does exactly this.  Warnings added to the back, handbook and schematic; the fix
+  (TO-220s on heatsinks recommended) is Jason's call.
+- **Dropouts**: POSITION has no capacitor; a lifted wiper leaves it on U1's 100k at
+  TARGET/2, a twitch that the movement itself cures.  Nothing added.
+- Back silk: fader pins, ±3 V square and triangle tests, the stall warning.  Build: ERC 0,
+  DRC 0, 249 checks, 25 of 25 claims.
