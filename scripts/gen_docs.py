@@ -23,8 +23,11 @@ STEM = "motorpid"
 
 # JLCPCB list prices, autumn 2026.  These move; the fab's quote is the
 # authority and the build prints these only as an order of magnitude.
-PCB_2L_5PCS = 14.00          # 170 x 120 mm, 2 layers, 5 pieces, green, HASL (past the 100 x 100 discount)
-PCB_2L_10PCS = 24.00
+# 2 oz copper (the push-pull's heatsink): JLCPCB does not publish its price;
+# a third-party guide says 20-50 % more for the bare boards; the high end here
+COPPER_2OZ = 1.5
+PCB_2L_5PCS = 14.00 * COPPER_2OZ      # 170 x 120 mm, 2 layers, 5 pieces, green, HASL (past the 100 x 100 discount)
+PCB_2L_10PCS = 24.00 * COPPER_2OZ
 SHIPPING = 22.00             # DHL to the US; the slow post is about $8
 PCBA_SETUP = 8.00
 STENCIL = 1.50
@@ -86,10 +89,10 @@ def order_form(w, h, min_drill, min_via, tht_refs):
         ("PCB Thickness", "1.6 mm", "the BNC flanges, the knob and the terminal blocks expect it"),
         ("PCB Color", "Green", "any; the white silkscreen reads best on green or black"),
         ("Silkscreen", "White", "the default for green"),
-        ("Material Type", "FR4-Standard TG 135-140", "the default; the power transistors get warm only in a stall, for seconds"),
+        ("Material Type", "FR4-Standard TG 135-140", "the default; the worst stall holds the board round a transistor near 110 C, below the TG"),
         ("Surface Finish", "LeadFree HASL", "students handle this board: lead-free.  ENIG is fine too"),
         ("High-spec Options", None, None),
-        ("Outer Copper Weight", "1 oz", "the design rules assume it"),
+        ("Outer Copper Weight", "2 oz", "NOT the default: the copper round Q1 and Q2 is their heatsink (DESIGN_NOTES, \"A stall at a few volts\"); the 0.21 mm rules assume it"),
         ("Via Covering", "Tented", "or Plugged if the form upgrades it: either is fine, no via must stay open"),
         ("Min via hole size/diameter", via_opt,
          f"the smallest via on the board is {min_drill:.2f} mm drill, {min_via:.2f} mm pad"),
@@ -240,7 +243,8 @@ def main():
     a("CPL and JLCPCB fits them for a per-order fee plus pennies a joint; keep them")
     a("selected when the form lists them.  If you would rather solder them yourself")
     a(f"they are the {tht} largest, easiest joints on the board.  Everything else is 0805,")
-    a("1206, 2512, SMA, SOT-23-5 or DPAK and is hand-workable with a fine iron.")
+    a("1206, 2512, SMA or SOT-23-5 and is hand-workable with a fine iron; the two")
+    a("D2PAKs' tabs sit in 2 oz pours and need hot air or a large iron to move.")
     a("")
     a("## Parts, stock and alternates")
     a("")
@@ -347,8 +351,9 @@ def main():
         s = f"{x:+.1f}"
         return "0.0" if s in ("+0.0", "-0.0") else s
 
+    TH = json.load(open(os.path.join(ROOT, "sim", "thermal.json")))
     claims = CLAIMS(parts_cost, circuit_check_count(), loops, smt, tht, n_vias, R, p1, p2,
-                    round(quote(10, PCB_2L_10PCS)[4] / 10))
+                    round(quote(10, PCB_2L_10PCS)[4] / 10), TH)
     bad, n = [], 0
     for rel, pat, want in claims:
         text = re.sub(r"\s+", " ", open(os.path.join(ROOT, rel)).read())   # prose wraps lines
@@ -370,8 +375,8 @@ def main():
 PREVIEW_CHECKS = [
     ("U1, U2, U3, U4, U5, U6, U7", "SOT-23-5: three pads on the left, two on the right",
      "the three-pad side under the triangle's inputs (left); pin 1 top-left"),
-    ("Q1", "DPAK tab", "tab pointing UP into the copper pour above its circle"),
-    ("Q2", "DPAK tab", "tab pointing DOWN into the copper pour below its circle"),
+    ("Q1", "D2PAK tab", "tab pointing UP into the copper pour, the two leads down inside the circle"),
+    ("Q2", "D2PAK tab", "tab pointing DOWN into the copper pour, the two leads up inside the circle"),
     ("SW1, SW2, SW3, SW4, SW5", "MSK12C02 slide switch: the three pins on one edge",
      "SW1, SW2: pins along the bottom edge of the body; SW3, SW4, SW5: pins down the left edge"),
     ("RV1", "RK09K knob, keyed by its two posts", "fits one way; the shaft up, the pins toward the switch"),
@@ -389,8 +394,10 @@ PREVIEW_CHECKS = [
 ]
 
 
-def CLAIMS(parts_cost, nchecks, loops, smt, tht, n_vias, R, p1, p2, each10):
+def CLAIMS(parts_cost, nchecks, loops, smt, tht, n_vias, R, p1, p2, each10, TH):
     """Every number the hand-written documents quote from the build."""
+    q1, q2 = TH["Q1"], TH["Q2"]
+    pour_hot = max(q1["bench"]["pour_mean_c"], q2["bench"]["pour_mean_c"])
     p5, p22 = R["p_only"]["5"], R["p_only"]["22"]
     sweep = {x["target_v"]: x for x in R["stall_sweep"]}
     stall_max = max(x["p_q1_w"] for x in R["stall_sweep"])
@@ -427,6 +434,18 @@ def CLAIMS(parts_cost, nchecks, loops, smt, tht, n_vias, R, p1, p2, each10):
         ("docs/DESIGN_NOTES.md", r"with D by the rule: ([0-9.]+) % overshoot at gain 22; at gain 100, (\d+) % and (\d+) ms",
          (f"{R['pd']['rule']['overshoot_pct']:.1f}", f"{R['pd_gain100']['overshoot_pct']:.0f}",
           f"{R['pd_gain100']['settle_s'] * 1e3:.0f}")),
+        ("docs/DESIGN_NOTES.md", r"Q1's pour is (\d+) mm² and its junction reaches (\d+) °C in the worst stall, "
+                                 r"Q2's (\d+) mm² and (\d+) °C \((\d+) and (\d+) °C on standoffs\)",
+         (str(q1["pour_mm2"]), f"{q1['bench']['junction_c']:.0f}", str(q2["pour_mm2"]),
+          f"{q2['bench']['junction_c']:.0f}", f"{q1['standoffs']['junction_c']:.0f}",
+          f"{q2['standoffs']['junction_c']:.0f}")),
+        ("docs/DESIGN_NOTES.md", r"puts the junctions at (\d+) and (\d+) °C in the worst stall",
+         (f"{q1['bench']['junction_c']:.0f}", f"{q2['bench']['junction_c']:.0f}")),
+        ("docs/DESIGN_NOTES.md", r"the model says about (\d+) °C",
+         f"{round(q1['bench']['tab_c'], -1):.0f}"),
+        ("docs/DESIGN_NOTES.md", r"\(Q1: (\d+) mm², from the U6 column to the board edge; Q2: (\d+) mm²\)",
+         (str(q1["pour_mm2"]), str(q2["pour_mm2"]))),
+        ("docs/HANDBOOK.md", r"the pours marked HOT reach about\s+(\d+) °C", f"{round(pour_hot, -1):.0f}"),
         ("docs/DESIGN_NOTES.md", r"a 10 V step peaks at ([0-9.]+) A and ([0-9.]+) V of drive",
          (f"{R['big_step']['i_peak_a']:.2f}", f"{R['big_step']['drive_peak_v']:.1f}")),
     ]

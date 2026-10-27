@@ -9,7 +9,7 @@
 		(date "2026-10-24")
 		(rev "A")
 		(company "Circuit: Hayes & Horowitz, Learning the Art of Electronics (2016), Lab 10L  |  Board: Jason Gallicchio and Claude")
-		(comment 1 "LM321 (the single LM358) in SOT-23-5, one per triangle; MJD44H11 / MJD45H11 push-pull")
+		(comment 1 "LM321 (the single LM358) in SOT-23-5, one per triangle; MJB44H11 / MJB45H11 (D2PAK) push-pull")
 		(comment 2 "P from 1 to 101, D up to 10 ms (slide pot) or 100 ms (rotary), I up to 10 s")
 		(comment 3 "Open source, CERN-OHL-P-2.0 -- github.com/gallicchio/motor-pid")
 	)
@@ -3790,8 +3790,8 @@
 		)
 	)
 	(rectangle
-		(start 193.04 237.74)
-		(end 320.04 305.26)
+		(start 410.02 96.58)
+		(end 452.85 162.08)
 		(stroke
 			(width 0.15)
 			(type dash)
@@ -3799,19 +3799,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "08506c8c-fc30-426a-9673-71fbbe0ade6e")
-	)
-	(rectangle
-		(start 193.04 166.62)
-		(end 320.04 234.14)
-		(stroke
-			(width 0.15)
-			(type dash)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "1186e82c-a7a3-46bd-a511-0ddfa710cc9d")
+		(uuid "229c62fb-cc8b-44a3-89ab-0be8d49290dc")
 	)
 	(rectangle
 		(start 124.46 100.08)
@@ -3823,7 +3811,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "2ce3273a-bb08-41c0-8b17-63710ce04bcc")
+		(uuid "2d6ccf2f-dc6c-4b55-b8e1-625f009fbb62")
 	)
 	(rectangle
 		(start 454.2 119.08)
@@ -3835,11 +3823,11 @@
 		(fill
 			(type none)
 		)
-		(uuid "9502de55-dee2-413b-82e9-852141c56eb6")
+		(uuid "46719377-34cc-43b9-93d8-0b2c65c34e76")
 	)
 	(rectangle
-		(start 410.02 96.58)
-		(end 452.85 162.08)
+		(start 193.04 166.62)
+		(end 320.04 234.14)
 		(stroke
 			(width 0.15)
 			(type dash)
@@ -3847,7 +3835,19 @@
 		(fill
 			(type none)
 		)
-		(uuid "db21761e-dc47-46c0-adfa-f4e0a93397ad")
+		(uuid "85ed456f-dfbe-4772-aedc-404859af2225")
+	)
+	(rectangle
+		(start 193.04 237.74)
+		(end 320.04 305.26)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "eab9dbd8-3d7c-4a0f-8494-7a30684d3b7d")
 	)
 	(text "6.8k ends keep it to ±6.4 V, inside what the motor pot"
 		(exclude_from_sim no)
@@ -4417,17 +4417,6 @@
 		)
 		(uuid "493250fd-f6dd-595b-8d7d-584ad6382aa2")
 	)
-	(text "and stalls there: bring TARGET back to 0 within seconds."
-		(exclude_from_sim no)
-		(at 33.02 373.315 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "494f2c31-7d8d-5468-82bb-cb187d3b627c")
-	)
 	(text "P = -ERROR"
 		(exclude_from_sim no)
 		(at 211.36 102.87 0)
@@ -4657,17 +4646,6 @@
 		)
 		(uuid "746bac81-c5b9-536c-8225-f319a8e253ff")
 	)
-	(text "the motor current: 1 V per A across R21 or R22."
-		(exclude_from_sim no)
-		(at 345.44 375.85 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "77d0883f-d1c5-5eaa-a892-61740ae1fc85")
-	)
 	(text "THE PLANT: motor and pot  (Fig. 10L.1)"
 		(exclude_from_sim no)
 		(at 454.7 117.28 0)
@@ -4756,6 +4734,17 @@
 		)
 		(uuid "808a01f7-b3e2-56e0-a153-e5cdafcad9ab")
 	)
+	(text "one transistor takes up to 3.7 W, so they are D2PAKs on"
+		(exclude_from_sim no)
+		(at 345.44 373.315 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "82429dc2-ed83-5bf2-8f36-5441becaf08f")
+	)
 	(text "summing amplifier, gain -Rgain/10k"
 		(exclude_from_sim no)
 		(at 282.48 105.41 0)
@@ -4798,7 +4787,7 @@
 		)
 		(uuid "8bb89edb-6fdf-5cbb-8384-1f95890c14ad")
 	)
-	(text "own LM321 (the single LM358), the book's MJE3055/2955 as DPAK MJD44H11/45H11, and its resistor substitution boxes as trimmers."
+	(text "own LM321 (the single LM358), the book's MJE3055/2955 as D2PAK MJB44H11/45H11, and its resistor substitution boxes as trimmers."
 		(exclude_from_sim no)
 		(at 33.02 35.82 0)
 		(effects
@@ -4885,6 +4874,28 @@
 			(justify left)
 		)
 		(uuid "9573c909-0446-5a08-a986-e49a49a01e81")
+	)
+	(text "and stalls there, heating the driver: TARGET back to 0."
+		(exclude_from_sim no)
+		(at 33.02 373.315 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "9716839c-b900-56fc-900d-c45d62473a8e")
+	)
+	(text "2 oz copper pours.  R21, R22 read the motor current, 1 V/A."
+		(exclude_from_sim no)
+		(at 345.44 375.85 0)
+		(effects
+			(font
+				(size 1.3 1.3)
+			)
+			(justify left)
+		)
+		(uuid "9dba26c0-e280-5de2-b8d4-137cfc2a492a")
 	)
 	(text "nears 100; D equal to P there wants RC = 1 / 2 pi f = 5 ms (RV3 near 234k with 22 nF), and then gain 100 settles"
 		(exclude_from_sim no)
@@ -5159,17 +5170,6 @@
 			(justify left)
 		)
 		(uuid "ca15fe13-954b-5136-b08b-c7ad318d5b64")
-	)
-	(text "a transistor takes up to 3.7 W.  1 ohm per emitter reads"
-		(exclude_from_sim no)
-		(at 345.44 373.315 0)
-		(effects
-			(font
-				(size 1.3 1.3)
-			)
-			(justify left)
-		)
-		(uuid "cc9a8f97-bcb6-52eb-beee-6e1bc1ac85fb")
 	)
 	(text "R21, R22: 1 ohm, not in the book.  Across either one,"
 		(exclude_from_sim no)
@@ -18612,7 +18612,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MJD45H11"
+		(property "Value" "MJB45H11"
 			(at 394.22 157.94 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -18623,7 +18623,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:TO-252-2"
+		(property "Footprint" "Package_TO_SOT_SMD:TO-263-2"
 			(at 388.62 154.94 0)
 			(hide yes)
 			(show_name no)
@@ -18656,7 +18656,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C47515"
+		(property "LCSC" "C154570"
 			(at 388.62 154.94 0)
 			(hide yes)
 			(show_name no)
@@ -18667,7 +18667,7 @@
 				)
 			)
 		)
-		(property "MPN" "MJD45H11T4G"
+		(property "MPN" "MJB45H11T4G"
 			(at 388.62 154.94 0)
 			(hide yes)
 			(show_name no)
@@ -24843,7 +24843,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MJD44H11"
+		(property "Value" "MJB44H11"
 			(at 394.22 108.62 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -24854,7 +24854,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_SMD:TO-252-2"
+		(property "Footprint" "Package_TO_SOT_SMD:TO-263-2"
 			(at 388.62 109.22 0)
 			(hide yes)
 			(show_name no)
@@ -24887,7 +24887,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C38780"
+		(property "LCSC" "C233689"
 			(at 388.62 109.22 0)
 			(hide yes)
 			(show_name no)
@@ -24898,7 +24898,7 @@
 				)
 			)
 		)
-		(property "MPN" "MJD44H11T4G"
+		(property "MPN" "MJB44H11T4G"
 			(at 388.62 109.22 0)
 			(hide yes)
 			(show_name no)

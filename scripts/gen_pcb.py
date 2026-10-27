@@ -95,7 +95,7 @@ def read_netlist(path):
 
 
 # ------------------------------------------------------------- the board ---
-BOARD_RULES = dict(m_MinClearance=0.20, m_HoleClearance=0.30, m_HoleToHoleMin=0.50,
+BOARD_RULES = dict(m_MinClearance=0.21, m_HoleClearance=0.30, m_HoleToHoleMin=0.50,
                    m_CopperEdgeClearance=0.30, m_SilkClearance=0.15)
 
 
@@ -103,6 +103,34 @@ def apply_rules(board):
     ds = board.GetDesignSettings()
     for name, value in BOARD_RULES.items():
         setattr(ds, name, mm(value))
+
+
+COPPER_MM = 0.070            # 2 oz outer copper: the push-pull's pours are its heatsink
+STACKUP = f"""\t\t(stackup
+\t\t\t(layer "F.SilkS" (type "Top Silk Screen"))
+\t\t\t(layer "F.Paste" (type "Top Solder Paste"))
+\t\t\t(layer "F.Mask" (type "Top Solder Mask") (thickness 0.01))
+\t\t\t(layer "F.Cu" (type "copper") (thickness {COPPER_MM}))
+\t\t\t(layer "dielectric 1" (type "core") (thickness {1.6 - 2 * COPPER_MM - 0.02:.2f}) (material "FR4") (epsilon_r 4.5) (loss_tangent 0.02))
+\t\t\t(layer "B.Cu" (type "copper") (thickness {COPPER_MM}))
+\t\t\t(layer "B.Mask" (type "Bottom Solder Mask") (thickness 0.01))
+\t\t\t(layer "B.Paste" (type "Bottom Solder Paste"))
+\t\t\t(layer "B.SilkS" (type "Bottom Silk Screen"))
+\t\t\t(copper_finish "HAL lead-free")
+\t\t\t(dielectric_constraints no)
+\t\t)
+"""
+
+
+def write_stackup(path):
+    """A 1.6 mm two-layer stackup with 2 oz copper, so the gerber job file
+    agrees with the order form (the Python bindings cannot reach the board's
+    stackup, so it goes into the saved file)."""
+    text = open(path).read()
+    if "(stackup" in text:
+        return
+    i = text.index("\t(setup\n") + len("\t(setup\n")
+    open(path, "w").write(text[:i] + STACKUP + text[i:])
 
 
 def board_outline(board):
@@ -324,10 +352,40 @@ class Board:
 
 
     def pours(self):
-        """Copper under each power transistor's tab, on its collector's net,
-        as a heat spreader; the rail's wire runs into it."""
-        for ref, (x0, y0, x1, y1) in L.POURS.items():
+        """Copper round each power transistor's tab, on its collector's net, as
+        its heatsink: the layout's rectangles joined, less the symbol's circle
+        (the leads stay in plain board, the way the symbol is drawn).  The rail
+        reaches it by a wire that runs into it, or from the back by vias."""
+        def rect(x0, y0, x1, y1):
+            ps = pcbnew.SHAPE_POLY_SET(); ps.NewOutline()
+            for (x, y) in ((x0, y0), (x1, y0), (x1, y1), (x0, y1)):
+                ps.Append(mm(x), mm(y))
+            return ps
+
+        def boolean(op, a, b):
+            try:
+                getattr(a, op)(b)
+            except TypeError:
+                getattr(a, op)(b, pcbnew.SHAPE_POLY_SET.PM_FAST)
+
+        self.pour_outline, self.pour_zone = {}, {}
+        for ref, rects in L.POURS.items():
             net = self.pads[(ref, "2")]["net"]
+            shape = rect(*rects[0])
+            for r in rects[1:]:
+                boolean("BooleanAdd", shape, rect(*r))
+            g = self.q_geometry(ref)
+            disc = pcbnew.SHAPE_POLY_SET(); disc.NewOutline()
+            rr = g["R"] + 0.3
+            for i in range(72):
+                a_ = 2 * math.pi * i / 72
+                disc.Append(mm(g["cx"] + rr * math.cos(a_)), mm(g["cy"] + rr * math.sin(a_)))
+            boolean("BooleanSubtract", shape, disc)
+            if shape.OutlineCount() != 1 or shape.HoleCount(0):
+                raise SystemExit(f"{ref}'s pour is not one simple outline ({shape.OutlineCount()} outlines)")
+            chain = shape.Outline(0)
+            pts = [(tomm(chain.CPoint(i).x), tomm(chain.CPoint(i).y)) for i in range(chain.PointCount())]
+            self.pour_outline[ref] = pts
             z = pcbnew.ZONE(self.board)
             z.SetLayer(pcbnew.F_Cu)
             z.SetNet(self.netmap[net])
@@ -336,9 +394,10 @@ class Board:
             z.SetLocalClearance(mm(0.3)); z.SetMinThickness(mm(0.25))
             z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
             o = z.Outline(); o.NewOutline()
-            for (x, y) in ((x0, y0), (x1, y0), (x1, y1), (x0, y1)):
+            for (x, y) in pts:
                 o.Append(mm(x), mm(y))
             self.board.Add(z)
+            self.pour_zone[ref] = z
 
     def plane(self):
         z = pcbnew.ZONE(self.board)
@@ -347,13 +406,14 @@ class Board:
         z.SetAssignedPriority(0)
         z.SetPadConnection(pcbnew.ZONE_CONNECTION_THT_THERMAL)
         z.SetThermalReliefGap(mm(0.3)); z.SetThermalReliefSpokeWidth(mm(0.5))
-        z.SetLocalClearance(mm(0.3)); z.SetMinThickness(mm(0.2))
+        z.SetLocalClearance(mm(0.3)); z.SetMinThickness(mm(0.25))
         z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
         o = z.Outline(); o.NewOutline()
         m = 0.3
         for (x, y) in ((m, m), (L.BOARD_W - m, m), (L.BOARD_W - m, L.BOARD_H - m), (m, L.BOARD_H - m)):
             o.Append(mm(x), mm(y))
         self.board.Add(z)
+        self.plane_zone = z
         self.board.BuildConnectivity()
         pcbnew.ZONE_FILLER(self.board).Fill(self.board.Zones())
         for (net, x, y) in self.vias:
@@ -409,6 +469,13 @@ class Board:
         s.SetLayer(pcbnew.F_SilkS); s.SetWidth(mm(width))
         self.board.Add(s)
 
+    def _arc_through(self, a, mid, b, width=SILK_W):
+        s = pcbnew.PCB_SHAPE(self.board)
+        s.SetShape(pcbnew.SHAPE_T_ARC)
+        s.SetArcGeometry(pt(*a), pt(*mid), pt(*b))
+        s.SetLayer(pcbnew.F_SilkS); s.SetWidth(mm(width))
+        self.board.Add(s)
+
     @staticmethod
     def _seg_dist(p, a, b):
         (px, py), (ax, ay), (bx, by) = p, a, b
@@ -456,7 +523,7 @@ class Board:
                 boxes.append(tuple(box))
         self.boxes = boxes
         # a wire stops at a transistor's circle: the symbol takes it from there
-        self.circles = [(g["cx"], g["cy"], L.Q_RADIUS + 0.1)
+        self.circles = [(g["cx"], g["cy"], g["R"] + 0.1)
                         for g in (self.q_geometry(ref) for ref in L.TRANSISTORS)]
         return boxes
 
@@ -608,13 +675,20 @@ class Board:
 
     def q_geometry(self, ref):
         """The symbol round transistor `ref`, in board millimetres: where its
-        three leads leave the circle (so the wires can end there), the hairline
+        leads leave the circle (so the wires can end there), the hairline
         from each pad to its lead, and the copper that follows the hairline and
         the lead out to the circle.  Worked out in a frame with the bar on the
         left and the collector up, then mirrored for a base on the right and
         for a PNP (collector down).  The SOT-23 must be turned so its base pad
         is on the bar's side; the lone (collector) pad then sits either under
-        the collector leg or under the emitter leg, and the hairlines differ."""
+        the collector leg or under the emitter leg, and the hairlines differ.
+
+        The D2PAK is drawn round its leads, not round the whole package: its
+        tab (the collector, 10.8 x 9.4 mm) caps the circle, which stops short
+        of it, and the copper round the tab is the collector's pour.  The base
+        lead runs straight through the base pad into a bar between the two
+        leads; the collector leg ends at the tab, the emitter leg below the
+        emitter pad, where the emitter's vertical leaves the circle."""
         if ref in self.qgeom:
             return self.qgeom[ref]
         kind, side = L.TRANSISTORS[ref]
@@ -622,31 +696,33 @@ class Board:
         cx, cy = tomm(fp.GetPosition().x), tomm(fp.GetPosition().y)
         m = 1 if side == "left" else -1
         n = 1 if kind == "NPN" else -1
-        dpak = "TO-252" in self.comps[ref]["footprint"]
-
-        if dpak:
-            # the symbol's centre sits 1.5 mm toward the tab, so the emitter leg
-            # clears the base pad; the circle is big enough to hold the pads
-            # the legs leave the bar at 33 degrees, not 45: a 45-degree emitter
-            # leg cannot pass between the tab and the base pad (2 mm apart)
-            R, BX, BH, BEND, oy = L.Q_RADIUS, 4.5, 3.25, 6.17, 1.5
+        d2pak = "TO-263" in self.comps[ref]["footprint"]
+        if d2pak:
             roles = (("1", "B"), ("2", "C"), ("3", "E"))
         else:
-            R, BX, BH, BEND, oy = 4.0, Q_BAR_X, Q_BAR_H, Q_BEND, 0.0
+            R, BX, BH, BEND = 4.0, Q_BAR_X, Q_BAR_H, Q_BEND
             roles = (("1", "B"), ("2", "E"), ("3", "C"))
 
         def P(x, y):
-            return (cx + m * x, cy + n * (y - oy))
+            return (cx + m * x, cy + n * y)
 
         pins = {}
         for num, name in roles:
             p = self.pads[(ref, num)]
-            pins[name] = (m * (p["x"] - cx), n * (p["y"] - cy) + oy, (p["x1"] - p["x0"]) / 2, (p["y1"] - p["y0"]) / 2)
+            pins[name] = (m * (p["x"] - cx), n * (p["y"] - cy), (p["x1"] - p["x0"]) / 2, (p["y1"] - p["y0"]) / 2)
         xb, yb, hwb, hhb = pins["B"]
         xe, ye, hwe, hhe = pins["E"]
         xc, yc, hwc, hhc = pins["C"]
         if not (xb < -0.5 and xe > 0.5 and abs(xc) < 0.1):
             raise SystemExit(f"{ref}: the package is not turned with its base pad on the bar's side (B {xb:.2f}, E {xe:.2f}, C {xc:.2f})")
+        numof = {name: num for num, name in roles}
+        nB, nC, nE = numof["B"], numof["C"], numof["E"]
+        g = Q_STUB_GAP
+        if d2pak:
+            geom = self._d2pak_geometry(P, m, n, kind, xb, yb, hwb, xe, ye, hhe, (xc, yc, hwc, hhc), nB, nC, nE)
+            self.qgeom[ref] = geom
+            return geom
+
         L_ = math.hypot(BX, BEND - BH)
         u = (BX / L_, (BEND - BH) / L_)               # along the emitter leg, bar to bend
 
@@ -654,34 +730,15 @@ class Board:
             t = (sx + BX) * u[0] + (sy - BH) * u[1]
             return (-BX + t * u[0], BH + t * u[1])
 
-        g = Q_STUB_GAP
         stubs, copper = {}, {}
-        numof = {name: num for num, name in roles}
-        nB, nC, nE = numof["B"], numof["C"], numof["E"]
-        if dpak:
-            # the DPAK: base and emitter pads side by side below the tab; the
-            # base hairline runs up to the bar's end, the emitter's across to its leg
-            # the base: a hairline from the pad's outer edge to the bar's line,
-            # and the bar's line continued down to it
-            stubs[nB] = [(xb - hwb - g, yb), (-BX, yb), (-BX, BH)]
-            copper[nB] = [(-R, 0), (-BX, 0), (-BX, yb), (xb, yb)]
-            stubs[nC] = [(0, yc - hhc - g), (0, -BEND)]
-            copper[nC] = [(0, -R), (0, yc)]
-            # the emitter: a hairline below its pad across to the leg's vertical
-            ey = ye + hhe + g + 0.2
-            stubs[nE] = [(xe, ye + hhe + g), (xe, ey), (0, ey)]
-            copper[nE] = [(0, R), (0, ey), (xe, ey), (xe, ye)]
         # B: a hairline from the pad's inner edge straight across to the bar
-        if not dpak:
-            stubs["1"] = [(xb + hwb + g, yb), (-BX + Q_W_BAR / 2, yb)]
-            copper["1"] = [(-R, 0), (-BX, 0), (-BX, yb), (xb, yb)]
-            # C: straight along the collector's vertical, pad to bend
-            stubs["3"] = [(0, yc - hhc - g), (0, -BEND)]
-            copper["3"] = [(0, -R), (0, yc)]
+        stubs["1"] = [(xb + hwb + g, yb), (-BX + Q_W_BAR / 2, yb)]
+        copper["1"] = [(-R, 0), (-BX, 0), (-BX, yb), (xb, yb)]
+        # C: straight along the collector's vertical, pad to bend
+        stubs["3"] = [(0, yc - hhc - g), (0, -BEND)]
+        copper["3"] = [(0, -R), (0, yc)]
         # E: square on to the emitter leg; round the lone pad first if it is in the way
-        if dpak:
-            pass
-        elif ye > 0:
+        if ye > 0:
             e_s = (xe, ye + hhe + g)
             e_f = foot(*e_s)
             stubs["2"] = [e_s, e_f]
@@ -702,7 +759,7 @@ class Board:
         px, py = -u[1], u[0]
         arrow = [tip, (tail[0] + px * 0.5, tail[1] + py * 0.5), (tail[0] - px * 0.5, tail[1] - py * 0.5)]
         geom = dict(
-            cx=P(0, 0)[0], cy=P(0, 0)[1], R=R, wide=({nC} if dpak else set()),
+            cx=P(0, 0)[0], cy=P(0, 0)[1], R=R, wide=set(), arc=None,
             exit={nB: P(-R, 0), nC: P(0, -R), nE: P(0, R)},
             bar=[P(-BX, -BH), P(-BX, BH)],
             leads=[[P(-R, 0), P(-BX, 0)],
@@ -711,11 +768,61 @@ class Board:
             arrow=[P(*q) for q in arrow],
             stubs={k: [P(*q) for q in v] for k, v in stubs.items()},
             copper={k: [P(*q) for q in v] for k, v in copper.items()},
-            letters=({"B": P(-BX - 1.2, -0.9), "C": P(2.3, -BEND + 0.6), "E": P(2.3, 4.7)} if dpak else
-                     {"B": P(-3.0, -0.9), "C": P(1.15, -3.0), "E": P(1.15, 3.0)}),
+            letters={"B": P(-3.0, -0.9), "C": P(1.15, -3.0), "E": P(1.15, 3.0)},
         )
         self.qgeom[ref] = geom
         return geom
+
+    def _d2pak_geometry(self, P, m, n, kind, xb, yb, hwb, xe, ye, hhe, tab, nB, nC, nE):
+        """q_geometry for a D2PAK, in its frame (the leads below the tab, the
+        base lead on the left): see q_geometry.  The circle sits on the leads
+        and its arc stops where it would come within the silk clearance of the
+        tab; the legs are placed to clear the pads by the same."""
+        xc, yc, hwc, hhc = tab
+        tab_bot = yc + hhc                            # the tab's edge toward the leads
+        clr = SILK_CLEAR + Q_W_LEAD / 2               # a lead's edge to a pad
+        y0 = yb - 0.65                                # the circle's centre, on the base lead: 7.0
+        R = 6.0
+        BX, BH = 0.55, 1.6                            # the bar, between the leads, left of centre
+        c_end = (1.4, tab_bot + clr + 0.03)           # the collector leg ends at the tab
+        e_end = (xe, ye + 3.55)                       # the emitter leg ends under the emitter pad
+        e_out = (xe, y0 + math.sqrt(R * R - xe * xe)) # where the emitter's vertical leaves the circle
+        b_out = (-R, y0)
+        # the arc: everything below the tab's clearance line
+        cut = tab_bot + SILK_CLEAR + Q_W_CIRCLE / 2
+        half = math.degrees(math.asin((y0 - cut) / R))   # the cut's angle above the horizontal
+        # frame angles (y down): the arc runs from -half round through 90 (the bottom) to 180 + half
+        def fa(a):
+            return P(R * math.cos(math.radians(a)), y0 + R * math.sin(math.radians(a)))
+        arc = (fa(-half), fa(90.0), fa(180.0 + half))
+        # the base lead, interrupted by the base pad it runs through
+        leads = [[b_out, (xb - hwb - clr, y0)],
+                 [(xb + hwb + clr, y0), (-BX, y0)],
+                 [(-BX, y0 - BH), c_end],
+                 [(-BX, y0 + BH), e_end, e_out]]
+        stubs = {nE: [(xe, ye + hhe + Q_STUB_GAP), e_end]}
+        copper = {nB: [b_out, (xb, y0)], nE: [(xe, ye), e_out]}
+        ux, uy = e_end[0] + BX, e_end[1] - (y0 + BH)
+        L_ = math.hypot(ux, uy)
+        u = (ux / L_, uy / L_)
+        if kind == "NPN":
+            tip = e_end
+            tail = (tip[0] - u[0] * 1.1, tip[1] - u[1] * 1.1)
+        else:
+            tip = (-BX + u[0] * 0.15, y0 + BH + u[1] * 0.15)
+            tail = (tip[0] + u[0] * 1.1, tip[1] + u[1] * 1.1)
+        px, py = -u[1], u[0]
+        arrow = [tip, (tail[0] + px * 0.5, tail[1] + py * 0.5), (tail[0] - px * 0.5, tail[1] - py * 0.5)]
+        return dict(
+            cx=P(0, y0)[0], cy=P(0, y0)[1], R=R, wide=set(), arc=arc,
+            exit={nB: P(*b_out), nC: P(xc, yc), nE: P(*e_out)},
+            bar=[P(-BX, y0 - BH), P(-BX, y0 + BH)],
+            leads=[[P(*q) for q in ld] for ld in leads],
+            arrow=[P(*q) for q in arrow],
+            stubs={k: [P(*q) for q in v] for k, v in stubs.items()},
+            copper={k: [P(*q) for q in v] for k, v in copper.items()},
+            letters={"B": P(-4.8, y0 - 1.1), "C": P(3.9, tab_bot + 1.25), "E": P(xe + 1.55, y0 + 2.4)},
+        )
 
     def oa_geometry(self, ref):
         """The triangle round op-amp `ref` (SOT-23-5 at rotation 0): where the
@@ -802,7 +909,10 @@ class Board:
                 if item.GetLayer() == pcbnew.F_SilkS:
                     fp.Remove(item)
             g = self.q_geometry(ref)
-            self._circle(g["cx"], g["cy"], g["R"], width=Q_W_CIRCLE)
+            if g["arc"]:
+                self._arc_through(*g["arc"], width=Q_W_CIRCLE)
+            else:
+                self._circle(g["cx"], g["cy"], g["R"], width=Q_W_CIRCLE)
             self._line(g["bar"][0], g["bar"][1], width=Q_W_BAR)
             for lead in g["leads"]:
                 for a, b in zip(lead, lead[1:]):
@@ -998,6 +1108,7 @@ class Board:
         self.fiducials()
         stabilise_uuids(self.board)
         pcbnew.SaveBoard(self.out_path, self.board)
+        write_stackup(self.out_path)
         self.export_geometry()
         return self
 
@@ -1022,8 +1133,28 @@ class Board:
         path = os.path.join(os.path.dirname(self.out_path), "..", "out", "pcb_geom.json")
         os.makedirs(os.path.dirname(path), exist_ok=True)
         json.dump({"board_w": L.BOARD_W, "board_h": L.BOARD_H, "pads": pads,
-                   "tracks": len(self.segments), "vias": len(self.vias), "hops": len(self.hops)},
+                   "tracks": len(self.segments), "vias": len(self.vias), "hops": len(self.hops),
+                   "heat": self.heat_geometry()},
                   open(path, "w"), indent=1)
+
+    def heat_geometry(self):
+        """The copper the push-pull's heat spreads through, for sim/thermal.py:
+        each pour as filled (outlines, each with its holes), the tab's pad, and
+        the ground plane as filled on the back."""
+        def polys(zone, layer):
+            ps = zone.GetFilledPolysList(layer)
+            out = []
+            for i in range(ps.OutlineCount()):
+                rings = [ps.Outline(i)] + [ps.Hole(i, h) for h in range(ps.HoleCount(i))]
+                out.append([[(round(tomm(c.CPoint(k).x), 3), round(tomm(c.CPoint(k).y), 3))
+                             for k in range(c.PointCount())] for c in rings])
+            return out
+        heat = {"plane": polys(self.plane_zone, pcbnew.B_Cu)}
+        for ref, z in self.pour_zone.items():
+            p = self.pads[(ref, "2")]
+            heat[ref] = {"pour": polys(z, pcbnew.F_Cu), "tab": [p["x0"], p["y0"], p["x1"], p["y1"]],
+                         "value": self.comps[ref]["value"]}
+        return heat
 
 
 def stabilise_uuids(board):

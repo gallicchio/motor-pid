@@ -81,7 +81,7 @@ def build():
               title=f"{parts.BOARD_NAME}: Lab 10L of Learning the Art of Electronics",
               date=parts.BOARD_DATE, rev=parts.REV,
               company="Circuit: Hayes & Horowitz, Learning the Art of Electronics (2016), Lab 10L  |  Board: Jason Gallicchio and Claude",
-              comments=["LM321 (the single LM358) in SOT-23-5, one per triangle; MJD44H11 / MJD45H11 push-pull",
+              comments=["LM321 (the single LM358) in SOT-23-5, one per triangle; MJB44H11 / MJB45H11 (D2PAK) push-pull",
                         "P from 1 to 101, D up to 10 ms (slide pot) or 100 ms (rotary), I up to 10 s",
                         "Open source, CERN-OHL-P-2.0 -- " + parts.PROJECT_URL])
     pwr_n = [0]
@@ -523,10 +523,10 @@ def build():
     testpoint(c, o6[1], "U6 OUT", rot=180, dx=-1.8, dy=3.2, justify="right")
     # the push-pull: NPN above, PNP below, 1 ohm in each emitter, joined at DRIVE
     QX = BX + 7.62
-    s.place(sym("NPN_PWR"), "Q1", "MJD44H11", QX, A_Y - 22.86, footprint=fp("NPN_PWR"),
+    s.place(sym("NPN_PWR"), "Q1", "MJB44H11", QX, A_Y - 22.86, footprint=fp("NPN_PWR"),
             fields=part_fields("NPN_PWR"), ref_off=(5.6, -3.0), val_off=(5.6, -0.6),
             ref_justify="left", val_justify="left")
-    s.place(sym("PNP_PWR"), "Q2", "MJD45H11", QX, A_Y + 22.86, mirror="x", footprint=fp("PNP_PWR"),
+    s.place(sym("PNP_PWR"), "Q2", "MJB45H11", QX, A_Y + 22.86, mirror="x", footprint=fp("PNP_PWR"),
             fields=part_fields("PNP_PWR"), ref_off=(5.6, 0.6), val_off=(5.6, 3.0),
             ref_justify="left", val_justify="left")
     q1b, q1c, q1e = s.pin("Q1", 1, "1"), s.pin("Q1", 1, "2"), s.pin("Q1", 1, "3")
@@ -856,7 +856,7 @@ def build():
           "Lab 10L of Learning the Art of Electronics (Hayes & Horowitz, 2016): a potentiometer sets a target position, a DC motor",
           "drives a second potentiometer to match it, and the controller is the book's home-made 'pseudo op-amp' of modest, adjustable",
           "gain, with the derivative and the integral of the error summed in.  The board is the book's Fig. 10L.10 with every amplifier its",
-          "own LM321 (the single LM358), the book's MJE3055/2955 as DPAK MJD44H11/45H11, and its resistor substitution boxes as trimmers.",
+          "own LM321 (the single LM358), the book's MJE3055/2955 as D2PAK MJB44H11/45H11, and its resistor substitution boxes as trimmers.",
           "",
           "Why a home-made op-amp: the motor integrates (voltage in, position out: -90 degrees from DC), so an ordinary op-amp's own",
           "-90 degrees would make -180 at a few hertz.  The pseudo op-amp has gain 1 to 101 and no phase shift of its own.",
@@ -880,7 +880,7 @@ def build():
           "driver gets P GAIN x TARGET, open loop: the knob or a",
           "generator drives the motor directly (x1 with P GAIN",
           "anticlockwise, D and I off).  The slider runs to an end",
-          "and stalls there: bring TARGET back to 0 within seconds."],
+          "and stalls there, heating the driver: TARGET back to 0."],
          col[0], NOTE_Y)
     note(["PSEUDO OP-AMP  (U1, U2, U3)",
           "U1 takes TARGET - POSITION with four 100k.  U2 inverts",
@@ -923,8 +923,8 @@ def build():
           "FUSE: not in the book.  The 0.35 A PTC opens a full-drive",
           "stall (0.6 A) in seconds and a short in well under one,",
           "then resets itself.  A stall at a few volts it holds, and",
-          f"a transistor takes up to {max((x['p_q1_w'] for x in R.get('stall_sweep', [])), default=3.7):.1f} W.  1 ohm per emitter reads",
-          "the motor current: 1 V per A across R21 or R22."],
+          f"one transistor takes up to {max((x['p_q1_w'] for x in R.get('stall_sweep', [])), default=3.7):.1f} W, so they are D2PAKs on",
+          "2 oz copper pours.  R21, R22 read the motor current, 1 V/A."],
          col[3], NOTE_Y)
     note(["THE PLANT",
           "The lab's Bourns PSM01-082A-103B2, or any fader with a",

@@ -182,8 +182,9 @@ def main(path):
           "C9 = 0.33 uF from U6's own output to its - input (the fast feedback)")
     check(N.between(m6, "DRIVE") == ["R18"] and ohms(N.value["R18"]) == 10e3, "R18 = 10k from DRIVE (the motor side) to U6's - input (the DC feedback)")
     check(N.between(N.net("U6", OUT), "BASES") == ["R19"] and ohms(N.value["R19"]) == 270, "R19 = 270 ohm from U6's output to the bases")
-    check(N.value["Q1"] == "MJD44H11" and N.value["Q2"] == "MJD45H11", "Q1 is the MJD44H11 NPN, Q2 the MJD45H11 PNP")
-    check(N.footprint["Q1"].endswith("TO-252-2") and N.footprint["Q2"].endswith("TO-252-2"), "Q1 and Q2 are DPAKs")
+    check(N.value["Q1"] == "MJB44H11" and N.value["Q2"] == "MJB45H11", "Q1 is the MJB44H11 NPN, Q2 the MJB45H11 PNP")
+    check(N.footprint["Q1"].endswith("TO-263-2") and N.footprint["Q2"].endswith("TO-263-2"),
+          "Q1 and Q2 are D2PAKs (RthJC 2.5 C/W): a stall at a few volts is up to 3.7 W in one")
     check(N.net("Q1", 1) == "BASES" and N.net("Q2", 1) == "BASES", "both bases are driven by BASES")
     check(N.net("Q1", 2) == "+15V" and N.net("Q2", 2) == "-15V", "Q1's collector (tab) is +15 V, Q2's is -15 V")
     check(N.between(N.net("Q1", 3), "DRIVE") == ["R21"] and ohms(N.value["R21"]) == 1, "R21 = 1 ohm from Q1's emitter to DRIVE")
@@ -191,12 +192,13 @@ def main(path):
     check(N.footprint["R21"].endswith("R_2512_6332Metric") and N.footprint["R22"].endswith("R_2512_6332Metric"),
           "the sense resistors are 2512, 1 W")
     # no current limiter: the PTC is the protection.  A stall (0.6 A) must trip it,
-    # a short must trip it fast, and the DPAK must live through both
+    # a short must trip it fast, and the D2PAK must live through both (and through
+    # the stall at a few volts the fuse holds: sim/thermal.py --board)
     check(not any(r.startswith("Q") and r not in ("Q1", "Q2") for r in N.value), "no small-signal transistors: the limiter is gone, the fuse does that job")
     i_hold = float(N.value["F1"].rstrip("A"))
     check(0.55 > i_hold > 0.25, f"the PTC holds {i_hold} A: below the motor's 0.4-0.8 A stall, above its 0.2 A running current")
     p_stall = (15.0 - 9.0) * 0.6
-    check(p_stall < 5, f"a stall puts {p_stall:.1f} W in one DPAK until the PTC trips (seconds): survivable with its copper")
+    check(p_stall < 5, f"a full-drive stall puts {p_stall:.1f} W in one D2PAK until the PTC trips (seconds): survivable with its copper")
     # the clamps, the snubber, the fuse and its lamp
     check(N.net("D3", 1) == "+15V" and N.net("D3", 2) == "DRIVE", "D3 clamps DRIVE to +15 V (cathode on the rail)")
     check(N.net("D4", 1) == "DRIVE" and N.net("D4", 2) == "-15V", "D4 clamps DRIVE to -15 V (anode on the rail)")

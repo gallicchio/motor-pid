@@ -13,9 +13,12 @@ single, each triangle on the board is its own chip, so the silkscreen can draw
 the schematic with one op-amp symbol round each package.  Its + input is pin 1,
 at the top of the package, which is why every triangle is drawn + on top.
 
-**The push-pull is a DPAK pair (MJD44H11 / MJD45H11), not TO-220s.**  Surface
-mount, so the assembler places them; 8 A parts, so a stall is nothing to them
-thermally for the seconds the fuse allows.  Each tab sits on a copper pour.
+**The push-pull is a D2PAK pair (MJB44H11 / MJB45H11) on 2 oz copper, not
+TO-220s.**  Surface mount, so the assembler places them and nothing bare sits
+at a rail voltage among the probe loops.  A stall at a few volts can put 3.7 W
+in one of them for as long as the fuse holds, so each tab sits in a pour of
+2 oz copper that is its heatsink (Jason's choice, 2026-10-26: "A stall at a
+few volts" below).
 
 **Emitter resistors, 1 Ω each.**  Not in the book.  They share the current
 between the two transistors across the crossover region, and across either one
@@ -85,7 +88,7 @@ the one wire on the board a part hides.
 ## The board
 
 170 x 120 mm, two layers, every part on the top, the back a ground plane.  200
-SMT and 27 through-hole joints, 66 vias.  Every wire in `scripts/layout.py` is
+SMT and 27 through-hole joints, 69 vias.  Every wire in `scripts/layout.py` is
 laid as copper on the front and drawn as a silkscreen line, so the picture is
 the netlist; `check_circuit.py` makes 249 assertions on the netlist the
 schematic exports, and `gen_pcb.py` refuses to lay a wire on a pad of another
@@ -99,15 +102,28 @@ Two things could not be drawn on the front:
   "−15 V" flag with its 100 nF bypass, the way the sheet draws a power symbol
   at each op-amp; a back-layer trunk under the +15 V rail joins the flags.  The
   +15 V rail is a real line along the top, and the lower stages' +15 V come
-  up from the push-pull's pour on the back, as flags too.
+  down from it on the back (a spine west of the inverter), as flags too.
+  Q2's −15 V pour is fed up the board's right edge on the back.  No back run
+  crosses under the pours: the ground plane there carries their heat away.
 - **POSITION.**  The fader's wiper is at the bottom right and the LOOP switch
   at the top left; a front wire between them would cross every stage.  It runs
   on the back and is printed as a dashed line, a net label with a route.
 
-The pours under the DPAK tabs sit just outside each transistor's symbol
-circle, fed through a 2 mm copper lead; the symbol's legs leave the base bar at
-33 degrees rather than 45 because a 45-degree emitter leg cannot pass between
-the tab and the base pad.
+Each D2PAK's symbol circle is drawn round its two leads and stops short of the
+tab, which caps it: the tab (10.8 x 9.4 mm, the collector) is too big to draw
+round.  The base lead runs straight through the base pad into a bar between
+the leads; the collector leg ends at the tab, the emitter leg under the emitter
+pad.  The pour, on the collector's net, fills the MOTOR DRIVER box round the
+tab (Q1: 836 mm², from the U6 column to the board edge; Q2: 670 mm²).  The
+emitter leads are 2.54 mm either side of the column, so R21 and R22 stand in
+two columns with DRIVE running between their ends, and the clamps D3 and D4
+each have their rail end inside that rail's pour.
+
+Q2's base is on the right (a D2PAK cannot be mirrored), and its emitter wire
+lies between it and BASES: that crossing is topological, not a choice, so
+BASES passes under the emitter wire on the back for 4 mm (the board's one
+hop, drawn as a jump).  The DPAK layout avoided it by running BASES all the
+way round Q2's small pour.
 
 **170 x 120 mm, on purpose.**  The op-amp board is 100 x 100 mm and gets
 JLCPCB's small-board price; this one is past it.  Jason's call (2026-10-25):
@@ -119,7 +135,7 @@ silkscreen are worth more than the few dollars.
 
 `sim/pid_sim.py` builds a SPICE deck from `out/motorpid.net` (so it simulates
 what the board is, not what was meant) with behavioural models of the LM321
-(gain, slew, output clamp), the DPAKs, and the fader: a 14 Ω motor with back
+(gain, slew, output clamp), the D2PAKs (the D44H11 / D45H11 die), and the fader: a 14 Ω motor with back
 EMF, a 15 ms mechanical time constant, friction of 0.15 A while sliding that
 rises to 0.18 A to break loose below 5 mm/s, end stops 10 mm past the ends of
 the track's linear part.  The motor's resistance and friction are Jason's
@@ -154,25 +170,33 @@ The plots are in `docs/images/sim-*.png`.
    board; if it is the other way the legends swap meaning and nothing is
    damaged.
 2. **A dead short of MOTOR to ground**: 2 A for the fraction of a second the
-   PTC takes.  The DPAK's 8 A rating and the 1 Ω resistor (2 W pulse in a 1 W
+   PTC takes.  The D2PAK's 10 A rating and the 1 Ω resistor (2 W pulse in a 1 W
    2512) should cover it.  Try it once with a current-limited supply.
 3. **The fader model.**  Resistance and friction are now measured (below);
    the speed, the inertia and the friction's fall with speed are not.  The
    gains at which the loop rings, and so the D rule's trimmer position, move
    with them: the D rule went from 611k to 234k when the measurements came in.
-4. **JLCPCB rotations and datums** for the SOT-23-5, the DPAK, the slide
+4. **JLCPCB rotations and datums** for the SOT-23-5, the D2PAK (JLCPCB draws
+   it turned 180° from KiCad), the slide
    switch, the knob and the trimmers are predicted from the land patterns, not
    yet seen in a preview; `out/motorpid/PLACEMENT_CHECKS.txt` lists them.
 5. **The PTC's trip time at 0.6 A** (a stall at full drive) is 5–10 s from its
-   curve; if it is much longer the DPAK gets hot (3.4 W, no heatsink beyond
-   the pour).  A stall below full drive does not trip it at all: next section.
+   curve; if it is much longer the D2PAK heats toward its worst-stall
+   temperature (3.4 W).  A stall below full drive does not trip it at all:
+   next section.
 6. **The knob's turn direction**: pin 3 is assumed to be the end the wiper
    reaches turning clockwise, by the convention Bourns' 3362 sheet states
    for the trimmers (terminal 3 = CW) and ALPS follows; the RK09K sheet itself
    could not be fetched.  If it is the other way, the knob's arc and
    "clockwise +" read backwards; the loop is unaffected.
+7. **The pours as heatsinks.**  `sim/thermal.py --board` puts the junctions at
+   120 and 122 °C in the worst stall, from a model checked against one data
+   sheet figure.  On the first board hold a 7 V stall (LOOP open, P GAIN
+   anticlockwise, +7 V into TARGET IN from a supply, the slider at its stop) for ten
+   minutes and read Q1's tab with a thermocouple; the model says about 110 °C.
+   Then −7 V for Q2.
 
-## A stall at a few volts (2026-10-26, open)
+## A stall at a few volts (2026-10-26, closed the same day: D2PAKs on 2 oz)
 
 The measured motor is 14 Ω, so a stalled slider draws DRIVE / 14 Ω.  With the
 loop open and P GAIN at 1 (DRIVE = TARGET, which the board invites), the
@@ -180,9 +204,10 @@ slider runs to its stop and stays; the simulation's sweep
 (`sim/results.json`, `stall_sweep`) puts the NPN's dissipation
 from 1.8 W at 2 V to 3.7 W at 7 V of DRIVE, at 0.14 to 0.49 A.
 The fuse holds 0.35 A, so up to about 5 V it never trips, and between 0.35 and
-0.7 A it may take minutes.  The DPAK sits on a 12 x 5.8 mm pour: about
-70 °C/W from junction to air (the data sheet's minimum-pad figure), so 2 W is
-already past 150 °C, reached in something like a minute.  The full-drive
+0.7 A it may take minutes.  The DPAK of rev A's first layout sat on a
+12 x 5.8 mm pour: about 70 °C/W from junction to air (the data sheet's
+minimum-pad figure), so 2 W was already past 150 °C, reached in something like
+a minute.  The full-drive
 stall the fuse was chosen for (0.63 A) is the easy case.
 
 Holding the slider by hand at a low P gain does the same.  The board says so
@@ -246,7 +271,23 @@ Recommendation: the D2PAKs on 2 oz copper.  They meet Jason's wish (nothing
 to solder, no heatsinks) with the silicon inside its rating in the worst
 case, and leave no bare rail-voltage metal among the probe loops.  The TO-220s
 are the more robust choice and the book's, at the cost of the hand work and
-the live heatsinks.  Waiting on Jason's choice.
+the live heatsinks.
+
+**Decision (Jason, 2026-10-26): "D2PAK on 2 oz copper."**  As built, Q1's
+pour is 836 mm² and its junction reaches 120 °C in the worst stall, Q2's
+670 mm² and 122 °C (113 and 116 °C on standoffs); the pours average 85–88 °C
+and their far edges about 70 °C.  That is the model run on the board as
+KiCad filled it, the ground plane included with its cuts (`sim/thermal.py
+--board`, `sim/thermal.json`), and the build fails above 125 °C, which leaves
+25 °C for the model's error under the parts' 150 °C.  Q2's pour is the
+smaller one because U6's feedback network sits above it.  What it took:
+- MJB44H11T4G / MJB45H11T4G (C233689, C154570) in KiCad's TO-263-2.
+- 2 oz outer copper on the order, and the clearance and track rules raised
+  from 0.2 to 0.21 mm (JLCPCB's 2 oz minimum is 8 mil).
+- The back runs that crossed under the transistors moved: the lower stages'
+  +15 V now comes from the rail, Q2's −15 V up the board's edge, U6's V− and
+  the track's −15 V from Q2's pour.
+- "HOT if the motor stalls" printed on both pours.
 
 ## The fader, measured (bench, 2026-10-26)
 

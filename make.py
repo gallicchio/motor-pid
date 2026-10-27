@@ -118,6 +118,13 @@ def stage_pcb():
     print(f"  DRC: {n} violation(s)")
     if n:
         raise Fail(f"DRC reported {n} violations -- see {os.path.relpath(rpt, ROOT)}")
+    # the push-pull's copper is its heatsink: the worst stall on the board as built
+    r = subprocess.run([sys.executable, os.path.join(ROOT, "sim", "thermal.py"), "--board"],
+                       capture_output=True, text=True)
+    sys.stdout.write(r.stdout)
+    if r.returncode:
+        sys.stdout.write(r.stderr)
+        raise Fail("a transistor runs too hot in the worst stall (sim/thermal.py --board)")
 
 
 def stage_out():

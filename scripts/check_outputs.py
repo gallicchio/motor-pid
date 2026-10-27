@@ -286,7 +286,7 @@ def check_qr(stem, problems, notes):
 # What JLCPCB's own description of each code must say, beyond the MPN.
 # (The ECP5 lesson: a code typed from memory can be a perfectly real other part.)
 CODE_EXPECT = {
-    "OPAMP": ["LM321", "SOT-23-5"], "NPN_PWR": ["NPN", "TO-252"], "PNP_PWR": ["PNP", "TO-252"],
+    "OPAMP": ["LM321", "SOT-23-5"], "NPN_PWR": ["NPN", "D2PAK"], "PNP_PWR": ["PNP", "D2PAK"],
     "CBULK": ["100uF", "25V"], "POT_KNOB": ["10k"], "TRIM": ["1M"], "SW": ["SPDT"],
     "BNC": ["BNC"], "TERM3": ["3P", "5mm"], "TP": ["Test"],
     "DSCH": ["Schottky", "SMA"], "PTC": ["350mA", "30V"], "LED": ["0805"], "LED_R": ["0805"],

@@ -42,23 +42,27 @@ PARTS = {
              "One package per triangle so the silkscreen is the schematic",
         alt=["LM321DTR (XBLW) / C18723612 (398k, $0.03)",
              "LM321MF (UTC) / C668208 (391k, $0.04)"]),
-    # ---- the motor driver's power pair: the book's MJE3055 / MJE2955 in DPAK -
+    # ---- the motor driver's power pair: the book's MJE3055 / MJE2955 in D2PAK
+    # D2PAK, not DPAK: a stall at a few volts of DRIVE puts up to 3.7 W in one of
+    # them for as long as the 0.35 A fuse holds (DESIGN_NOTES, "A stall at a few
+    # volts").  RthJC 2.5 C/W against the DPAK's 6.25, on a ~30 x 18 mm pour of
+    # 2 oz copper: about 120 C at the junction (sim/thermal.py --board).
     "NPN_PWR": dict(
-        value="MJD44H11", mpn="MJD44H11T4G", lcsc="C38780", jlc_type="extended",
-        process="SMT", stock=40189, price=0.2799,
-        footprint="Package_TO_SOT_SMD:TO-252-2",
+        value="MJB44H11", mpn="MJB44H11T4G", lcsc="C233689", jlc_type="extended",
+        process="SMT", stock=1458, price=1.2244,
+        footprint="Package_TO_SOT_SMD:TO-263-2",
         symbol="Transistor_BJT:Q_NPN_BCE",
-        desc="8 A 80 V NPN, DPAK (1 = B, 2 = C on the tab, 3 = E): the upper half of the "
-             "motor driver's push-pull.  Its tab is the +15 V rail; the copper round "
+        desc="10 A 80 V 50 W NPN, D2PAK (1 = B, 2 = C on the tab, 3 = E): the upper half of "
+             "the motor driver's push-pull.  Its tab is the +15 V rail; the copper round "
              "it is its heatsink",
-        alt=["MJD44H11J / C551528 (80k)", "MJD44H11T4G / C41421810 (5.8k)"]),
+        alt=["MJB44H11G / C80690 (355)", "MJB44H11T4-A (ST) / C2802057 (708)"]),
     "PNP_PWR": dict(
-        value="MJD45H11", mpn="MJD45H11T4G", lcsc="C47515", jlc_type="extended",
-        process="SMT", stock=51288, price=0.4239,
-        footprint="Package_TO_SOT_SMD:TO-252-2",
+        value="MJB45H11", mpn="MJB45H11T4G", lcsc="C154570", jlc_type="extended",
+        process="SMT", stock=486, price=1.1573,
+        footprint="Package_TO_SOT_SMD:TO-263-2",
         symbol="Transistor_BJT:Q_PNP_BCE",
-        desc="8 A 80 V PNP, DPAK: the lower half of the push-pull, tab on the -15 V rail",
-        alt=["MJD45H11J / C551530 (75k)", "MJD45H11T4G / C41421809 (5.2k)"]),
+        desc="10 A 80 V 50 W PNP, D2PAK: the lower half of the push-pull, tab on the -15 V rail",
+        alt=["MJB45H11G / C463327 (151)"]),
     # ---- the current limit's small transistors: Chapter 4's pair ------------
     "NPN": dict(
         value="MMBT3904", mpn="MMBT3904", lcsc="C20526", jlc_type="basic",
@@ -234,8 +238,9 @@ JLC_ROTATION = {
     "C41416668": (90, (0, 0), "read", "BNC-KYWE-295-W4-N: Lorenz board rev A/B preview, built and working"),
     "C9405": (180, (0, 0), "predicted", "SOT-23-5: their pad 1 at (+1.3,+0.95), KiCad's at (-1.14,-0.95); "
                                         "+180 was read on 59 SOT-23-5 placements on the GPSDO board"),
-    "C38780": (0, (-1.9, 0), "predicted", "DPAK: same way up as KiCad's TO-252-2, their origin 1.9 mm toward the tab"),
-    "C47515": (0, (-1.9, 0), "predicted", "DPAK, the same drawing as the NPN"),
+    "C233689": (180, (-2.45, 0), "predicted", "D2PAK: their pins at +x, KiCad's TO-263-2 at -x; turned, their "
+                                               "pins land 2.45 mm from KiCad's origin toward the pins (the tabs differ)"),
+    "C154570": (180, (-2.45, 0), "predicted", "D2PAK, the same drawing as the NPN"),
     "C20526": (180, (0, 0), "predicted", "SOT-23: their pad 1 is at (+1.0,+0.95), KiCad's at (-0.94,-0.95)"),
     "C53444": (180, (0, 0), "predicted", "SOT-23, same drawing as the NPN"),
     "C431540": (0, (0, 0.3), "predicted", "MSK12C02: pins along x in both drawings, pin 1 at -x; their origin "

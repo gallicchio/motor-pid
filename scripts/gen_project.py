@@ -5,7 +5,7 @@ Design rules are deliberately tighter than the cheapest tier at JLCPCB,
 NextPCB and CircuitHub, so a board that passes DRC here passes everywhere:
 
                         JLCPCB    NextPCB   CircuitHub   used here
-  min track / space     0.127     0.127     0.152        0.200
+  min track / space     0.127     0.127     0.152        0.210  (2 oz copper: 8 mil)
   min via pad / drill   0.45/0.3  0.45/0.3  0.60/0.30    0.60/0.30
   min annular ring      0.13      0.13      0.15         0.25
   min hole to hole      0.50      0.50      0.50         0.50
@@ -22,8 +22,10 @@ ROOT_SHEET_UUID = uid("sheet/root")
 HERE = os.path.dirname(os.path.abspath(__file__))
 HW = os.path.join(HERE, "..", "hardware")
 
-TRACK_MIN = 0.2
-CLEARANCE = 0.2
+# 2 oz outer copper (the push-pull's heatsink, DESIGN_NOTES "A stall at a few
+# volts"): JLCPCB's 2 oz track and gap minimum is 8 mil, 0.2032 mm
+TRACK_MIN = 0.21
+CLEARANCE = 0.21
 VIA_DIA, VIA_DRILL = 0.8, 0.3
 
 NET_CLASSES = [

@@ -415,3 +415,9 @@ of board, 2 oz copper at extra cost.  TO-220: cooler and the book's parts, but s
 and two heatsinks per board by hand, and each heatsink is bare collector metal at ±15 V among
 the probe loops unless insulated.  Recommended the D2PAKs on 2 oz; waiting on Jason's
 choice.  The comparison is in DESIGN_NOTES under "A stall at a few volts".
+
+## Prompt 13
+
+> D2PAK on 2 oz copper.
+
+> (mid-turn) When you are done, write the design review prompt for other LLMs like you did for the op amp board and do the top to bottom design review yourself. Encourage everyone to find problems at all levels, from implementing the spirit of it down to the PCB working.

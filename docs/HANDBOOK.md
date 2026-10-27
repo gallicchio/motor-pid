@@ -95,8 +95,12 @@ it at all.  Holding the slider against a full drive stalls the motor at about
 0.6 A; within seconds the 0.35 A resettable fuse opens, the red lamps across it
 light, and it closes itself once you let go.  A stall at a few volts does not
 open the fuse: the motor draws DRIVE / 14 Ω, 0.15 to 0.45 A, and the driver
-transistor carries the rest of the 15 V at that current, 2 to 3.7 W.  Let go,
-or move the knob back, within a few seconds.
+transistor carries the rest of the 15 V at that current, 2 to 3.7 W, for as
+long as the stall lasts.  The transistors are built for it: each sits in a
+pour of thick copper that is its heatsink, and the worst case leaves the
+silicon near 120 °C, inside its rating.  The copper is another matter: the
+areas marked HOT reach about 90 °C in a few minutes.  Let go, or move the knob
+back, when you have seen what you wanted.
 
 ## 3. The exercises, in the lab's order
 
@@ -151,7 +155,8 @@ and I of TARGET if they are switched in.  With P GAIN fully anticlockwise
 (gain 1) and D and I off, DRIVE = TARGET: the knob or a function generator
 drives the motor driver directly.  Try it: the slider runs to an end and
 stays there pushing, whatever the knob says (bring the knob back to the
-detent soon: a few volts into a stalled motor heats the driver, see section 2),
+detent when you are done: a few volts into a stalled motor heats the driver's
+copper, see section 2),
 and a slow triangle wave from the generator shows the driver's crossover on
 U6 OUT and BASES.  The difference
 between the loop and no loop is the point of the lab.
@@ -186,5 +191,6 @@ ampere across either one, differentially, at the DRIVE row.
   the fuse opens; the transistors survive a moment of that, not a minute.  Do
   not short MOTOR to the rails.
 - A stalled slider at a few volts of DRIVE: the fuse holds, the driver
-  transistor dissipates 2 to 3.7 W.  Seconds, not minutes.
+  transistor dissipates 2 to 3.7 W, and the pours marked HOT reach about
+  90 °C.  The transistors are rated for it; fingers are not.
 - The DRIVE OUT and POSITION OUT jacks are through 1k: scope inputs, not loads.

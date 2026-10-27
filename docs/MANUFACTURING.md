@@ -34,10 +34,10 @@ ordering.  The values that come from the board are computed, not typed.
 | PCB Thickness | 1.6 mm | the BNC flanges, the knob and the terminal blocks expect it |
 | PCB Color | Green | any; the white silkscreen reads best on green or black |
 | Silkscreen | White | the default for green |
-| Material Type | FR4-Standard TG 135-140 | the default; the power transistors get warm only in a stall, for seconds |
+| Material Type | FR4-Standard TG 135-140 | the default; the worst stall holds the board round a transistor near 110 C, below the TG |
 | Surface Finish | LeadFree HASL | students handle this board: lead-free.  ENIG is fine too |
 | **High-spec Options** | | |
-| Outer Copper Weight | 1 oz | the design rules assume it |
+| Outer Copper Weight | 2 oz | NOT the default: the copper round Q1 and Q2 is their heatsink (DESIGN_NOTES, "A stall at a few volts"); the 0.21 mm rules assume it |
 | Via Covering | Tented | or Plugged if the form upgrades it: either is fine, no via must stay open |
 | Min via hole size/diameter | 0.3 mm / (0.4 / 0.45 mm) | the smallest via on the board is 0.30 mm drill, 0.80 mm pad |
 | Board Outline Tolerance | +/-0.2 mm (Regular) | nothing mates with the edge |
@@ -65,51 +65,51 @@ The board has **200 SMT joints** and **27 through-hole joints** on
 (the op-amps, the BNCs, the terminal blocks, the knob, the trimmers, the slide
 switches, the test loops, the power transistors, the fuse and the 1 ohm resistors),
 each with a one-off $3.00 feeder fee.  Parts alone are
-**$10.25 per board**, of which the three BNC jacks are
+**$11.93 per board**, of which the three BNC jacks are
 $3.88 and the 18 test loops $1.74.
 
 **2 boards, fully assembled, through-hole parts included**
 
 | line | cost |
 |---|---|
-| bare PCBs (5 made) | $14.00 |
-| parts ($10.25 x 2) | $20.51 |
+| bare PCBs (5 made) | $21.00 |
+| parts ($11.93 x 2) | $23.86 |
 | assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 12 extended codes + 400 SMT and 54 THT joints | $51.38 |
 | shipping (DHL) | $22.00 |
-| **total** | **$107.89**  ($53.94 each) |
+| **total** | **$118.24**  ($59.12 each) |
 
 **5 boards, fully assembled, through-hole parts included**
 
 | line | cost |
 |---|---|
-| bare PCBs (5 made) | $14.00 |
-| parts ($10.25 x 5) | $51.27 |
+| bare PCBs (5 made) | $21.00 |
+| parts ($11.93 x 5) | $59.65 |
 | assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 12 extended codes + 1000 SMT and 135 THT joints | $54.83 |
 | shipping (DHL) | $22.00 |
-| **total** | **$142.09**  ($28.42 each) |
+| **total** | **$157.48**  ($31.50 each) |
 
 **10 boards, fully assembled, through-hole parts included**
 
 | line | cost |
 |---|---|
-| bare PCBs (10 made) | $24.00 |
-| parts ($10.25 x 10) | $102.53 |
+| bare PCBs (10 made) | $36.00 |
+| parts ($11.93 x 10) | $119.30 |
 | assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 12 extended codes + 2000 SMT and 270 THT joints | $60.58 |
 | shipping (DHL) | $22.00 |
-| **total** | **$209.11**  ($20.91 each) |
+| **total** | **$237.88**  ($23.79 each) |
 
 **20 boards, fully assembled, through-hole parts included**
 
 | line | cost |
 |---|---|
-| bare PCBs (20 made) | $43.20 |
-| parts ($10.25 x 20) | $205.06 |
+| bare PCBs (20 made) | $64.80 |
+| parts ($11.93 x 20) | $238.60 |
 | assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 12 extended codes + 4000 SMT and 540 THT joints | $72.08 |
 | shipping (DHL) | $22.00 |
-| **total** | **$342.34**  ($17.12 each) |
+| **total** | **$397.48**  ($19.87 each) |
 
 The fixed fees dominate a small order: a second board costs about
-$11.40 more than the first, so order one per bench, not one per class.
+$13.08 more than the first, so order one per bench, not one per class.
 
 ## Rotations JLCPCB needs
 
@@ -120,6 +120,8 @@ angles already applied, per LCSC code, from `scripts/parts.py`:
 
 | parts | LCSC | turned by | datum shift | evidence |
 |---|---|---|---|---|
+| Q2 | C154570 | 180 deg | (-2.5, +0.0) mm | predicted: D2PAK, the same drawing as the NPN |
+| Q1 | C233689 | 180 deg | (-2.5, +0.0) mm | predicted: D2PAK: their pins at +x, KiCad's TO-263-2 at -x; turned, their pins land 2.45 mm from KiCad's origin toward the pins (the tabs differ) |
 | U1, U2, U3, U4, U5, U6, U7 | C9405 | 180 deg | none | predicted: SOT-23-5: their pad 1 at (+1.3,+0.95), KiCad's at (-1.14,-0.95); +180 was read on 59 SOT-23-5 placements on the GPSDO board |
 | RV1 | C351173 | 90 deg | (+2.5, -3.5) mm | predicted: RK09K: KiCad's pin row runs along +y from pin 1, theirs along +x; their origin at the middle of the body |
 | J1, J2, J3 | C41416668 | 90 deg | none | read: BNC-KYWE-295-W4-N: Lorenz board rev A/B preview, built and working |
@@ -127,11 +129,9 @@ angles already applied, per LCSC code, from `scripts/parts.py`:
 | F1 | C18198328 | 0 deg | none | predicted: 1812 fuse: two pads along x, not polarised |
 | LED1, LED2 | C2297 | 0 deg | none | read: KT-0805G on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1 |
 | R21, R22 | C3000711 | 0 deg | none | predicted: 2512: pads along x, not polarised |
-| Q1 | C38780 | 0 deg | (-1.9, +0.0) mm | predicted: DPAK: same way up as KiCad's TO-252-2, their origin 1.9 mm toward the tab |
 | SW1, SW2, SW3, SW4, SW5 | C431540 | 0 deg | (+0.0, +0.3) mm | predicted: MSK12C02: pins along x in both drawings, pin 1 at -x; their origin 0.3 mm toward the posts |
 | C11, C12 | C46550402 | 0 deg | none | predicted: SMD electrolytic: pads along x, pad 1 (+) at -x in both drawings |
 | J4, J5, J6 | C474882 | 0 deg | none | predicted: KF301-3P: pins along x at -5/0/+5, as drawn here |
-| Q2 | C47515 | 0 deg | (-1.9, +0.0) mm | predicted: DPAK, the same drawing as the NPN |
 | TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP12, TP13, TP14, TP100, TP101, TP102, TP103 | C5199800 | 0 deg | none | predicted: RH-5019 test loop: one 4.0 x 2.2 pad, as drawn here; the loop lies along x |
 | LED3, LED4 | C84256 | 0 deg | none | read: NCD0805R1 on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1 |
 | D1, D2, D3, D4 | C8678 | 0 deg | none | predicted: SS34 SMA: cathode (pad 1) at -x in both drawings |
@@ -147,8 +147,8 @@ in `out/motorpid/PLACEMENT_CHECKS.txt`, the list to hold against the preview.
 | part | what to look for | should be |
 |---|---|---|
 | U1, U2, U3, U4, U5, U6, U7 | SOT-23-5: three pads on the left, two on the right | the three-pad side under the triangle's inputs (left); pin 1 top-left |
-| Q1 | DPAK tab | tab pointing UP into the copper pour above its circle |
-| Q2 | DPAK tab | tab pointing DOWN into the copper pour below its circle |
+| Q1 | D2PAK tab | tab pointing UP into the copper pour, the two leads down inside the circle |
+| Q2 | D2PAK tab | tab pointing DOWN into the copper pour, the two leads up inside the circle |
 | SW1, SW2, SW3, SW4, SW5 | MSK12C02 slide switch: the three pins on one edge | SW1, SW2: pins along the bottom edge of the body; SW3, SW4, SW5: pins down the left edge |
 | RV1 | RK09K knob, keyed by its two posts | fits one way; the shaft up, the pins toward the switch |
 | RV2, RV3, RV4 | 3362P trimmer, keyed | fits one way; screw on top, wiper pin toward the top |
@@ -175,7 +175,8 @@ jacks, the three terminal blocks, the knob and the three trimmers.  They are in 
 CPL and JLCPCB fits them for a per-order fee plus pennies a joint; keep them
 selected when the form lists them.  If you would rather solder them yourself
 they are the 27 largest, easiest joints on the board.  Everything else is 0805,
-1206, 2512, SMA, SOT-23-5 or DPAK and is hand-workable with a fine iron.
+1206, 2512, SMA or SOT-23-5 and is hand-workable with a fine iron; the two
+D2PAKs' tabs sit in 2 oz pours and need hot air or a large iron to move.
 
 ## Parts, stock and alternates
 
@@ -200,8 +201,8 @@ upload shows it per line.
 | J6 | +15 / GND / -15 | C474882 | extended | $0.1396 | 28,051 | 3-way 5.0 mm screw terminal block, blue: MOTOR, POT and POWER all use the same block so one order code covers the three |
 | LED1,LED2 | GREEN | C2297 | basic | $0.0164 | 2,420,908 | green 0805 LED, one per rail, 1.2 mA through 10k: rails at a glance (JLCPCB rotation 0 on KiCad's LED_0805, read in GPiBridge's preview) |
 | LED3,LED4 | RED | C84256 | basic | $0.0135 | 3,082,781 | red 0805 LED, two anti-parallel across the fuse with 1k: lights only when the fuse has tripped (more than 2 V across it), either polarity |
-| Q1 | MJD44H11 | C38780 | extended | $0.2799 | 40,189 | 8 A 80 V NPN, DPAK (1 = B, 2 = C on the tab, 3 = E): the upper half of the motor driver's push-pull.  Its tab is the +15 V rail; the copper round it is its heatsink |
-| Q2 | MJD45H11 | C47515 | extended | $0.4239 | 51,288 | 8 A 80 V PNP, DPAK: the lower half of the push-pull, tab on the -15 V rail |
+| Q1 | MJB44H11 | C233689 | extended | $1.2244 | 1,458 | 10 A 80 V 50 W NPN, D2PAK (1 = B, 2 = C on the tab, 3 = E): the upper half of the motor driver's push-pull.  Its tab is the +15 V rail; the copper round it is its heatsink |
+| Q2 | MJB45H11 | C154570 | extended | $1.1573 | 486 | 10 A 80 V 50 W PNP, D2PAK: the lower half of the push-pull, tab on the -15 V rail |
 | R1,R2 | 6.8k | C17772 | basic | $0.0029 | 567,224 | the target knob's end resistors: +/-6.4 V |
 | R3,R4 | 4.7k | C17673 | basic | $0.0051 | 4,750,437 | the motor pot's end resistors: +/-7.7 V |
 | R5,R6,R7,R8 | 100k | C149504 | basic | $0.0059 | 3,369,385 | the error amplifier's four |
@@ -241,13 +242,12 @@ upload shows it per line.
   - LM321DTR (XBLW) / C18723612 (398k, $0.03)
   - LM321MF (UTC) / C668208 (391k, $0.04)
 
-**MJD44H11T4G** (C38780)
-  - MJD44H11J / C551528 (80k)
-  - MJD44H11T4G / C41421810 (5.8k)
+**MJB44H11T4G** (C233689)
+  - MJB44H11G / C80690 (355)
+  - MJB44H11T4-A (ST) / C2802057 (708)
 
-**MJD45H11T4G** (C47515)
-  - MJD45H11J / C551530 (75k)
-  - MJD45H11T4G / C41421809 (5.2k)
+**MJB45H11T4G** (C154570)
+  - MJB45H11G / C463327 (151)
 
 **MMBT3904** (C20526)
   - MMBT3904-1AM / C364310 (Preferred)

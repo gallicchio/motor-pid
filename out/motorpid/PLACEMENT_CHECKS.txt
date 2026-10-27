@@ -12,8 +12,16 @@ scripts/parts.py JLC_ROTATION and rebuild.
             3362P: their pads 1/3 at y=+1.27 and 2 at y=-1.27, as drawn here
             look for: 3362P trimmer, keyed; should be: fits one way; screw on top, wiper pin toward the top
 
+[PREDICTED] Q2  (C154570, +180 deg, datum (-2.5, +0.0) mm)
+            D2PAK, the same drawing as the NPN
+            look for: D2PAK tab; should be: tab pointing DOWN into the copper pour, the two leads up inside the circle
+
 [PREDICTED] F1  (C18198328, +0 deg)
             1812 fuse: two pads along x, not polarised
+
+[PREDICTED] Q1  (C233689, +180 deg, datum (-2.5, +0.0) mm)
+            D2PAK: their pins at +x, KiCad's TO-263-2 at -x; turned, their pins land 2.45 mm from KiCad's origin toward the pins (the tabs differ)
+            look for: D2PAK tab; should be: tab pointing UP into the copper pour, the two leads down inside the circle
 
 [PREDICTED] R21, R22  (C3000711, +0 deg)
             2512: pads along x, not polarised
@@ -21,10 +29,6 @@ scripts/parts.py JLC_ROTATION and rebuild.
 [PREDICTED] RV1  (C351173, +90 deg, datum (+2.5, -3.5) mm)
             RK09K: KiCad's pin row runs along +y from pin 1, theirs along +x; their origin at the middle of the body
             look for: RK09K knob, keyed by its two posts; should be: fits one way; the shaft up, the pins toward the switch
-
-[PREDICTED] Q1  (C38780, +0 deg, datum (-1.9, +0.0) mm)
-            DPAK: same way up as KiCad's TO-252-2, their origin 1.9 mm toward the tab
-            look for: DPAK tab; should be: tab pointing UP into the copper pour above its circle
 
 [PREDICTED] SW1, SW2, SW3, SW4, SW5  (C431540, +0 deg, datum (+0.0, +0.3) mm)
             MSK12C02: pins along x in both drawings, pin 1 at -x; their origin 0.3 mm toward the posts
@@ -37,10 +41,6 @@ scripts/parts.py JLC_ROTATION and rebuild.
 [PREDICTED] J4, J5, J6  (C474882, +0 deg)
             KF301-3P: pins along x at -5/0/+5, as drawn here
             look for: screw terminal wire openings; should be: facing the BOTTOM edge
-
-[PREDICTED] Q2  (C47515, +0 deg, datum (-1.9, +0.0) mm)
-            DPAK, the same drawing as the NPN
-            look for: DPAK tab; should be: tab pointing DOWN into the copper pour below its circle
 
 [PREDICTED] TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP12, TP13, TP14, TP100, TP101, TP102, TP103  (C5199800, +0 deg)
             RH-5019 test loop: one 4.0 x 2.2 pad, as drawn here; the loop lies along x

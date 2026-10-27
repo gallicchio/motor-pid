@@ -238,8 +238,10 @@ U1-U7 -- LM321 in SOT-23-5, all at the same orientation: pins 1, 2, 3 on the
   LEFT (toward the triangle's inputs), 4 and 5 on the right.  Pin 1 is the
   upper-left pad, under the "+" of the triangle.
 
-Q1, Q2 -- DPAK (TO-252).  Q1's tab points UP toward its copper pour, Q2's tab
-  points DOWN toward its pour.  Each sits inside a silkscreen circle.
+Q1, Q2 -- D2PAK (TO-263-2).  Q1's tab points UP into its copper pour, Q2's tab
+  points DOWN into its pour; the two leads sit inside a silkscreen circle.
+  JLCPCB draws the D2PAK turned 180 degrees from KiCad (pins at +x): the
+  CPL adds 180 and moves the point 2.45 mm toward the pins (parts.py).
 
 SW1-SW5 -- MSK12C02 slide switches.  The three pins are on one side of the
   body; pin 1 is the end pin nearest the silkscreen "1" legend.

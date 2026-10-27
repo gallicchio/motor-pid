@@ -13,10 +13,10 @@ PID Motor Control Loop rev A (2026-10-24) -- JLCPCB order form, field by field
   PCB Thickness                1.6 mm      (the BNC flanges, the knob and the terminal blocks expect it)
   PCB Color                    Green      (any; the white silkscreen reads best on green or black)
   Silkscreen                   White      (the default for green)
-  Material Type                FR4-Standard TG 135-140      (the default; the power transistors get warm only in a stall, for seconds)
+  Material Type                FR4-Standard TG 135-140      (the default; the worst stall holds the board round a transistor near 110 C, below the TG)
   Surface Finish               LeadFree HASL      (students handle this board: lead-free.  ENIG is fine too)
 [High-spec Options]
-  Outer Copper Weight          1 oz      (the design rules assume it)
+  Outer Copper Weight          2 oz      (NOT the default: the copper round Q1 and Q2 is their heatsink (DESIGN_NOTES, "A stall at a few volts"); the 0.21 mm rules assume it)
   Via Covering                 Tented      (or Plugged if the form upgrades it: either is fine, no via must stay open)
   Min via hole size/diameter   0.3 mm / (0.4 / 0.45 mm)      (the smallest via on the board is 0.30 mm drill, 0.80 mm pad)
   Board Outline Tolerance      +/-0.2 mm (Regular)      (nothing mates with the edge)

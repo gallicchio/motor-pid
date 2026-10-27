@@ -1,0 +1,40 @@
+{
+ "p_w": 3.7,
+ "t_air_c": 25.0,
+ "t_limit_c": 125.0,
+ "oz": 2.0,
+ "Q1": {
+  "value": "MJB44H11",
+  "rth_jc": 2.5,
+  "pour_mm2": 836,
+  "bench": {
+   "junction_c": 119.5,
+   "tab_c": 109.1,
+   "pour_mean_c": 84.6,
+   "pour_edge_c": 69.0
+  },
+  "standoffs": {
+   "junction_c": 113.2,
+   "tab_c": 102.9,
+   "pour_mean_c": 78.6,
+   "pour_edge_c": 63.4
+  }
+ },
+ "Q2": {
+  "value": "MJB45H11",
+  "rth_jc": 2.5,
+  "pour_mm2": 670,
+  "bench": {
+   "junction_c": 121.7,
+   "tab_c": 111.3,
+   "pour_mean_c": 87.9,
+   "pour_edge_c": 70.4
+  },
+  "standoffs": {
+   "junction_c": 115.6,
+   "tab_c": 105.2,
+   "pour_mean_c": 82.0,
+   "pour_edge_c": 64.9
+  }
+ }
+}

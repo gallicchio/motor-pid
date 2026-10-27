@@ -143,12 +143,14 @@ class Deck:
                 model = "DLEDR" if val == "RED" else "DLEDG"
                 L.append(f"D{ref} {self.pin(ref, 2)} {self.pin(ref, 1)} {model}")
             elif kind == "Q":
-                if val in ("MJD44H11", "MJD45H11"):    # DPAK: 1 = B, 2 = C, 3 = E
+                if val in ("MJB44H11", "MJB45H11"):    # D2PAK: 1 = B, 2 = C, 3 = E; the D44H11/D45H11 die
                     L.append(f"Q{ref} {self.pin(ref, 2)} {self.pin(ref, 1)} {self.pin(ref, 3)} "
-                             f"{'QD44' if val == 'MJD44H11' else 'QD45'}")
-                else:                                  # SOT-23: 1 = B, 2 = E, 3 = C
+                             f"{'QD44' if val == 'MJB44H11' else 'QD45'}")
+                elif val in ("MMBT3904", "MMBT3906"):  # SOT-23: 1 = B, 2 = E, 3 = C
                     L.append(f"Q{ref} {self.pin(ref, 3)} {self.pin(ref, 1)} {self.pin(ref, 2)} "
-                             f"{'Q3904' if val == '2N3904' else 'Q3906'}")
+                             f"{'Q3904' if val == 'MMBT3904' else 'Q3906'}")
+                else:                                  # a stale netlist, or a part with no model
+                    raise SystemExit(f"no model for {ref} = {val}: rebuild the schematic (make.py --stage sch) first")
             elif kind == "U":
                 L.append(f"X{ref} {self.pin(ref, 1)} {self.pin(ref, 3)} {self.pin(ref, 4)} "
                          f"{self.pin(ref, 5)} {self.pin(ref, 2)} LM321")
