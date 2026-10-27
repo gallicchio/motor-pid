@@ -1,0 +1,213 @@
+--- a/scripts/layout.py
++++ b/scripts/layout.py
+@@ -326,9 +326,9 @@
+     # Q2's pour (-15 V) is fed up the board's right edge, outside the heat's way;
+     # U6's V- and the track's -15 V end come from that pour.  Nothing crosses
+     # under the pours: the ground plane there is the push-pull's heatsink too.
+-    ("-15V", [(166.0, Q2Y - 5.0), (168.8, Q2Y - 5.0), (168.8, VM_TOP), (165.5, VM_TOP)], W_RAIL, "both"),
++    ("-15V", [(166.0, Q2Y - 7.0), (166.0, Q2Y - 5.0), (168.8, Q2Y - 5.0), (168.8, VM_TOP), (163.5, VM_TOP)], W_RAIL, "both"),
+     ("-15V", [(U6X, DRV_Y + OA_VM_DY), (143.5, DRV_Y + OA_VM_DY), (143.5, 70.0)], W_SIG, "both"),
+-    ("-15V", [(POS_X - 5.0, 102.3), (144.0, 102.3), (144.0, 89.6)], W_SIG, "both"),     # clear of the QR code
++    ("-15V", [(POS_X - 5.0, 102.3), (149.6, 102.3), (149.6, 89.6)], W_SIG, "both"),     # clear of the QR code and its URL
+     # the lower stages' +15 V: from the rail down the spine
+     ("+15V", [(81.0, VP_Y), (81.0, 50.0), (VP_SP, 50.0), (VP_SP, D_Y - 7.5)], W_SIG, "start"),
+     ("+15V", [(POS_X + 5.0, 100.5), (VP_SP, 100.5), (VP_SP, D_Y - 7.5), (U4X + 1.14, D_Y - 7.5)], W_SIG, "end"),
+@@ -340,6 +340,8 @@
+ # Back runs of these nets are drawn on the front as dashed lines (a signal
+ # that goes round the back, as a sheet's net label does); the rest are flags.
+ DASHED_BACK = {"/POSITION"}
++# More vias where one would carry a whole transistor's current: (net, x, y).
++EXTRA_VIAS = [("-15V", 166.0, Q2Y - 6.0), ("-15V", 166.0, Q2Y - 5.0), ("-15V", 164.5, VM_TOP), ("-15V", 165.5, VM_TOP)]
+ # Flags where the back copper surfaces: (net, x, y[, dx, dy, justify]) for the name's place
+ FLAGS = [
+     ("-15V", 24.0, 50.0), ("-15V", POS_X - 5.0, 102.3),
+@@ -418,7 +420,7 @@
+     (17.0, 22.2, "centre = 0 V, clockwise +", 0.8, 0.15, "center", 0),
+     (12.5, 54.6, "TARGET IN", 1.2, 0.2, "left", 0),
+     (12.5, 56.2, "±12 V max.  A square wave", 0.8, 0.15, "left", 0),
+-    (12.5, 57.6, "±0.5 V at 0.2 Hz replaces the knob", 0.8, 0.15, "left", 0),
++    (12.5, 57.6, "±3 V at 0.2 Hz replaces the knob", 0.8, 0.15, "left", 0),
+     # the source switch, explained beside it
+     (36.9, 39.1, "TARGET", 0.8, 0.15, "right", 0), (36.9, 40.4, "SOURCE", 0.8, 0.15, "right", 0),
+     (36.9, 41.7, "1 = knob", 0.8, 0.15, "right", 0), (36.9, 43.0, "3 = jack", 0.8, 0.15, "right", 0),
+@@ -432,6 +434,7 @@
+     (U6X + 8.7, DRV_Y + 7.0, "U6 OUT", 0.8, 0.15, "center", 90),
+     (31.2, U7Y + 7.0, "U7 OUT", 0.8, 0.15, "center", 90),
+     (143.7, 52.0, "BASES", 0.8, 0.15, "center", 90),
++    (140.0, 94.8, "ahead of the fuse:", 0.8, 0.15, "center", 0), (140.0, 96.1, "never ground it", 0.8, 0.15, "center", 0),
+     # the D and I switches
+     (69.0, 62.6, "D CAPACITOR", 0.8, 0.15, "right", 0),
+     (69.0, 64.0, "3 = 100 nF", 0.8, 0.15, "right", 0), (69.0, 65.4, "1 = 22 nF", 0.8, 0.15, "right", 0),
+@@ -492,6 +495,15 @@
+                         "LED1", "LED2", "LED3", "LED4", "C11", "C13", "C12", "C14", "R26", "R27", "R23",
+                         "D1", "D2", "D3", "D4", "R20", "C10"}
+ 
++# Each slide switch's ends numbered as its legend numbers them, in the
++# footprint's own frame (pin 1 at -x, the actuator edge at +y): beyond the
++# actuator edge at the two ends where that side is clear, past the shell pads
++# along the slide where a wire runs beside the body.
++_SW_SIDE = {"1": (-2.25, 2.45), "3": (2.25, 2.45)}
++_SW_ENDS = {"1": (-4.95, 0.0), "3": (4.95, 0.0)}
++SW_MARKS = {"SW1": _SW_SIDE, "SW2": _SW_ENDS, "SW5": {"1": (-2.25, 2.6), "3": (2.25, 2.6)},
++            "SW3": _SW_ENDS, "SW4": {"1": (-4.95, 0.0), "3": (4.95, 0.6)}}
++
+ # Where each probe loop's name goes, relative to the loop: (dx, dy, justify); None = no name.
+ TP_LABEL = {
+     "TP1": (-1.6, 0.0, "right"), "TP2": (2.6, 0.0, "left"), "TP3": (0.0, -3.0, "center"),
+@@ -581,5 +593,5 @@
+     "WARNINGS",
+     (3, "A stall at full drive opens the 0.35 A fuse in seconds (red lamps); it resets."),
+     (3, "A stall at a few volts does not: the copper marked HOT reaches about 90 C."),
+-    (3, "Never short MOTOR to GND or to a rail.  Power off to wire the fader."),
++    (3, "Never clip a scope ground to DRIVE: it is ahead of the fuse.  Power off to wire."),
+ ]
+--- a/scripts/gen_pcb.py
++++ b/scripts/gen_pcb.py
+@@ -335,6 +335,8 @@
+                 self.via(*e, net)
+         for f in L.FLAGS:
+             self.via(f[1], f[2], f[0])
++        for (net, x, y) in getattr(L, "EXTRA_VIAS", ()):
++            self.via(x, y, net)
+         self.stub_dir = {}
+         for (padref, path) in L.GND_STUBS:
+             pad = self.pads[padref]
+@@ -938,6 +940,18 @@
+             else:
+                 self._text(tx, ty + 1.5 * size, fp.Value().GetText(), size, 0.15, justify=just)
+ 
++    def silk_switch_marks(self):
++        """A 1 and a 3 at the two ends of each slide switch, where the legends
++        and the handbook say "1 = ..." and "3 = ..."."""
++        for ref, marks in L.SW_MARKS.items():
++            fp = self.fps[ref]
++            cx, cy = tomm(fp.GetPosition().x), tomm(fp.GetPosition().y)
++            a = math.radians(fp.GetOrientationDegrees())
++            for num, (lx, ly) in marks.items():
++                x = cx + lx * math.cos(a) + ly * math.sin(a)
++                y = cy - lx * math.sin(a) + ly * math.cos(a)
++                self._text(x, y, num, 0.8, 0.15, justify="center")
++
+     def silk_fields(self):
+         """Reference and value beside each part, where layout.FIELD_AT says."""
+         for ref, fp in self.fps.items():
+@@ -1100,6 +1114,7 @@
+         self.silk_grounds()
+         self.silk_opamps()
+         self.silk_transistors()
++        self.silk_switch_marks()
+         self.silk_fields()
+         self.silk_arcs()
+         self.silk_boxes()
+--- a/scripts/gen_sch.py
++++ b/scripts/gen_sch.py
+@@ -896,8 +896,8 @@
+           "Op-amps are drawn + on top: that is how the SOT-23-5 sits."],
+          col[1], NOTE_Y)
+     note(["DERIVATIVE  (U4, SW3, SW5)",
+-          "D = -RV3 C dERROR/dt, rolled off above 500 Hz by the",
+-          "470 pF.  Set RV3 C to 1/6 of the natural period: for",
++          "D = -RV3 C dERROR/dt, rolled off by the 470 pF (1.5 kHz",
++          "at the rule).  Set RV3 C to 1/6 of the natural period: for",
+           f"this slide pot (T about {1e3 / R.get('f_nat_hz', 31):.0f} ms) that is {R.get('rc_d_ms', 5):.0f} ms, about",
+           f"{R.get('rv3_k', 234):.0f}k with the 22 nF; for the book's rotary motor-pot",
+           "(T 0.6 s) use 100 nF and 1M.  SW5 picks the capacitor,",
+@@ -917,7 +917,7 @@
+           "the 0.33 uF feeds the op-amp's own output straight back",
+           "so the phase-shifting transistors are bypassed at high",
+           "frequency (split feedback, Lab 9L).  10 ohm + 0.1 uF snub",
+-          "the brush hash.  Output ±13 V; the motor is rated 10 V,",
++          "the brush hash.  ±13 V unloaded, ±9 V into a stall; 10 V motor,",
+           "6-11 V running, and sees full drive only in a step.",
+           "",
+           "FUSE: not in the book.  The 0.35 A PTC opens a full-drive",
+--- a/docs/HANDBOOK.md
++++ b/docs/HANDBOOK.md
+@@ -21,7 +21,9 @@
+ three gains at their lowest.  The arc over each trimmer says what clockwise
+ does: more resistance, which is more P and more D (the resistance is in the
+ feedback) but less I (it is in series with the input).
+-Nothing on the MOTOR or POT terminals.
++Nothing on the MOTOR or POT terminals.  Stand the board on its four M3
++standoffs or feet, not flat on the bench: the copper round the two power
++transistors is their heatsink, and it cools from both sides.
+ 
+ Power: +15 V, ground, −15 V into the POWER terminal (the pins are labelled),
+ from a supply that can give 1 A on each rail but set its current limit to 100 mA
+@@ -29,8 +31,8 @@
+ no motor.  The series diodes D1, D2 protect it from a reversed supply: swapped
+ rails light neither lamp and nothing is hurt.
+ 
+-Then with a meter or scope on the probe loops (a ground loop is beside each
+-group):
++Then with a meter or scope on the probe loops (four ground loops, at the left
++and centre; none near the driver, on purpose: see DRIVE below):
+ 
+ | loop | node | expect |
+ |---|---|---|
+@@ -38,8 +40,8 @@
+ | TARGET | the knob, through the switch | −6.4 V to +6.4 V as the knob turns, 0 at the detent |
+ | ERROR | U1's output | = TARGET with the loop open (ERROR = TARGET − 0) |
+ | P | U2's output | −ERROR |
+-| SUM | U3's output | ERROR × P GAIN; the trimmer turns it from 0 to about 100 × ERROR, so a small TARGET saturates it at ±13 V |
+-| D | U4's output | 0 at rest; a kick when TARGET changes |
++| SUM | U3's output | ERROR × P GAIN; the trimmer turns it from 1 × to about 100 × ERROR, so a small TARGET saturates it at ±13 V |
++| D | U4's output | 0 with D OFF; with D IN, a kick when TARGET changes |
+ | I | U5's output | 0 with I OFF |
+ | U6 OUT | the driver op-amp's own output | = DRIVE plus a jump of about 1.2 V as DRIVE crosses zero |
+ | BASES | the two transistors' bases | = DRIVE + 0.6 V when the NPN conducts, − 0.6 V when the PNP does |
+@@ -139,7 +141,8 @@
+ is for a slower rotary pot: here it puts the rule at the bottom twentieth of
+ the trimmer.
+ 
+-**I.**  Back to a low P gain with its residual error.  Switch I IN and turn
++**I.**  Back to a low P gain with its residual error: about 10, the book's
++100k, where the simulation leaves 118 mV of a 1 V step.  Switch I IN and turn
+ I GAIN up from zero (anticlockwise: less resistance is more I): the residual
+ walks to zero over a couple of seconds, in steps: the slider sticks, I ramps
+ until the drive breaks it loose, it jumps, and sticks again.  Too much I, and
+@@ -161,6 +164,15 @@
+ U6 OUT and BASES.  The difference
+ between the loop and no loop is the point of the lab.
+ 
++**Measure your gains.**  The trimmers have arcs, not scales; the book's
++procedure runs on numbers, and the board can measure every one.  Motor wires
++out of the MOTOR terminal, LOOP open, D and I off, TARGET from the knob at
++0.10 V: P GAIN is SUM / ERROR (set 1.5, 22, 68 and 100 the book's way).  D:
++switch D IN and feed TARGET IN a ±1 V triangle at 10 Hz, a slope of 40 V/s: the
++D loop is a square wave of ±(RV3 × C) × 40 V/s, ±0.2 V at the rule's 5 ms.  I:
++switch I IN with TARGET at 0.10 V; the I loop ramps at 0.10 V / RC volts per
++second (RC in seconds) until it reaches a rail.
++
+ ## 4. Probe loops
+ 
+ | loop | node |
+@@ -172,7 +184,7 @@
+ | D, I | the differentiator and integrator outputs |
+ | U6 OUT | the driver op-amp's output: it jumps about 1.2 V as DRIVE crosses zero, from turning on the NPN to turning on the PNP |
+ | BASES | the two bases, after the 270 Ω: the same jump (little base current flows near zero) |
+-| DRIVE | the push-pull's output, before the fuse |
++| DRIVE | the push-pull's output, before the fuse: never clip a scope's ground lead to it (nothing limits that short but the transistors, which it kills in seconds) |
+ | MOTOR | after the fuse, what the motor sees |
+ | POSITION | the fader's wiper |
+ | U7 OUT | the follower's output, before the 1k to POSITION OUT |
+@@ -192,5 +204,7 @@
+   not short MOTOR to the rails.
+ - A stalled slider at a few volts of DRIVE: the fuse holds, the driver
+   transistor dissipates 2 to 3.7 W, and the pours marked HOT reach about
+-  90 °C.  The transistors are rated for it; fingers are not.
++  90 °C.  The transistors are rated for it, on standoffs; fingers are not.
++- DRIVE is ahead of the fuse: a ground clip on its loop is a short that
++  nothing limits.  Probe it; never ground it.
+ - The DRIVE OUT and POSITION OUT jacks are through 1k: scope inputs, not loads.
+--- a/docs/DESIGN_NOTES.md
++++ b/docs/DESIGN_NOTES.md
+@@ -88,7 +88,7 @@
+ ## The board
+ 
+ 170 x 120 mm, two layers, every part on the top, the back a ground plane.  200
+-SMT and 27 through-hole joints, 69 vias.  Every wire in `scripts/layout.py` is
++SMT and 27 through-hole joints, 73 vias.  Every wire in `scripts/layout.py` is
+ laid as copper on the front and drawn as a silkscreen line, so the picture is
+ the netlist; `check_circuit.py` makes 249 assertions on the netlist the
+ schematic exports, and `gen_pcb.py` refuses to lay a wire on a pad of another

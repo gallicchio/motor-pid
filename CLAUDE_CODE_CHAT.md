@@ -421,3 +421,51 @@ choice.  The comparison is in DESIGN_NOTES under "A stall at a few volts".
 > D2PAK on 2 oz copper.
 
 > (mid-turn) When you are done, write the design review prompt for other LLMs like you did for the op amp board and do the top to bottom design review yourself. Encourage everyone to find problems at all levels, from implementing the spirit of it down to the PCB working.
+
+## Response 10
+
+*2026-10-26 PDT.*
+
+**D2PAK on 2 oz copper, done (7e6bd49):**
+- **The parts.**  MJB44H11T4G / MJB45H11T4G (C233689, C154570), KiCad's TO-263-2, JLCPCB's
+  drawing turned 180° with the datum 2.45 mm toward the leads (predicted).
+- **The symbol.**  Each D2PAK's symbol is a circle round its two leads, capped by the tab
+  (the tab is too big to draw round).
+- **The pours.**  They fill the MOTOR DRIVER box round each tab: Q1 836 mm², Q2 670 mm².
+  R21 and R22 stand in two columns; D3 and D4 each have their rail end inside that rail's
+  pour; the snubber moved into the pocket under DRIVE.
+- **One hop.**  BASES crosses Q2's emitter wire on the back: the mirrored PNP makes that
+  crossing unavoidable.
+- **The plane.**  Back runs moved off the plane under the pours (Q2's −15 V now comes up the
+  board's edge).
+- **2 oz.**  0.21 mm rules, a 2 oz stackup in the board file (the job file says 0.07 mm), the
+  order form says 2 oz, bare boards costed at ×1.5.
+- **The heat, checked on the board as built.**  `sim/thermal.py --board` runs the model on
+  the filled pours and the plane with its cuts: junctions 120 and 122 °C in the worst stall;
+  the build fails above 125 °C.
+- **A guard in the simulation.**  The sim now refuses a transistor it has no model for (a
+  stale netlist had quietly simulated the wrong part).
+- **Docs.**  Updated, with 5 new build-checked claims.
+- **Lessons.**  Added to CLAUDE_PCB.md (69f0fde).
+
+**Design review round 1:**
+- **The brief.**  `design_reviews/DESIGN_REVIEW_PROMPT.md` (52b99ea), in the op-amp board's
+  format, asks for problems at every level, from the lab's intent to the copper.
+- **My own review.**  `design_reviews/2026-10-26_Claude-Opus-5.5/REPORT.md`, written after
+  reading Lab 10L in the book.  Verdict: order after two fixes.
+  1. No "1" / "3" is printed at the ends of the five slide switches, while every legend, the
+     back and the handbook set them by number.
+  2. The DRIVE probe loop is ahead of the fuse: a scope ground clip there is an unfused
+     short, 2.3 A, 28 W in Q1 and 5 W in R21.
+- **Minor findings:**
+  - flat on a bench the junctions reach 128–130 °C, so the board wants standoffs;
+  - the integrator's 10 µF X5R loses capacitance under DC bias;
+  - one via carries all of Q2's current;
+  - at gain 22 with D, the "10.9 % overshoot" is the friction's dead band;
+  - the front's TARGET IN legend says ±0.5 V (the book's) where the back says ±3 V;
+  - three wrong rows in the handbook's table;
+  - no recipe for measuring the gains;
+  - the I exercise sits at 4 % of the P trimmer.
+- **The patch.**  `patch_round1.diff` fixes the silk and doc items, adds the DRIVE warnings and
+  the extra vias, and builds clean in the review's copy.  Not applied: Jason decides, as with
+  the op-amp board.  Moving the fuse ahead of DRIVE is his call.
