@@ -23,6 +23,9 @@ scripts/parts.py JLC_ROTATION and rebuild.
             D2PAK: their pins at +x, KiCad's TO-263-2 at -x; turned, their pins land 2.45 mm from KiCad's origin toward the pins (the tabs differ)
             look for: D2PAK tab; should be: tab pointing UP into the copper pour, the two leads down inside the circle
 
+[PREDICTED] C8  (C242107, +0 deg)
+            ECWF2W105JA: two leads on 15 mm along x, origin the body's middle in both drawings (easyeda CAP-TH_L18.1-W9.3-P15.00-D0.8); not polarised
+
 [PREDICTED] R21, R22  (C3000711, +0 deg)
             2512: pads along x, not polarised
 
@@ -36,13 +39,13 @@ scripts/parts.py JLC_ROTATION and rebuild.
 
 [PREDICTED] C11, C12  (C46550402, +0 deg)
             SMD electrolytic: pads along x, pad 1 (+) at -x in both drawings
-            look for: electrolytic stripe (negative); should be: C11 negative DOWN toward its ground; C12 negative DOWN toward its ground
+            look for: electrolytic stripe (negative); should be: C11 negative DOWN toward its ground; C12 negative UP toward the -15 V rail (its + DOWN to ground)
 
 [PREDICTED] J4, J5, J6  (C474882, +0 deg)
             KF301-3P: pins along x at -5/0/+5, as drawn here
             look for: screw terminal wire openings; should be: facing the BOTTOM edge
 
-[PREDICTED] TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP12, TP13, TP14, TP100, TP101, TP102, TP103  (C5199800, +0 deg)
+[PREDICTED] TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP12, TP13, TP100, TP101, TP102, TP103  (C5199800, +0 deg)
             RH-5019 test loop: one 4.0 x 2.2 pad, as drawn here; the loop lies along x
 
 [PREDICTED] D1, D2, D3, D4  (C8678, +0 deg)

@@ -77,8 +77,9 @@ QX = 154.0                       # the push-pull column
 PP_Y = 59.0                      # the push-pull's DRIVE row, between R21 and R22
 Q1Y, Q2Y = PP_Y - 19.9, PP_Y + 21.0   # the D2PAKs' origins: Q1's circle clears R21, Q2's the BASES hop
 BH_Y = PP_Y + 7.2                # BASES crosses to Q2's base along here, under R22's end
-BUS_X, FUSE_Y = 167.0, 94.0      # DRIVE down the right edge, then left along the fuse row
-MOT_X = 151.0                    # MOTOR down to its terminal
+BUS_X, FUSE_Y = 167.0, 94.0      # the push-pull's output down the right edge, then left to the fuse
+MOT_X = 151.0                    # DRIVE, behind the fuse, down to the motor's terminal
+PP_NET = "Net-(D3-A)"            # the push-pull's output ahead of the fuse (KiCad's name for it)
 BOT_Y = 115.5                    # the bottom-edge terminals' pin row (the body 0.5 mm inside the edge)
 VM_BR = 103.5                    # the -15 V branch down the D and I stages' east side (back)
 VP_SP = 87.5                     # the +15 V spine up their west side (back)
@@ -114,10 +115,11 @@ PLACE = {
     "C7": (89.3, D_Y + 11.5, 0), "RV3": (U4X + 0.5, D_Y + 17.5, 0),
     "SW3": (106.0, D_Y + 2.75, 90), "R12": (106.5, D_Y - 6.0, 0),
     "TP4": (U4X + 7.2, D_Y + 9.8, 90),
-    # the integrator row: 1k + 1M in, U5, 10 uF across
+    # the integrator row: 1k + 1M in, U5, the 1 uF film across: its leads on 15 mm
+    # land on U5's input and output columns (pad 2 on the output's)
     "R17": (73.0, I_Y + OA_IN, 0), "RV4": (RV4X, I_Y + 6.0, 0),
     "U5": (U5X, I_Y, 0),
-    "C8": (91.0, I_Y + FB, 0),
+    "C8": (U5X + 7.2 - 7.5, I_Y + 16.3, 0),        # FBI, the integrator's feedback row
     "SW4": (106.0, I_Y + 2.75, 90), "R13": (106.5, I_Y - 14.0, 0),
     "TP5": (U5X + 7.2, I_Y + 6.5, 90),
     # the motor driver: split feedback, 270 ohm, the push-pull, 1 ohm each, clamps
@@ -132,8 +134,8 @@ PLACE = {
     # each clamp has its rail end in that rail's pour; the snubber in the pocket under DRIVE
     "D3": (164.8, PP_Y - 3.6, 270), "D4": (164.8, PP_Y + 3.6, 270),
     "R20": (160.0, PP_Y + 3.0, 180), "C10": (156.5, PP_Y + 3.0, 180),
-    # the fuse row, the lamp across the fuse, the snubber, the MOTOR terminal
-    "F1": (160.0, FUSE_Y, 180), "TP11": (MOT_X, 99.0, 0),
+    # the fuse row, the lamp across the fuse, the MOTOR terminal (DRIVE, behind the fuse)
+    "F1": (160.0, FUSE_Y, 180),
     "R23": (164.5, 97.0, 270), "LED3": (160.0, 99.0, 180), "LED4": (160.0, 103.0, 0),
     "J4": (146.0, BOT_Y, 180),
     # the plant's track: its terminal, end resistors, decoupling; the POSITION loop
@@ -144,7 +146,7 @@ PLACE = {
     # the POSITION follower and its jack, at the left under the TARGET block
     "U7": (U7X, U7Y, 0), "R25": (32.0, U7Y, 0), "J2": (5.7, 101.0, 180),
     # the extra probe loops: every op-amp output, and the bases
-    "TP12": (146.0, 52.0, 90), "TP13": (U6X + 6.5, DRV_Y + 7.0, 90), "TP14": (29.0, U7Y + 7.0, 90),
+    "TP11": (146.0, 52.0, 90), "TP12": (U6X + 6.5, DRV_Y + 7.0, 90), "TP13": (29.0, U7Y + 7.0, 90),
     # DRIVE OUT: 1k from the DRIVE row to a jack on the bottom edge
     "R24": (112.5, 95.0, 270), "J3": (60.0, 114.3, 270),
     # power: in at the top edge, series diodes, bulk capacitors, lamps
@@ -169,7 +171,9 @@ PLACE = {
 
 # ---------------------------------------------------------------- wires ----
 W_SIG, W_RAIL = 0.35, 0.6
-FBA, FBD, FBI, FBM = A_Y + FB, D_Y + 11.5, I_Y + FB, DRV_Y + 14.0   # the feedback rows (D's is higher: its trimmer and arc sit under it)
+FBA, FBD, FBI, FBM = A_Y + FB, D_Y + 11.5, I_Y + 16.3, DRV_Y + 14.0   # the feedback rows (D's is higher: its trimmer and arc
+# sit under it; I's lower: the film capacitor's 9.3 mm body has to clear U5's bypass and
+# the dashed POSITION line at y 105)
 
 
 def oa(ref, which):
@@ -244,15 +248,16 @@ WIRES = [
     ("/D", [("RV3", "2"), (U4X + 3.04, D_Y + 16.23), ("RV3", "3")], W_SIG),
     ("Net-(SW3-C)", [("SW3", "3"), (104.05, D_Y - 6.0), ("R12", "1")], W_SIG),
     ("+15V", [oa("U4", "v+"), (U4X + 1.14, D_Y - 7.5), ("C26", "1")], W_SIG),
-    # ---- the integrator: 1k + 1M in, U5, 10 uF across, the switch shorts it for reset
+    # ---- the integrator: 1k + 1M in, U5, 1 uF film across, the switch shorts it for reset
     ("/ERROR", [(ERR_X, I_Y + OA_IN), ("R17", "1")], W_SIG),
     ("Net-(R17-Pad2)", [("R17", "2"), (RV4X - 2.54, I_Y + OA_IN), ("RV4", "1")], W_SIG),
     ("Net-(SW4-A)", [("RV4", "3"), (84.0, I_Y + 7.27), (84.0, I_Y + OA_IN), oa("U5", "-")], W_SIG),
     ("Net-(SW4-A)", [("RV4", "2"), (RV4X + 2.54, I_Y + 4.73), ("RV4", "3")], W_SIG),
     ("Net-(SW4-A)", [(U5X - 7.2, I_Y + OA_IN), (U5X - 7.2, FBI), ("C8", "1")], W_SIG),
-    ("Net-(SW4-A)", [(U5X - 7.2, FBI), (U5X - 7.2, I_Y + 16.5), (104.05, I_Y + 16.5), ("SW4", "1")], W_SIG),
+    # I OFF: on down from C8's input lead, under its body, and up to the switch
+    ("Net-(SW4-A)", [("C8", "1"), (U5X - 7.8, I_Y + 22.3), (104.05, I_Y + 22.3), ("SW4", "1")], W_SIG),
     ("/I", [oa("U5", "out"), (U5X + 7.2, I_Y), (U5X + 7.2, I_Y + 2.0), ("SW4", "2")], W_SIG),
-    ("/I", [(U5X + 7.2, I_Y + 2.0), (U5X + 7.2, FBI), ("C8", "2")], W_SIG),
+    ("/I", [(U5X + 7.2, I_Y + 2.0), ("C8", "2")], W_SIG),
     ("Net-(SW4-C)", [("SW4", "3"), (104.05, I_Y - 2.5), (105.5, I_Y - 2.5), (105.5, I_Y - 14.0), ("R13", "1")], W_SIG),
     ("+15V", [oa("U5", "v+"), (U5X + 1.14, I_Y - 7.0), ("C28", "1")], W_SIG),
     # ---- the motor driver: split feedback, 270 ohm, the push-pull, 1 ohm each, clamps
@@ -267,20 +272,25 @@ WIRES = [
                 (QX + 7.5, BH_Y), (QX + 7.5, Q2Y - 7.0), ("Q2", "1")], W_SIG),
     ("Net-(Q1-E)", [("Q1", "3"), ("R21", "1")], W_RAIL),
     ("Net-(Q2-E)", [("Q2", "3"), ("R22", "2")], W_RAIL),
-    ("/DRIVE", [("R22", "1"), ("R21", "2"), (BUS_X, PP_Y), (BUS_X, FUSE_Y), ("F1", "1")], W_RAIL),
-    ("/DRIVE", [("D3", "2"), (164.8, PP_Y), ("D4", "1")], W_SIG),
-    ("/DRIVE", [("R20", "1"), (160.9125, PP_Y)], W_SIG),
+    # the push-pull's output, between the emitter resistors and the fuse: the
+    # clamps and the snubber on it, no loop and no name; down the right edge to F1
+    (PP_NET, [("R22", "1"), ("R21", "2"), (BUS_X, PP_Y), (BUS_X, FUSE_Y), ("F1", "1")], W_RAIL),
+    (PP_NET, [("D3", "2"), (164.8, PP_Y), ("D4", "1")], W_SIG),
+    (PP_NET, [("R20", "1"), (160.9125, PP_Y)], W_SIG),
     ("Net-(C10-Pad1)", [("R20", "2"), ("C10", "1")], W_SIG),
-    ("/DRIVE", [("R18", "2"), (U6X - 7.2, 91.0), (BUS_X, 91.0)], W_SIG),
+    # DRIVE, behind the fuse: the feedback, the DRIVE loop and DRIVE OUT along y 91
+    # to the motor's lead
+    ("/DRIVE", [("R18", "2"), (U6X - 7.2, 91.0), (MOT_X, 91.0), (MOT_X, FUSE_Y)], W_SIG),
     ("/DRIVE", [(U6X - 7.2, 91.0), (112.5, 91.0), ("R24", "1")], W_SIG),
-    ("Net-(J3-In)", [("R24", "2"), (112.5, 112.5), (60.0, 112.5), ("J3", "1")], W_SIG),
-    # ---- the fuse row: the PTC, the lamp across it, the snubber, MOTOR to its terminal
-    ("/DRIVE", [(164.5, FUSE_Y), ("R23", "1")], W_SIG),
+    # DRIVE OUT under the integrator (its film capacitor reaches y 115.3) to the jack
+    ("Net-(J3-In)", [("R24", "2"), (112.5, 118.3), (68.0, 118.3), (68.0, 112.5), (60.0, 112.5), ("J3", "1")], W_SIG),
+    # ---- the fuse row: the PTC, the lamp across it, DRIVE to the motor's terminal
+    (PP_NET, [(164.5, FUSE_Y), ("R23", "1")], W_SIG),
     ("Net-(LED3-K)", [("R23", "2"), (164.5, 99.0), ("LED3", "1")], W_SIG),
     ("Net-(LED3-K)", [(164.5, 99.0), (164.5, 103.0), ("LED4", "2")], W_SIG),
-    ("/MOTOR", [("F1", "2"), (MOT_X, FUSE_Y), (MOT_X, BOT_Y), ("J4", "1")], W_RAIL),
-    ("/MOTOR", [("LED3", "2"), (MOT_X, 99.0)], W_SIG),
-    ("/MOTOR", [("LED4", "1"), (MOT_X, 103.0)], W_SIG),
+    ("/DRIVE", [("F1", "2"), (MOT_X, FUSE_Y), (MOT_X, BOT_Y), ("J4", "1")], W_RAIL),
+    ("/DRIVE", [("LED3", "2"), (MOT_X, 99.0)], W_SIG),
+    ("/DRIVE", [("LED4", "1"), (MOT_X, 103.0)], W_SIG),
     # ---- the plant's track: end resistors to the rails' flags, decoupling, the wiper
     ("/POT+", [("J5", "1"), ("R3", "2")], W_SIG),
     ("/POT+", [(POS_X + 5.0, 109.4), ("C3", "1")], W_SIG),
@@ -326,9 +336,9 @@ BACK = [
     # Q2's pour (-15 V) is fed up the board's right edge, outside the heat's way;
     # U6's V- and the track's -15 V end come from that pour.  Nothing crosses
     # under the pours: the ground plane there is the push-pull's heatsink too.
-    ("-15V", [(166.0, Q2Y - 5.0), (168.8, Q2Y - 5.0), (168.8, VM_TOP), (165.5, VM_TOP)], W_RAIL, "both"),
+    ("-15V", [(166.0, Q2Y - 7.0), (166.0, Q2Y - 5.0), (168.8, Q2Y - 5.0), (168.8, VM_TOP), (163.5, VM_TOP)], W_RAIL, "both"),
     ("-15V", [(U6X, DRV_Y + OA_VM_DY), (143.5, DRV_Y + OA_VM_DY), (143.5, 70.0)], W_SIG, "both"),
-    ("-15V", [(POS_X - 5.0, 102.3), (144.0, 102.3), (144.0, 89.6)], W_SIG, "both"),     # clear of the QR code
+    ("-15V", [(POS_X - 5.0, 102.3), (149.6, 102.3), (149.6, 89.6)], W_SIG, "both"),     # clear of the QR code and its URL
     # the lower stages' +15 V: from the rail down the spine
     ("+15V", [(81.0, VP_Y), (81.0, 50.0), (VP_SP, 50.0), (VP_SP, D_Y - 7.5)], W_SIG, "start"),
     ("+15V", [(POS_X + 5.0, 100.5), (VP_SP, 100.5), (VP_SP, D_Y - 7.5), (U4X + 1.14, D_Y - 7.5)], W_SIG, "end"),
@@ -340,6 +350,8 @@ BACK = [
 # Back runs of these nets are drawn on the front as dashed lines (a signal
 # that goes round the back, as a sheet's net label does); the rest are flags.
 DASHED_BACK = {"/POSITION"}
+# More vias where one would carry a whole transistor's current: (net, x, y).
+EXTRA_VIAS = [("-15V", 166.0, Q2Y - 6.0), ("-15V", 166.0, Q2Y - 5.0), ("-15V", 164.5, VM_TOP), ("-15V", 165.5, VM_TOP)]
 # Flags where the back copper surfaces: (net, x, y[, dx, dy, justify]) for the name's place
 FLAGS = [
     ("-15V", 24.0, 50.0), ("-15V", POS_X - 5.0, 102.3),
@@ -418,7 +430,7 @@ TEXTS = [
     (17.0, 22.2, "centre = 0 V, clockwise +", 0.8, 0.15, "center", 0),
     (12.5, 54.6, "TARGET IN", 1.2, 0.2, "left", 0),
     (12.5, 56.2, "±12 V max.  A square wave", 0.8, 0.15, "left", 0),
-    (12.5, 57.6, "±0.5 V at 0.2 Hz replaces the knob", 0.8, 0.15, "left", 0),
+    (12.5, 57.6, "±3 V at 0.2 Hz replaces the knob", 0.8, 0.15, "left", 0),
     # the source switch, explained beside it
     (36.9, 39.1, "TARGET", 0.8, 0.15, "right", 0), (36.9, 40.4, "SOURCE", 0.8, 0.15, "right", 0),
     (36.9, 41.7, "1 = knob", 0.8, 0.15, "right", 0), (36.9, 43.0, "3 = jack", 0.8, 0.15, "right", 0),
@@ -429,6 +441,7 @@ TEXTS = [
     (116.0, 56.2, "P GAIN", 0.8, 0.15, "center", 0),
     (90.6, 75.9, "D", 0.8, 0.15, "right", 0), (90.6, 77.1, "GAIN", 0.8, 0.15, "right", 0),
     (RV4X, 106.0, "I GAIN", 0.8, 0.15, "center", 0),
+    (U5X + 7.2 - 7.5 + 11.2, FBI + 0.7, "film", 0.8, 0.15, "left", 0),        # under C8's value
     (U6X + 8.7, DRV_Y + 7.0, "U6 OUT", 0.8, 0.15, "center", 90),
     (31.2, U7Y + 7.0, "U7 OUT", 0.8, 0.15, "center", 90),
     (143.7, 52.0, "BASES", 0.8, 0.15, "center", 90),
@@ -480,7 +493,7 @@ FIELD_AT.update({
     "RV2": ((-4.3, -1.8), (-4.3, -0.5)), "RV3": ((-3.9, -1.2), (-3.9, 0.0)), "RV4": ((-4.3, 0.0), (-4.3, 1.3)),
     "F1": (None, (0.0, 2.7)),
     "R8": ((0.0, 1.75), (0.0, 3.05)), "R10": ((0.0, 1.75), (0.0, 3.05)), "R14": ((0.0, 1.75), (0.0, 3.05)),
-    "C7": ((0.0, -3.05), (0.0, -1.75)), "C8": ((2.3, 1.0), (2.3, 2.4)),
+    "C7": ((0.0, -3.05), (0.0, -1.75)), "C8": ((11.2, -2.1), (11.2, -0.7)),
     "C5": ((0.0, 1.75), (0.0, 3.05)), "C6": ((0.0, -3.05), (0.0, -1.75)),
 })
 # Parts whose reference or value is printed as free text instead, or not at all.
@@ -492,13 +505,21 @@ HIDE_VALUE = _BYPASS | {"J1", "J2", "J3", "J4", "J5", "J6", "SW1", "SW2", "SW3",
                         "LED1", "LED2", "LED3", "LED4", "C11", "C13", "C12", "C14", "R26", "R27", "R23",
                         "D1", "D2", "D3", "D4", "R20", "C10"}
 
+# Each slide switch's ends numbered as its legend numbers them, in the
+# footprint's own frame (pin 1 at -x, the actuator edge at +y): beyond the
+# actuator edge at the two ends where that side is clear, past the shell pads
+# along the slide where a wire runs beside the body.
+_SW_SIDE = {"1": (-2.25, 2.45), "3": (2.25, 2.45)}
+_SW_ENDS = {"1": (-4.95, 0.0), "3": (4.95, 0.0)}
+SW_MARKS = {"SW1": _SW_SIDE, "SW2": _SW_ENDS, "SW5": {"1": (-2.25, 2.6), "3": (2.25, 2.6)},
+            "SW3": _SW_ENDS, "SW4": {"1": (-4.95, 0.0), "3": (4.95, 0.6)}}
+
 # Where each probe loop's name goes, relative to the loop: (dx, dy, justify); None = no name.
 TP_LABEL = {
     "TP1": (-1.6, 0.0, "right"), "TP2": (2.6, 0.0, "left"), "TP3": (0.0, -3.0, "center"),
     "TP4": (-1.6, 0.0, "right"), "TP5": (-1.6, 0.0, "right"), "TP6": (2.6, 0.0, "left"),
     "TP7": (0.0, -3.0, "center"), "TP8": (0.0, -3.3, "center"), "TP9": None, "TP10": None,
-    "TP11": (-2.6, 0.0, "right"),
-    "TP12": None, "TP13": None, "TP14": None,
+    "TP11": None, "TP12": None, "TP13": None,
     "TP100": (2.6, 0.0, "left"), "TP101": None, "TP102": (2.6, 0.0, "left"), "TP103": (2.6, 0.0, "left"),
 }
 
@@ -509,7 +530,7 @@ BOXES = [
     (72.5, 26.0, 97.5, 50.8, [("INVERTER x-1", 73.0, 27.4, 0.85)]),
     (103.0, 26.0, 124.5, 57.0, [("SUMMING", 103.5, 27.4, 0.85), ("AMPLIFIER", 103.5, 28.8, 0.85)]),
     (71.0, 52.0, 109.5, 85.5, [("DIFFERENTIATOR", 71.5, 53.4, 0.85)]),
-    (71.0, 86.0, 109.5, 111.7, [("INTEGRATOR", 71.5, 87.4, 0.85)]),
+    (71.0, 86.0, 109.5, 117.3, [("INTEGRATOR", 71.5, 87.4, 0.85)]),
     (126.0, 28.2, 168.5, 92.5, [("MOTOR DRIVER", 126.5, 29.7, 0.8), ("gain 1", 126.5, 31.1, 0.8)]),
     (149.0, 92.8, 169.0, 109.0, []),
     (111.5, 99.3, 139.5, 109.6, [("THE FADER'S TRACK", 113.5, 101.2, 0.8)]),
@@ -572,14 +593,14 @@ BACK_TEXT = [
     (_C2, "3 = D into the sum"),
     (3, "D CAPACITOR", _C2, "1 = 22 nF, for this fader"),
     (_C2, "3 = 100 nF, for the book's slower rotary pot"),
-    (3, "I IN / OFF", _C2, "1 = off: the 10 uF shorted, so I restarts from zero"),
+    (3, "I IN / OFF", _C2, "1 = off: the 1 uF shorted, so I restarts from zero"),
     (_C2, "3 = I into the sum"),
     "TRIMMERS: clockwise = more resistance: more P, more D, but LESS I.",
     "START: every switch on 1.  P and D GAIN anticlockwise, I GAIN clockwise.",
     (3, "LOOP to 3: the slider follows the knob.  Raise P GAIN until it rings."),
     (3, "D IN, raise D GAIN: the ringing dies.  Lower P; I IN: the error goes to 0."),
     "WARNINGS",
-    (3, "A stall at full drive opens the 0.35 A fuse in seconds (red lamps); it resets."),
-    (3, "A stall at a few volts does not: the copper marked HOT reaches about 90 C."),
-    (3, "Never short MOTOR to GND or to a rail.  Power off to wire the fader."),
+    (3, "A stall at full drive or a short to GND opens the fuse (red lamps); it resets."),
+    (3, "A stall at a few volts does not: HOT copper reaches 90 C, so use the standoffs."),
+    (3, "Never short MOTOR or DRIVE to a rail.  Power off to wire the fader."),
 ]

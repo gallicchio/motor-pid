@@ -1,0 +1,9 @@
+step 2 -> 3 V, as built                      DRIVE final +2.862 V, overshoot  10.8 %; flat part, detrended: drive 0.204 mV, bases 0.108 mV, u6out 0.003 mV
+step -0.3 -> +0.3 V (through the crossover)  DRIVE final +0.188 V, overshoot  15.4 %; flat part, detrended: drive 0.450 mV, bases 0.050 mV, u6out 0.000 mV
+no snubber                                   DRIVE final +2.861 V, overshoot  12.6 %; flat part, detrended: drive 0.200 mV, bases 0.106 mV, u6out 0.003 mV
+motor 10 mH                                  DRIVE final +2.978 V, overshoot   1.4 %; flat part, detrended: drive 0.000 mV, bases 0.000 mV, u6out 0.000 mV
+10x probe on BASES                           DRIVE final +2.862 V, overshoot  10.8 %; flat part, detrended: drive 0.204 mV, bases 0.108 mV, u6out 0.003 mV
+10x probe on U6 OUT                          DRIVE final +2.862 V, overshoot  10.8 %; flat part, detrended: drive 0.204 mV, bases 0.108 mV, u6out 0.003 mV
+PTC at 1.7 ohm (its R1max)                   DRIVE final +2.844 V, overshoot  12.3 %; flat part, detrended: drive 0.245 mV, bases 0.114 mV, u6out 0.004 mV
+PTC at 0.2 ohm, motor 10 mH                  DRIVE final +2.981 V, overshoot   1.2 %; flat part, detrended: drive 0.000 mV, bases 0.000 mV, u6out 0.000 mV
+10x probe on DRIVE                           DRIVE final +2.862 V, overshoot  10.8 %; flat part, detrended: drive 0.204 mV, bases 0.108 mV, u6out 0.003 mV

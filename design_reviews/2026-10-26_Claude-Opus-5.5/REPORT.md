@@ -6,6 +6,22 @@ before reading any other review. The board reviewed is commit `52b99ea`
 directory: `sims/` (three ngspice and thermal scripts and their outputs),
 crops of the board (`q_*.png`, `z_*.png`), and `patch_round1.diff`.
 
+> **Applied, 2026-10-26.**  Jason had this report's fixes applied before any other
+> round-1 review started, and decided the three questions it left him:
+> `patch_round1.diff` applied as it stands; the fuse moved (finding 2's circuit fix);
+> the integrator's capacitor a 1 µF polypropylene film (finding 4: "one more
+> appropriate for filter work").  One departure from §2's proposal: the clamps and the
+> snubber stayed at the transistors, ahead of the fuse.  There they guard the
+> transistors.  The pocket between R21 and R22 has no room for the fuse and its lamp.
+> The fuse's ohm or so adds under a volt to the kick the motor side sees.  Every probe
+> loop, the feedback, DRIVE OUT and the motor terminal are behind it
+> (`check_circuit.py` asserts what is ahead of it).
+> `sims/driver_stability_fuse_moved.py` re-runs the driver at a 10 ns step on the new
+> topology: no oscillation in any case; DRIVE overshoots 11 % on a 1 V step into the
+> 1 mH motor (8.5 % before), 12 % at the PTC's 1.7 Ω.  Still open: findings 6, 11 and 12.
+> The report below is as written, against commit 52b99ea; the repository's numbers
+> have moved since (`docs/DESIGN_NOTES.md`, "Review round 1").
+
 ## 1. Verdict
 
 **Order after named fixes.** The circuit is the book's Fig. 10L.10 with every

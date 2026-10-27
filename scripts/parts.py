@@ -97,6 +97,22 @@ PARTS = {
         desc="100 uF 25 V aluminium electrolytic, SMD 6.3 x 5.4 mm, one per rail at the "
              "motor driver: the motor draws 0.8 A pulses through a metre of bench lead",
         alt=["RST100UF25V004 / C4747964 (196k)", "RVT25V100M6X5 / C47023107 (141k)"]),
+    # ---- the integrator's capacitor: a filter-grade film ---------------------
+    # Polypropylene keeps its value whatever the voltage across it (an X5R 10 uF
+    # loses much of it at the integrator's few volts), leaks next to nothing
+    # and soaks up little charge: Panasonic's own recommendation for the 450 V
+    # ECW-F is "active filter circuit".  1 uF, not the book's 7.5: with the 1M
+    # trimmer, RC runs from 1 ms to 1 s across the whole turn, and 1 s is the
+    # slowest I this fader needs (sim/pid_sim.py).
+    "CFILM": dict(
+        value="1uF", mpn="ECWF2W105JA", lcsc="C242107", jlc_type="extended",
+        process="THT", stock=2052, price=0.3259,
+        footprint="motorpid:C_Film_Panasonic_ECWF_L18.1mm_W9.3mm_P15.00mm",
+        symbol="Device:C",
+        desc="1 uF 5 % metallized polypropylene film, 450 V, Panasonic ECW-F, 18.1 x 9.3 mm, "
+             "leads on 15 mm: the integrator's capacitor, C8",
+        alt=["C352S105J62C000 (Faratronic) / C401331 (3757, $0.22, 15 mm)",
+             "ECWFE2W105J / C178481 (987, $0.58)"]),
     # ---- the target knob -----------------------------------------------------
     "POT_KNOB": dict(
         value="10k", mpn="RK09K1130A70", lcsc="C351173", jlc_type="extended",
@@ -170,7 +186,7 @@ PARTS = {
         value="0.35A", mpn="1812L035/30GR", lcsc="C18198328", jlc_type="extended",
         process="SMT", stock=40708, price=0.046,
         footprint="Fuse:Fuse_1812_4532Metric", symbol="Device:Polyfuse",
-        desc="resettable fuse in the motor lead: 0.35 A hold, 0.7 A trip, 30 V, 0.2-1.7 ohm. "
+        desc="resettable fuse between the push-pull and DRIVE: 0.35 A hold, 0.7 A trip, 30 V, 0.2-1.7 ohm. "
              "A stalled motor (0.6 A at full drive, 1.7 x hold) trips it in 5-10 s and it "
              "resets when the drive stops; the loop's running current is 50-150 mA rms "
              "even when it rings (sim/pid_sim.py)",
@@ -213,7 +229,7 @@ PASSIVES = {
     "10R":   dict(lcsc="C17415", mpn="0805W8F100JT5E", jlc_type="basic",
                   price=0.0040, stock=5960192, note="the motor snubber, the book's 10 ohm"),
     "1R":    dict(lcsc="C3000711", mpn="FRC2512J1R0TS", jlc_type="extended",
-                  price=0.0313, stock=73941, note="2512, 1 W: the current limit's sense resistors, 0.65 A"),
+                  price=0.0313, stock=73941, note="2512, 1 W: the push-pull's emitter resistors; 1 V per ampere of motor current across either"),
     "100nF": dict(lcsc="C49678", mpn="CC0805KRX7R9BB104", jlc_type="basic",
                   price=0.0205, stock=22485395, note="X7R 50V 0805"),
     "22nF":  dict(lcsc="C1729", mpn="CL21B223KBANNNC", jlc_type="basic",
@@ -223,7 +239,7 @@ PASSIVES = {
     "330nF": dict(lcsc="C1740", mpn="0805B334K500NT", jlc_type="preferred",
                   price=0.0207, stock=103724, note="X7R 50V 0805: the driver's split feedback, the book's 0.33 uF"),
     "10uF":  dict(lcsc="C15850", mpn="CL21A106KAYNNNE", jlc_type="basic",
-                  price=0.0426, stock=9137411, note="X5R 25V 0805: pot-end decoupling and the integrator"),
+                  price=0.0426, stock=9137411, note="X5R 25V 0805: the pot's end decoupling"),
 }
 
 # --------------------------------------------------------- JLCPCB rotations
@@ -253,6 +269,8 @@ JLC_ROTATION = {
     "C8678": (0, (0, 0), "predicted", "SS34 SMA: cathode (pad 1) at -x in both drawings"),
     "C81598": (0, (0, 0), "predicted", "1N4148W SOD-123: as the op-amp board"),
     "C18198328": (0, (0, 0), "predicted", "1812 fuse: two pads along x, not polarised"),
+    "C242107": (0, (0, 0), "predicted", "ECWF2W105JA: two leads on 15 mm along x, origin the body's middle "
+                                        "in both drawings (easyeda CAP-TH_L18.1-W9.3-P15.00-D0.8); not polarised"),
     "C46550402": (0, (0, 0), "predicted", "SMD electrolytic: pads along x, pad 1 (+) at -x in both drawings"),
     "C474882": (0, (0, 0), "predicted", "KF301-3P: pins along x at -5/0/+5, as drawn here"),
     "C5199800": (0, (0, 0), "predicted", "RH-5019 test loop: one 4.0 x 2.2 pad, as drawn here; the loop lies along x"),

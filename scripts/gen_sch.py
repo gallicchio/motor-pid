@@ -71,8 +71,8 @@ def sim_results():
 # Every probe loop has a fixed number, so the board's placement (keyed by
 # reference) never slides when a loop is added to the sheet.
 TP_NUMBER = {"TARGET": 1, "ERROR": 2, "P": 3, "D": 4, "I": 5, "SUM": 6, "DRIVE": 7,
-             "POSITION": 8, "+15V": 9, "-15V": 10, "MOTOR": 11, "BASES": 12,
-             "U6 OUT": 13, "U7 OUT": 14}
+             "POSITION": 8, "+15V": 9, "-15V": 10, "BASES": 11,
+             "U6 OUT": 12, "U7 OUT": 13}
 
 
 def build():
@@ -449,11 +449,11 @@ def build():
     RET_D = D_Y + 33.02
     s.wire(a1, (a1[0] + 2.54, a1[1]), (a1[0] + 2.54, RET_D), (n4[0], RET_D), (n4[0], n4[1]))
     s.text("D = -RV3 C dERROR/dt", U4_X - 2.0, D_Y - 29.21, size=1.3, justify=None)
-    s.text("differentiator; 470 pF rolls it off above 500 Hz", U4_X - 2.0, D_Y - 26.67, size=1.1, justify=None)
+    s.text("differentiator; 470 pF rolls it off, 1.5 kHz at the rule", U4_X - 2.0, D_Y - 26.67, size=1.1, justify=None)
     s.rect(g(76), D_Y - 31.5, g(126), RET_D + 3.0, style="dash", key="box/D")
     s.text("DERIVATIVE  (Fig. 10L.9)", g(76.5), D_Y - 33.3, size=1.3)
 
-    # --- I: the integrator, 1k + 1M trimmer in, 10 uF across, 10k out through SW4 ---
+    # --- I: the integrator, 1k + 1M trimmer in, 1 uF film across, 10k out through SW4 ---
     U5_X = g(90)
     p5, m5, o5 = opamp("U5", U5_X, I_Y)
     ground_plus(p5)
@@ -470,11 +470,13 @@ def build():
     s.wire(i2, (i2[0], i2[1] - 2.54), (RV4_X + 6.35, i2[1] - 2.54), (RV4_X + 6.35, n5[1]))
     s.junction(RV4_X + 6.35, n5[1])
     s.junction(n5[0], n5[1])
-    s.text("I GAIN: RC = (1k + RV4) x 10 uF", EX_D + 2.54, n5[1] + 9.0, size=1.2)
-    s.text("10 ms to 10 s", EX_D + 2.54, n5[1] + 11.0, size=1.1)
+    s.text("I GAIN: RC = (1k + RV4) x 1 uF", EX_D + 2.54, n5[1] + 9.0, size=1.2)
+    s.text("1 ms to 1 s", EX_D + 2.54, n5[1] + 11.0, size=1.1)
     s.text("clockwise: more R, LESS I", EX_D + 2.54, n5[1] + 13.0, size=1.1)
-    # the integrating capacitor from the - node to the output
-    cap("C8", "10uF", U5_X + 3.81, n5[1], rot=90)
+    # the integrating capacitor from the - node to the output: polypropylene film
+    s.place("Device:C", "C8", "1uF", U5_X + 3.81, n5[1], rot=90, footprint=fp("CFILM"),
+            fields=part_fields("CFILM"), ref_off=(0, -2.8), val_off=(0, 2.8))
+    s.text("film", U5_X + 6.35, n5[1] + 2.8, size=1.27)
     s.wire(n5, (U5_X, n5[1]))
     c = drop(o5, 10.16, n5[1])
     s.wire((U5_X + 7.62, n5[1]), (c, n5[1]))
@@ -499,7 +501,7 @@ def build():
     s.text("INTEGRAL  (Fig. 10L.10)", g(76.5), I_Y - 33.3, size=1.3)
 
     # ========================================================= motor driver ==
-    # U6: SUM into +, split feedback: 10k from the push-pull output (DC), 0.33 uF
+    # U6: SUM into +, split feedback: 10k from DRIVE, behind the fuse (DC), 0.33 uF
     # from its own output (HF), 270 ohm into both bases.  The book's Fig. 10L.3.
     U6_X = g(140)
     p6, m6, o6 = opamp("U6", U6_X, A_Y, vminus_dy=33.02)
@@ -544,20 +546,18 @@ def build():
     s.wire((OX, A_Y - 3.81), (OX, A_Y + 3.81))
     s.wire((OX, A_Y + 11.43), q2e)
     s.junction(OX, A_Y)
-    DX0 = OX + 17.78                                    # DRIVE runs right from here
-    s.wire((OX, A_Y), (DX0, A_Y))
-    # the DC feedback from DRIVE back to U6's - node, under everything
-    s.wire((U6_X + 6.35, DCY), (DX0, DCY), (DX0, A_Y))
-    s.junction(DX0, A_Y)
-    label("DRIVE", OX + 7.0, A_Y)
+    # the DC feedback comes from DRIVE, behind the fuse: a label, not a wire
+    # under the clamps and the fuse
+    s.wire((U6_X + 6.35, DCY), (U6_X + 8.89, DCY))
+    label("DRIVE", U6_X + 8.89, DCY)
     s.text("MOTOR DRIVER, gain 1  (Fig. 10L.3)", U6_X - 22.0, A_Y - 33.8, size=1.3)
-    # the 1 ohm emitter resistors (not in the book): current sharing, and a
-    # place to read the motor current with a scope
-    s.text("R21, R22: 1 ohm, not in the book.  Across either one,", OX + 3.4, A_Y + 44.0, size=1.0)
-    s.text("1 V per ampere of motor current, for a scope.", OX + 3.4, A_Y + 46.0, size=1.0)
-    # --- clamps to the rails, the book's snubber, the fuse, the lamp ---------
-    CLX = DX0 + 5.08
-    s.wire((DX0, A_Y), (CLX, A_Y))
+    # --- clamps to the rails and the book's snubber at the transistors, then
+    # the fuse with its lamp.  The node between the emitter resistors and the
+    # fuse is short copper with no loop and no name; everything behind the
+    # fuse is DRIVE: the feedback, the DRIVE loop, DRIVE OUT and the motor, so
+    # a ground clip or a shorted motor lead anywhere a student reaches opens it.
+    CLX = OX + 10.16
+    s.wire((OX, A_Y), (CLX, A_Y))
     s.place("Device:D_Schottky", "D3", "SS34", CLX, A_Y - 10.16, rot=270,
             footprint=fp("DSCH"), fields=part_fields("DSCH"),
             ref_off=(2.4, -1.4), val_off=(2.4, 1.4), ref_justify="left", val_justify="left")
@@ -570,8 +570,8 @@ def build():
     s.junction(CLX, A_Y)
     s.wire((CLX, A_Y + 13.97), (CLX, VM_Y))
     s.junction(CLX, VM_Y)
-    s.text("D3, D4: clamps, so the motor's inductive kick", CLX + 3.0, A_Y - 33.0, size=1.0)
-    s.text("stays inside the rails", CLX + 3.0, A_Y - 31.0, size=1.0)
+    s.text("D3, D4 clamp the motor's inductive kick", CLX + 2.0, A_Y - 33.0, size=1.0)
+    s.text("to the rails, at the transistors", CLX + 2.0, A_Y - 31.0, size=1.0)
     SNX = CLX + 7.62
     s.wire((CLX, A_Y), (SNX, A_Y))
     res("R20", "10R", SNX, A_Y + 7.62)
@@ -580,17 +580,14 @@ def build():
     cap("C10", "100nF", SNX, A_Y + 15.24)
     gnd(SNX, A_Y + 19.05)
     s.text("snubber", SNX, A_Y + 24.5, size=1.0, justify=None)
-    DOX = SNX + 5.08                                    # the DRIVE loop and the DRIVE OUT branch
-    s.wire((SNX, A_Y), (DOX, A_Y))
-    testpoint(DOX, A_Y, "DRIVE", rot=0)
     FX = SNX + 15.24
-    s.wire((DOX, A_Y), (FX - 3.81, A_Y))
+    s.wire((SNX, A_Y), (FX - 3.81, A_Y))
     s.place("Device:Polyfuse", "F1", "0.35A", FX, A_Y, rot=90, footprint=fp("PTC"),
             fields=part_fields("PTC"), ref_off=(0, 3.0), val_off=(0, 5.0))
-    TPM = FX + 17.78
-    s.wire((FX + 3.81, A_Y), (TPM, A_Y))
-    testpoint(TPM, A_Y, "MOTOR", rot=0)
-    label("MOTOR", TPM + 1.5, A_Y)
+    DOX = FX + 16.51                                    # DRIVE: its loop, then DRIVE OUT below
+    s.wire((FX + 3.81, A_Y), (DOX, A_Y))
+    testpoint(DOX, A_Y, "DRIVE", rot=0)
+    label("DRIVE", DOX + 1.5, A_Y)
     # the tripped lamp: two red LEDs anti-parallel with 1k, across the fuse
     LY = A_Y - 12.7
     TL, TR = FX - 7.62, FX + 13.97
@@ -616,12 +613,13 @@ def build():
     s.wire(l4k, (XK, l4k[1]), (XK, LY))
     s.junction(XK, LY)
     s.wire((XK, LY), (TR, LY))
-    s.text("MOTOR FUSE: 0.35 A resettable (not in the book)", TL - 4.0, A_Y - 27.0, size=1.2)
-    s.text("a stalled motor (0.6 A at full drive) trips it in 5-10 s; the", TL - 4.0, A_Y - 25.0, size=1.0)
-    s.text("red lamp lights while it is tripped; it resets when the drive", TL - 4.0, A_Y - 23.0, size=1.0)
-    s.text("stops.  The loop runs the motor at 50-150 mA rms.", TL - 4.0, A_Y - 21.0, size=1.0)
-    s.rect(CLX - 4.0, A_Y - 35.5, TR + 2.0, A_Y + 30.0, style="dash", key="box/fuse")
-    # DRIVE OUT: the push-pull output through 1k to a jack, below the snubber
+    s.text("FUSE 0.35 A, resettable", CLX + 2.0, A_Y - 28.5, size=1.2)
+    s.text("not in the book.  A stall at full drive", CLX + 2.0, A_Y - 26.5, size=1.0)
+    s.text("(0.6 A) trips it in 5-10 s, a short in", CLX + 2.0, A_Y - 24.6, size=1.0)
+    s.text("about 1 s; the red lamp lights while it", CLX + 2.0, A_Y - 22.7, size=1.0)
+    s.text("is tripped.  It resets when the drive stops.", CLX + 2.0, A_Y - 20.8, size=1.0)
+    s.rect(CLX - 4.0, A_Y - 35.5, TR + 1.0, A_Y + 30.0, style="dash", key="box/fuse")
+    # DRIVE OUT: DRIVE through 1k to a jack, under the DRIVE loop
     J3Y = A_Y + 40.64
     s.wire((DOX, A_Y), (DOX, A_Y + 24.13))
     res("R24", "1k", DOX, A_Y + 27.94, lcsc="1k_1206", footprint=fp("R_1206"))
@@ -631,23 +629,24 @@ def build():
             ref_off=(4.0, -2.6), val_off=(4.0, 0.4), ref_justify="left", val_justify="left")
     s.wire(s.pin("J3", 1, "2"), (DOX + 5.08, J3Y + 7.62))
     gnd(DOX + 5.08, J3Y + 7.62)
-    s.text("DRIVE OUT", DOX + 1.0, J3Y + 15.0, size=2.2)
-    s.text("the motor's voltage through 1k: ±13 V", DOX + 1.0, J3Y + 17.0, size=1.1)
+    s.text("DRIVE OUT", DOX - 1.5, J3Y + 4.0, size=2.2, justify="right")
+    s.text("the motor's voltage", DOX - 1.5, J3Y + 6.4, size=1.1, justify="right")
+    s.text("through 1k: ±13 V", DOX - 1.5, J3Y + 8.4, size=1.1, justify="right")
 
     # ------------------------------------------------- the plant: motor and pot
     # MOTOR terminal: motor +, motor - (ground), shield (ground); the motor drawn on it
-    JM_X = FX + 43.18
+    JM_X = OX + 88.9
     s.place(sym("TERM3"), "J4", "MOTOR + - shield", JM_X, A_Y + 2.54,
             footprint=fp("TERM3"), fields=part_fields("TERM3"), hide_value=True,
             ref_off=(3.0, -1.0), val_off=(3.0, 1.0), ref_justify="left", val_justify="left")
     jm1, jm2, jm3 = s.pin("J4", 1, "1"), s.pin("J4", 1, "2"), s.pin("J4", 1, "3")
-    s.wire((TPM, A_Y), jm1)
+    s.wire((DOX, A_Y), jm1)
     s.wire(jm2, (jm2[0] - 2.54, jm2[1]), (jm2[0] - 2.54, jm3[1] + 2.54))
     s.wire(jm3, (jm3[0] - 2.54, jm3[1]))
     s.junction(jm3[0] - 2.54, jm3[1])
     gnd(jm2[0] - 2.54, jm3[1] + 2.54)
     s.text("MOTOR", JM_X + 1.0, A_Y - 3.6, size=2.2)
-    s.text("±13 V, 0.65 A max", JM_X - 12.0, A_Y + 14.0, size=1.0)
+    s.text("±13 V, 0.35 A fuse", JM_X - 12.0, A_Y + 14.0, size=1.0)
     s.text("+ makes POSITION rise", JM_X - 12.0, A_Y + 16.0, size=1.0)
     MX = JM_X + 15.24
     s.place("Motor:Motor_DC", "M1", "fader motor", MX, A_Y + 2.54, footprint="",
@@ -896,15 +895,16 @@ def build():
           "Op-amps are drawn + on top: that is how the SOT-23-5 sits."],
          col[1], NOTE_Y)
     note(["DERIVATIVE  (U4, SW3, SW5)",
-          "D = -RV3 C dERROR/dt, rolled off above 500 Hz by the",
-          "470 pF.  Set RV3 C to 1/6 of the natural period: for",
+          "D = -RV3 C dERROR/dt, rolled off by the 470 pF (1.5 kHz",
+          "at the rule).  Set RV3 C to 1/6 of the natural period: for",
           f"this slide pot (T about {1e3 / R.get('f_nat_hz', 31):.0f} ms) that is {R.get('rc_d_ms', 5):.0f} ms, about",
           f"{R.get('rv3_k', 234):.0f}k with the 22 nF; for the book's rotary motor-pot",
           "(T 0.6 s) use 100 nF and 1M.  SW5 picks the capacitor,",
           "SW3 puts D into the sum or shorts it out.",
           "",
           "INTEGRAL  (U5, SW4)",
-          "I = -(1/RC) integral ERROR dt, RC = (1k + RV4) x 10 uF.",
+          "I = -(1/RC) integral ERROR dt, RC = (1k + RV4) x 1 uF,",
+          "a polypropylene film: its value holds at any voltage.",
           "OFF shorts the capacitor, so I starts from zero.  I",
           "drives the residual error to zero; too much I rings.",
           "Trimmers: clockwise is more resistance (Bourns: wiper",
@@ -917,14 +917,16 @@ def build():
           "the 0.33 uF feeds the op-amp's own output straight back",
           "so the phase-shifting transistors are bypassed at high",
           "frequency (split feedback, Lab 9L).  10 ohm + 0.1 uF snub",
-          "the brush hash.  Output ±13 V; the motor is rated 10 V,",
+          "the brush hash.  ±13 V unloaded, ±9 V into a stall; 10 V motor,",
           "6-11 V running, and sees full drive only in a step.",
           "",
-          "FUSE: not in the book.  The 0.35 A PTC opens a full-drive",
-          "stall (0.6 A) in seconds and a short in well under one,",
-          "then resets itself.  A stall at a few volts it holds, and",
-          f"one transistor takes up to {max((x['p_q1_w'] for x in R.get('stall_sweep', [])), default=3.7):.1f} W, so they are D2PAKs on",
-          "2 oz copper pours.  R21, R22 read the motor current, 1 V/A."],
+          "FUSE: not in the book.  Between the push-pull and DRIVE:",
+          "the feedback, the DRIVE loop, DRIVE OUT and the motor are",
+          "behind it.  The 0.35 A PTC opens a full-drive stall (0.6 A)",
+          "in seconds and a short in about one, then resets.  A stall",
+          f"at a few volts it holds: one transistor takes up to {max((x['p_q1_w'] for x in R.get('stall_sweep', [])), default=3.7):.1f} W,",
+          "so they are D2PAKs on 2 oz pours.  Across R21 or R22, 1 V",
+          "per ampere: two probes, A - B (never a ground clip there)."],
          col[3], NOTE_Y)
     note(["THE PLANT",
           "The lab's Bourns PSM01-082A-103B2, or any fader with a",

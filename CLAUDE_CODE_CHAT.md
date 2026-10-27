@@ -469,3 +469,88 @@ choice.  The comparison is in DESIGN_NOTES under "A stall at a few volts".
 - **The patch.**  `patch_round1.diff` fixes the silk and doc items, adds the DRIVE warnings and
   the extra vias, and builds clean in the review's copy.  Not applied: Jason decides, as with
   the op-amp board.  Moving the fuse ahead of DRIVE is his call.
+
+## Prompt 14
+
+> Yes, apply the patch. No other LLMs have reviewed it yet, and they should review the version that you've patched. And yes, move the fuse and yes change the capacitor to one more appropriate for filter work.
+
+## Response 11
+
+*2026-10-26 PDT.*
+
+**The patch.**  `patch_round1.diff` applied as it stood:
+- "1" and "3" at the ends of every slide switch;
+- three vias at each end of Q2's −15 V edge run;
+- the TARGET IN legend at ±3 V;
+- standoffs in the handbook;
+- the handbook's table, the "measure your gains" recipe and the I exercise at gain 5 to 10;
+- R4's back run moved off the URL;
+- the sheet's roll-off and output-swing notes.
+
+Its "DRIVE is ahead of the fuse" warnings were then rewritten, because the fuse moved.
+
+**The fuse, between the push-pull and DRIVE.**  F1 now sits right after the emitter
+resistors' junction:
+- **What is behind it:** the feedback (R18), the DRIVE loop, DRIVE OUT and the MOTOR terminal.
+  A ground clip on any probe loop, or a shorted motor lead, opens it.
+- **What is ahead of it:** the short copper from R21/R22 to the fuse, with no loop and no
+  name; the clamps and the snubber, which stay at the transistors they guard; and the lamp's
+  1k.  The pocket between R21 and R22 had no room for the fuse and its lamp anyway.
+- **The loop:** the feedback reads DRIVE behind the fuse, so the PTC's 0.2–1.7 Ω is inside
+  the loop.
+- **MOTOR merged into DRIVE:** the MOTOR loop went, leaving 17 loops (TP1–TP13 and four
+  grounds).
+- **The checks:** `check_circuit` asserts exactly which parts are ahead of the fuse, and that
+  none is a loop or a connector.
+- **The board:** the y = 91 row (feedback, DRIVE loop, DRIVE OUT) now joins the motor's lead
+  below the fuse instead of the right-edge run, which now carries the push-pull's output
+  down to F1.
+- **The sheet:** clamps, snubber, fuse, then DRIVE, with the feedback labelled DRIVE at R18.
+- **The simulation, with the feedback past the fuse:**
+  - gain 22 overshoots 26 % (was 28 %);
+  - with D by the rule it lands 6.6 % past, which is the friction's dead band (finding 6, still
+    open);
+  - the D rule is 231k;
+  - a shorted motor terminal puts 2.0 A and 23 W in one transistor until the fuse opens;
+  - a stall at a few volts is up to 3.4 W in the transistor.  The old 3.7 W also counted
+    R21's heat: the sweep took V(+15) − V(DRIVE).  It now takes the transistor's own pins.
+    The thermal check keeps 3.7 W as a rounded-up bound, still 120/122 °C.
+- **The driver alone at a 10 ns step on the new topology**
+  (`design_reviews/2026-10-26_Claude-Opus-5.5/sims/driver_stability_fuse_moved.py`):
+  - no oscillation in any of nine cases;
+  - 11 % overshoot on a 1 V step into the 1 mH motor, against 8.5 % before;
+  - 12 % with the PTC at 1.7 Ω.
+
+**C8, a filter-grade film.**  A Panasonic ECWF2W105JA, 1 µF 5 % metallized polypropylene
+(C242107, 2052 in stock, $0.33, through-hole, 18.1 × 9.3 mm on 15 mm leads).  Panasonic's
+own data sheet lists the 450 V ECW-F series for "active filter circuit".
+- **Why 1 µF, not 10:** a 10 µF polypropylene part is a brick (27.5 mm leads).  With the 1M
+  trimmer, RC now runs 1 ms to 1 s over the whole turn:
+  - fully clockwise (START) is 1 s, the simulation's working value;
+  - it hunts at about 50k, a twentieth of the turn;
+  - before, the useful I range was the trimmer's first tenth.
+- **The cost:** the LM321's 45 nA bias current through up to 1M leaves about 45 mV of
+  residual ERROR at the clockwise end (250 nA worst case: 0.25 V).  That is a quarter of a
+  millimetre of slider, inside the friction's dead band.  It is in DESIGN_NOTES and a
+  circuit check; the simulation's op-amp has no bias current.
+- **The parts:** a generated footprint (pads where JLCPCB's land pattern puts them), a 3D
+  stand-in and a JLCPCB rotation (predicted).
+- **On the board:** C8 sits under U5 with its leads on U5's input and output columns.  I OFF's
+  wire continues down under the body to the switch.  DRIVE OUT's wire moved to the bottom
+  edge.
+
+**Found on the way** (all fixed in the generators):
+- the fab notes had D4's cathode "DOWN" (it is up) and C12's stripe "DOWN toward ground" (it
+  is up, on −15 V);
+- the 1 Ω resistors' BOM note still called them "the current limit's sense resistors";
+- the extended-codes sentence left out the bulk capacitors.
+
+**The reviews.**  `DESIGN_REVIEW_PROMPT.md` now says the board under review is rev A after
+the author's review.  Its numbers, decisions and known-open list follow the patched board.
+The reviews README and an addendum at the top of my report say what was applied.
+DESIGN_NOTES has a "Review round 1" section.  Still open from my review:
+- 6: the step metric calls the dead band overshoot;
+- 11: no common-mode test without a clip lead;
+- 12: the board's date, to be set on the order day.
+
+**Build:** ERC 0, 252 checks, DRC 0, thermal 120/122 °C, fab checks, 30/30 claims.

@@ -1,0 +1,208 @@
+(footprint "C_Film_Panasonic_ECWF_L18.1mm_W9.3mm_P15.00mm"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Panasonic ECW-F metallized polypropylene film capacitor, 18.1 x 9.3 mm, leads on 15.0 mm (LCSC C242107)")
+	(tags "capacitor film polypropylene Panasonic ECWF")
+	(property "Reference" "REF**"
+		(at 0 5.9 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "7091b9ea-36b1-50f0-9dbe-6db6f59c8898")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "C_Film_Panasonic_ECWF_L18.1mm_W9.3mm_P15.00mm"
+		(at 0 -5.9 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "c3216ea0-0dcf-5f4d-b8b0-916d4ba2f473")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 -5.9 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "0b0b92f7-03c4-5bed-b762-7d4eb921035a")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "Panasonic ECW-F metallized polypropylene film capacitor, 18.1 x 9.3 mm, leads on 15.0 mm (LCSC C242107)"
+		(at 0 -5.9 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "1d8f1b76-319e-596d-8605-35b592f4386c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -9.35 -4.95)
+		(end 9.35 -4.95)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "12801abc-b75c-5f78-b542-c63fdb81d8c5")
+	)
+	(fp_line
+		(start -9.35 4.95)
+		(end -9.35 -4.95)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "7568e385-fe6c-5523-b43b-a4767b5ac4da")
+	)
+	(fp_line
+		(start 9.35 -4.95)
+		(end 9.35 4.95)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "82ec23d9-b151-5bc9-a535-03d2cea6f3a9")
+	)
+	(fp_line
+		(start 9.35 4.95)
+		(end -9.35 4.95)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "7072e101-5124-5f19-b0e5-60ae39cc580c")
+	)
+	(fp_line
+		(start -9.4 -5)
+		(end 9.4 -5)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "ed06edf7-4ac7-5766-aa78-913569b965b9")
+	)
+	(fp_line
+		(start -9.4 5)
+		(end -9.4 -5)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "942a7b68-f1fa-56ee-8572-0b0560cd4d5d")
+	)
+	(fp_line
+		(start 9.4 -5)
+		(end 9.4 5)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "3dfbdf7a-ec22-5a81-beb9-f453c802d308")
+	)
+	(fp_line
+		(start 9.4 5)
+		(end -9.4 5)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "9766ff80-f3ce-5848-aad7-b5a11f52eda7")
+	)
+	(fp_line
+		(start -9.05 -4.65)
+		(end 9.05 -4.65)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "acb82c84-61d2-5153-a9cd-4e6dbd70217b")
+	)
+	(fp_line
+		(start -9.05 4.65)
+		(end -9.05 -4.65)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "e47c77ad-67f6-584a-b5b1-0d08512eea2e")
+	)
+	(fp_line
+		(start 9.05 -4.65)
+		(end 9.05 4.65)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "f6fa546c-dfa3-5433-92f7-d88d41c59f96")
+	)
+	(fp_line
+		(start 9.05 4.65)
+		(end -9.05 4.65)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "cc2ffdbe-8ac5-58c9-b113-3679cc525073")
+	)
+	(pad "1" thru_hole circle
+		(at -7.5 0)
+		(size 2 2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "21b0eff5-0ea6-5be0-ac78-695c91e71e49")
+	)
+	(pad "2" thru_hole circle
+		(at 7.5 0)
+		(size 2 2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "f9d92007-ca17-57ea-b685-cba09bbce18f")
+	)
+	(embedded_fonts no)
+	(model "${KIPRJMOD}/lib/motorpid.3dshapes/C_Film_ECWF_L18.1_W9.3.wrl"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 0.393701 0.393701 0.393701)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)

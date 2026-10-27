@@ -15,38 +15,53 @@ at the top of the package, which is why every triangle is drawn + on top.
 
 **The push-pull is a D2PAK pair (MJB44H11 / MJB45H11) on 2 oz copper, not
 TO-220s.**  Surface mount, so the assembler places them and nothing bare sits
-at a rail voltage among the probe loops.  A stall at a few volts can put 3.7 W
+at a rail voltage among the probe loops.  A stall at a few volts can put 3.4 W
 in one of them for as long as the fuse holds, so each tab sits in a pour of
 2 oz copper that is its heatsink (Jason's choice, 2026-10-26: "A stall at a
 few volts" below).
 
 **Emitter resistors, 1 Ω each.**  Not in the book.  They share the current
 between the two transistors across the crossover region, and across either one
-a scope reads the motor current at 1 V per ampere.
+a scope reads the motor current at 1 V per ampere, with two probes (A − B):
+their ends are ahead of the fuse, so not with a ground clip.
 
-**A 0.35 A resettable fuse in the MOTOR line, with red lamps across it.**  Not in
-the book.  A stalled fader at full drive (the slider held against a big error,
-or run into its end stop with the loop open and the gain up) draws about
-0.63 A at 8.9 V in the simulation, 3.4 W in one transistor.  The PTC holds
-0.35 A and trips at about twice that, so that stall opens it in seconds and it
-recloses when the drive stops; the antiparallel red LEDs light on the voltage
-across the open fuse.  A stall at a lower drive is not covered: see "A stall
-at a few volts" below.  An earlier draft had an active
-current limit (a small transistor across each 1 Ω); it was dropped because the
-fuse covers the real case (a stall) and the limiter made the push-pull hard to
-draw.  What the fuse does not cover is a dead short of MOTOR to ground: the
-simulation puts 2.0 A and 29 W into one transistor until the PTC opens, which
-is under a second at that current.  The transistors should live; it is on the
-list below.
+**A 0.35 A resettable fuse between the push-pull and DRIVE, with red lamps
+across it.**  Not in the book.  It sits right after the emitter resistors:
+the driver's feedback (R18), the DRIVE loop, DRIVE OUT and the MOTOR terminal
+are all behind it, so a scope's ground clip on any probe loop, or a shorted
+motor lead, opens it.  (Until review round 1 it was in the motor lead, and a
+ground clip on the DRIVE loop was a short that only the transistors limited:
+2.3 A and 28 W.)  Ahead of it are only the copper between R21 and R22, the
+clamps, the snubber and the lamp's resistor, with no loop and no name.  The
+feedback reads DRIVE behind the fuse, so the PTC's 0.2–1.7 Ω is inside the
+loop and the motor gets exactly what the loop asks for.  A stalled fader at
+full drive (the slider held against a big error, or run into its end stop with
+the loop open and the gain up) draws about 0.63 A at 8.9 V in the simulation,
+3.0 W in one transistor.  The PTC holds 0.35 A and trips at about twice that,
+so that stall opens it in seconds and it recloses when the drive stops; the
+antiparallel red LEDs light on the voltage across the open fuse.  A stall at
+a lower drive is not covered: see "A stall at a few volts" below.  An earlier
+draft had an active current limit (a small transistor across each 1 Ω); it was
+dropped because the fuse covers the real case (a stall) and the limiter made
+the push-pull hard to draw.  A dead short of DRIVE to ground the fuse covers
+slowly: the simulation puts 2.0 A and 23 W into one transistor until the PTC
+opens, about a second at that current by its data sheet (0.1 s at 8 A, not
+measured).  The transistors should live; it is on the list below.  A short to
+a rail is worse (up to 30 V across the transistor and the PTC, the PTC's
+rating): the back says never.
 
-**Clamp diodes from DRIVE to both rails (SS34).**  Not in the book.  The motor's
-inductive kick when the drive reverses stays inside the rails.
+**Clamp diodes and the book's snubber at the transistors.**  The SS34 clamps
+(not in the book) hold the push-pull's output inside the rails when the
+motor's inductive kick arrives as the drive reverses; the book's 10 Ω + 0.1 µF
+snubber loads the followers at high frequency.  Both sit ahead of the fuse,
+where they guard the transistors; the fuse's ohm or so between them and the
+motor adds less than a volt to the kick the motor side sees.
 
 **The D capacitor is switchable, 22 nF or 100 nF.**  The book's 100 nF suits
 its slow rotary-pot plant.  This fader's natural frequency with P gain at the
 top is about 31 Hz in the simulation (the ringing right after a step, before
 friction stops it), so the lab's rule RC = 1 / 2πf asks for
-5 ms, which with 22 nF puts the D GAIN trimmer at 234k, a quarter of its
+5 ms, which with 22 nF puts the D GAIN trimmer at 231k, a quarter of its
 travel.  With 100 nF the same RC would be 52k, at the bottom of the trimmer,
 where it is hard to set.  A switch gives both, and the difference is a thing to
 show.
@@ -61,13 +76,32 @@ a screwdriver; the knob for TARGET is a real knob (ALPS RK09K, centre detent).
 disconnects the I output; shorting the capacitor as well means every time I
 is switched in it starts from zero instead of wherever it drifted.
 
+**The integrator's capacitor is a 1 µF polypropylene film.**  The book uses
+two 15 µF electrolytics back to back (7.5 µF); rev A's first layout had a
+10 µF X5R ceramic.  Both change with the voltage across them (an X5R of that
+size keeps perhaps a third to a half of its value at the few volts the
+integrator holds; electrolytics leak and soak), so I's time constant would
+depend on its own output.  A polypropylene film is what filters use: its value
+does not move with voltage, it leaks next to nothing and soaks up little
+charge (Panasonic's ECW-F, whose 450 V series Panasonic recommends for active
+filters; Jason's choice, 2026-10-26, review round 1).  At 10 µF a
+polypropylene part is a brick (27.5 mm lead spacing), so it is 1 µF, 18.1 x
+9.3 mm on leads 15 mm apart: with the 1M trimmer, RC = (1k + RV4) x 1 µF runs
+from 1 ms to 1 s across the whole turn.  Fully clockwise (the least I, where
+START leaves it) is 1 s, the simulation's working value; it hunts at about
+50k, a twentieth of the turn.  The cost of the bigger resistance: the LM321's
+input bias current (45 nA typical, 250 nA most) through up to 1M leaves about
+45 mV of residual ERROR at the clockwise end, a quarter of a millimetre of
+slider and inside the friction's dead band; less as I GAIN turns up.  The
+simulation's op-amp has no bias current, so it does not show this.
+
 **Loop switch.**  The book has you lift a wire.  LOOP open puts ground where
 POSITION was, so the pseudo op-amp sees TARGET alone and the student can drive
 the plant open loop from the knob.
 
 **Buffered POSITION OUT.**  U7 is a follower on the wiper feeding a BNC through
-1k, so a scope cable loads the 10k track by nothing.  DRIVE OUT is the raw push-
-pull output through 1k.
+1k, so a scope cable loads the 10k track by nothing.  DRIVE OUT is DRIVE,
+behind the fuse, through 1k.
 
 **The knob has a centre detent and turns clockwise positive.**  The knob's
 end resistors are 6.8k, so it spans ±6.4 V; the pot's are 4.7k, ±7.7 V, as the
@@ -87,10 +121,10 @@ the one wire on the board a part hides.
 
 ## The board
 
-170 x 120 mm, two layers, every part on the top, the back a ground plane.  200
-SMT and 27 through-hole joints, 69 vias.  Every wire in `scripts/layout.py` is
+170 x 120 mm, two layers, every part on the top, the back a ground plane.  197
+SMT and 29 through-hole joints, 73 vias.  Every wire in `scripts/layout.py` is
 laid as copper on the front and drawn as a silkscreen line, so the picture is
-the netlist; `check_circuit.py` makes 249 assertions on the netlist the
+the netlist; `check_circuit.py` makes 252 assertions on the netlist the
 schematic exports, and `gen_pcb.py` refuses to lay a wire on a pad of another
 net.
 
@@ -116,8 +150,16 @@ the leads; the collector leg ends at the tab, the emitter leg under the emitter
 pad.  The pour, on the collector's net, fills the MOTOR DRIVER box round the
 tab (Q1: 836 mm², from the U6 column to the board edge; Q2: 670 mm²).  The
 emitter leads are 2.54 mm either side of the column, so R21 and R22 stand in
-two columns with DRIVE running between their ends, and the clamps D3 and D4
-each have their rail end inside that rail's pour.
+two columns with the push-pull's output running between their ends, and the
+clamps D3 and D4 each have their rail end inside that rail's pour.  That output
+runs down the board's right edge into the fuse on the row below the driver;
+DRIVE leaves the fuse toward the MOTOR terminal, joined there by the row that
+carries the feedback, the DRIVE loop and DRIVE OUT.
+
+The integrator's film capacitor stands under U5 with its leads on U5's input
+and output columns; I OFF's wire goes on down from its input lead, under the
+body, and back up to the switch, and DRIVE OUT's wire runs below it along the
+board's bottom edge to its jack.
 
 Q2's base is on the right (a D2PAK cannot be mirrored), and its emitter wire
 lies between it and BASES: that crossing is topological, not a choice, so
@@ -146,16 +188,20 @@ bench fader does.  It gives:
 
 - quiescent 4 mA, all nodes at zero;
 - P only: below a gain of about 3 a 1 V step does not unstick the slider; at
-  5 it stops 0.38 V short; a 1 V step overshoots 28 % at gain 22 and rings at about 31 Hz at
+  5 it stops 0.37 V short; a 1 V step overshoots 26 % at gain 22 and rings at about 31 Hz at
   gain 100, until friction stops it and a slow hunt takes over;
-- with D by the rule: 10.9 % overshoot at gain 22; at gain 100, 3 % and 28 ms
-  (settling to 5 %: the friction leaves a few per cent of dead band);
-- I at gain 5 with RV4 at 100k walks the residual to zero in steps over about
-  two seconds (stick, ramp, slip); at 5k it hunts;
-- a ±3 V triangle at 0.05 Hz: P 22 + D lags 0.11 V in steps of about 0.04 V;
+- with D by the rule: 6.6 % overshoot at gain 22; at gain 100, 3 % and 28 ms
+  (settling to 5 %: the friction leaves a few per cent of dead band).  The
+  6.6 % at gain 22 is not a peak: the step rises without one and the slider
+  sticks 0.07 V past the target, inside the friction's dead band of about
+  ±2.5 V / P GAIN.  The metric does not tell the two apart (review round 1,
+  finding 6, open);
+- I at gain 5 with I GAIN fully clockwise (1M, RC 1 s) walks the residual to
+  zero in steps over about two seconds (stick, ramp, slip); at 50k it hunts;
+- a ±3 V triangle at 0.05 Hz: P 22 + D lags 0.11 V in steps of about 0.02 V;
   P 5 + D + I has no lag on average but steps of 0.15 V
   (`docs/images/sim-triangle.png`);
-- a 10 V step peaks at 0.78 A and 13.7 V of drive.
+- a 10 V step peaks at 0.79 A and 13.7 V of drive.
 
 The plots are in `docs/images/sim-*.png`.
 
@@ -169,8 +215,8 @@ The plots are in `docs/images/sim-*.png`.
    "1 = ... / 3 = ..." legends assume.  Confirm with an ohmmeter on the first
    board; if it is the other way the legends swap meaning and nothing is
    damaged.
-2. **A dead short of MOTOR to ground**: 2 A for the fraction of a second the
-   PTC takes.  The D2PAK's 10 A rating and the 1 Ω resistor (2 W pulse in a 1 W
+2. **A dead short of DRIVE (the MOTOR terminal) to ground**: 2 A for the
+   second or so the PTC takes.  The D2PAK's 10 A rating and the 1 Ω resistor (2 W pulse in a 1 W
    2512) should cover it.  Try it once with a current-limited supply.
 3. **The fader model.**  Resistance and friction are now measured (below);
    the speed, the inertia and the friction's fall with speed are not.  The
@@ -196,13 +242,36 @@ The plots are in `docs/images/sim-*.png`.
    minutes and read Q1's tab with a thermocouple; the model says about 110 °C.
    Then −7 V for Q2.
 
+## Review round 1: the author's review, applied (2026-10-26)
+
+`design_reviews/2026-10-26_Claude-Opus-5.5/REPORT.md` reviewed the board as it
+stood at commit 52b99ea; Jason had all of it applied before any other reviewer
+started, so round 1's other reviews see the board with these changes:
+
+- a "1" and a "3" printed at the two ends of every slide switch (finding 1);
+- the fuse moved from the motor lead to between the push-pull and DRIVE, so no
+  probe loop is ahead of it (finding 2; the circuit change was Jason's call);
+- the integrator's capacitor a 1 µF polypropylene film instead of the 10 µF
+  X5R (finding 4; Jason: "one more appropriate for filter work");
+- "stand it on its standoffs" in the handbook and on the back (finding 3);
+- three vias, not one, at each end of Q2's −15 V edge run (finding 5);
+- the front's TARGET IN legend at ±3 V (7); the handbook's first table (8), a
+  "measure your gains" paragraph (9), the I exercise at gain 5 to 10 (10);
+- R4's back run off the URL under the QR code (13); the sheet's roll-off and
+  output-swing notes (14, 15).
+
+Still open from it: finding 6 (the step metric calls the friction's dead band
+an overshoot), 11 (no common-mode test without a clip lead) and 12 (the date
+on the board, to be set on the order day).
+
 ## A stall at a few volts (2026-10-26, closed the same day: D2PAKs on 2 oz)
 
 The measured motor is 14 Ω, so a stalled slider draws DRIVE / 14 Ω.  With the
 loop open and P GAIN at 1 (DRIVE = TARGET, which the board invites), the
 slider runs to its stop and stays; the simulation's sweep
 (`sim/results.json`, `stall_sweep`) puts the NPN's dissipation
-from 1.8 W at 2 V to 3.7 W at 7 V of DRIVE, at 0.14 to 0.49 A.
+from 1.8 W at 2 V to 3.4 W at 7 V of DRIVE, at 0.14 to 0.5 A (3.7 W with the
+emitter resistor's share, as this section had it before the fuse moved).
 The fuse holds 0.35 A, so up to about 5 V it never trips, and between 0.35 and
 0.7 A it may take minutes.  The DPAK of rev A's first layout sat on a
 12 x 5.8 mm pour: about 70 °C/W from junction to air (the data sheet's
@@ -219,8 +288,10 @@ slide, and a stall at 2 V (0.14 A) already puts 1.8 W in the transistor.
 (two copper sheets and the FR4 between, the ground plane under everything,
 convection and radiation from both faces; it reproduces TI's 26 °C/W for a
 DDPAK on a square inch of 1 oz, within 25 % at a guess) and works the TO-220
-cases from the heatsink ratings.  At the worst stall, 3.7 W for as long as it
-lasts, board on a bench in 25 °C air:
+cases from the heatsink ratings.  At the worst stall, taken as 3.7 W for as
+long as it lasts (the transistor's 3.4 W rounded up for the peak between the
+simulation's samples and the emitter resistor beside the tab), board on a
+bench in 25 °C air:
 
 | cooling | junction | hottest thing you can touch |
 |---|---|---|

@@ -251,6 +251,31 @@ def kf301(npins):
     return name, f
 
 
+# ------------------------------------------------------- film capacitor -----
+def film_ecwf():
+    """Panasonic ECWF2W105JA, 1 uF 450 V metallized polypropylene (LCSC C242107).
+
+    Panasonic ECW-F(A) data sheet, 450 V table: 1.0 uF is L 18.1 max, T 9.3
+    max, H 12.6 max (straight leads), F = 15.0 lead spacing, leads 0.8 mm.
+    JLCPCB's land pattern (easyeda C242107, CAP-TH_L18.1-W9.3-P15.00-D0.8)
+    puts 1.8 mm pads on 1.2 mm holes at -7.5 / +7.5 from the body's middle;
+    the same holes here, with 2.0 mm pads.  Not polarised.
+    """
+    name = "C_Film_Panasonic_ECWF_L18.1mm_W9.3mm_P15.00mm"
+    f = fp_header(name,
+                  "Panasonic ECW-F metallized polypropylene film capacitor, 18.1 x 9.3 mm, "
+                  "leads on 15.0 mm (LCSC C242107)",
+                  "capacitor film polypropylene Panasonic ECWF", "through_hole", 5.9)
+    for num, x in (("1", -7.5), ("2", 7.5)):
+        f.add(tht_pad(num, x, 0, 1.2, 2.0, f"{name}/p{num}"))
+    bl, bw = 18.1 / 2, 9.3 / 2
+    rect_lines(f, -bl, -bw, bl, bw, "F.Fab", FAB_W, f"{name}/fab")
+    rect_lines(f, -bl - 0.3, -bw - 0.3, bl + 0.3, bw + 0.3, "F.SilkS", SILK_W, f"{name}/silk")
+    rect_lines(f, -bl - 0.35, -bw - 0.35, bl + 0.35, bw + 0.35, "F.CrtYd", CRT_W, f"{name}/crt")
+    model(f, "${KIPRJMOD}/lib/motorpid.3dshapes/C_Film_ECWF_L18.1_W9.3.wrl", scale=MM_SCALE)
+    return name, f
+
+
 # ------------------------------------------------------- test loop ----------
 def testloop():
     """RH-5019 SMT test loop (LCSC C5199800), the Keystone 5019 pattern.
@@ -272,7 +297,7 @@ def testloop():
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    for maker in (bnc, msk12c02, trimpot, testloop, lambda: kf301(3)):
+    for maker in (bnc, msk12c02, trimpot, testloop, lambda: kf301(3), film_ecwf):
         name, node = maker()
         path = os.path.join(OUT, name + ".kicad_mod")
         with open(path, "w") as fh:

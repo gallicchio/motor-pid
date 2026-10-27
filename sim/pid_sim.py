@@ -273,7 +273,7 @@ def main(plots=False):
     R = {"date": "2026-10-26", "plant": dict(v_end=round(V_END, 3), r_motor=R_MOTOR, ke_v_per_vps=round(KE, 4),
                                              tau_m_s=TAU_M, i_coulomb_a=I_COULOMB, i_break_a=I_BREAK)}
     base_sw = {"SW1": 3, "SW2": 3, "SW3": 1, "SW4": 1, "SW5": 1}      # D and I off (pole 1), loop closed, the jack
-    base_trim = {"RV2": 0.0, "RV3": 640e3, "RV4": 100e3}
+    base_trim = {"RV2": 0.0, "RV3": 640e3, "RV4": 1e6}          # I GAIN clockwise: RC = 1 s with C8's 1 uF
     curves = {}
 
     def gain_trim(g):
@@ -283,7 +283,7 @@ def main(plots=False):
     ng = run(D.lines(base_sw, gain_trim(10), source="dc 0"), 0.3)
     t = ng.vec("time")
     op = {}
-    for name in ("TARGET", "ERROR", "P", "SUM", "DRIVE", "MOTOR", "POSITION", "+15V", "-15V", "D", "I", "BASES"):
+    for name in ("TARGET", "ERROR", "P", "SUM", "DRIVE", "POSITION", "+15V", "-15V", "D", "I", "BASES"):
         try:
             op[name] = round(ng.vec("v(" + spice_name(name) + ")")[-1], 3)
         except KeyError:
@@ -354,7 +354,7 @@ def main(plots=False):
 
     # ---- I: the residual error at low gain, and its removal ------------------------------
     PI = {}
-    for label, sw4, rv4 in (("P only", 1, 100e3), ("with I", 3, 100e3), ("too much I", 3, 5e3)):
+    for label, sw4, rv4 in (("P only", 1, 1e6), ("with I", 3, 1e6), ("too much I", 3, 50e3)):
         sw = dict(base_sw, SW3=3, SW4=sw4)
         trim = gain_trim(5); trim["RV3"] = min(rc_d / 22e-9, 1e6); trim["RV4"] = rv4
         ng = run(D.lines(sw, trim, source="pulse(0 1 0.1 1m 1m 10 20)", ic_zero=("I",)), 8.0)
@@ -374,7 +374,7 @@ def main(plots=False):
     TRI = {}
     for label, g, sw4 in (("P 22 + D", 22, 1), ("P 5 + D + I", 5, 3)):
         sw = dict(base_sw, SW3=3, SW4=sw4)
-        trim = gain_trim(g); trim["RV3"] = min(rc_d / 22e-9, 1e6); trim["RV4"] = 100e3
+        trim = gain_trim(g); trim["RV3"] = min(rc_d / 22e-9, 1e6); trim["RV4"] = 1e6
         ng = run(D.lines(sw, trim, source="pulse(-3 3 0 10 10 1n 20)", pot_pos=-3.0, ic_zero=("I",)), 20.0, tstep=50e-6)
         t = np.array(ng.vec("time")); pos = np.array(ng.vec("v(" + spice_name("POSITION") + ")"))
         tgt = np.array(ng.vec("v(" + spice_name("TARGET") + ")"))
@@ -387,9 +387,13 @@ def main(plots=False):
 
     # ---- the driver: a stall, and a short ------------------------------------------------
     sw = dict(base_sw, SW2=1)                             # loop open: the motor runs to the stop
+    # Q1's collector-emitter voltage, from its own pins (the emitter is ahead of R21 and the fuse)
+    def vce_q1(ng):
+        return np.array(ng.vec("v(" + D.pin("Q1", 2) + ")")) - np.array(ng.vec("v(" + D.pin("Q1", 3) + ")"))
+
     ng = run(D.lines(sw, gain_trim(22), source="dc 1"), 1.0)
-    i_m = np.array(ng.vec("i(bemf)")); v_m = np.array(ng.vec("v(" + spice_name("MOTOR") + ")"))
-    vc = np.array(ng.vec("v(" + spice_name("+15V") + ")")) - np.array(ng.vec("v(" + spice_name("DRIVE") + ")"))
+    i_m = np.array(ng.vec("i(bemf)")); v_m = np.array(ng.vec("v(" + spice_name("DRIVE") + ")"))
+    vc = vce_q1(ng)
     R["stall"] = dict(i_motor_a=round(float(abs(i_m[-1])), 3), v_motor=round(float(v_m[-1]), 2),
                       p_q1_w=round(float(abs(i_m[-1]) * vc[-1]), 2), p_motor_w=round(float(abs(i_m[-1] * v_m[-1])), 2),
                       i_peak_a=round(float(np.abs(i_m).max()), 2))
@@ -400,8 +404,8 @@ def main(plots=False):
     sweep = []
     for vt in (2.0, 3.0, 5.0, 7.0, 9.0, 11.0):
         ng = run(D.lines(sw, gain_trim(1), source=f"dc {vt}"), 1.5)
-        i_m = np.array(ng.vec("i(bemf)")); v_m = np.array(ng.vec("v(" + spice_name("MOTOR") + ")"))
-        vc = np.array(ng.vec("v(" + spice_name("+15V") + ")")) - np.array(ng.vec("v(" + spice_name("DRIVE") + ")"))
+        i_m = np.array(ng.vec("i(bemf)")); v_m = np.array(ng.vec("v(" + spice_name("DRIVE") + ")"))
+        vc = vce_q1(ng)
         sweep.append(dict(target_v=vt, i_motor_a=round(float(abs(i_m[-1])), 3), v_motor=round(float(v_m[-1]), 2),
                           p_q1_w=round(float(abs(i_m[-1]) * vc[-1]), 2)))
         print(f"  stalled with DRIVE = {vt:4.1f} V: {sweep[-1]}")
@@ -410,8 +414,8 @@ def main(plots=False):
     i_s = np.array(ng.vec("i(vpos)"))
     drv = np.array(ng.vec("v(" + spice_name("DRIVE") + ")"))
     R["short"] = dict(i_short_a=round(float(abs(i_s[-1])), 3), v_drive=round(float(drv[-1]), 2),
-                      p_q1_w=round(float(abs(i_s[-1]) * (15 - drv[-1])), 1))
-    print("MOTOR shorted to ground:", R["short"])
+                      p_q1_w=round(float(abs(i_s[-1]) * vce_q1(ng)[-1]), 1))
+    print("DRIVE (the motor terminal) shorted to ground:", R["short"])
     # the slew of the motor drive, large step, closed loop at gain 22 with D
     sw = dict(base_sw, SW3=3)
     trim = gain_trim(22); trim["RV3"] = min(rc_d / 22e-9, 1e6)

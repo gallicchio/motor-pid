@@ -163,7 +163,9 @@ def main(path):
     m5 = N.net("U5", MINUS)
     check(N.between("ERROR", N.net("RV4", 1)) == ["R17"] and ohms(N.value["R17"]) == 1000, "R17 = 1k from ERROR to RV4")
     check(N.net("RV4", 3) == m5 and N.net("RV4", 2) == m5 and N.value["RV4"] == "1M", "RV4 (1M) from R17 into U5's - input, wiper tied")
-    check(N.between(m5, "I", "C") == ["C8"] and abs(farads(N.value["C8"]) - 10e-6) < 1e-9, "C8 = 10 uF from U5's - input to its output")
+    check(N.between(m5, "I", "C") == ["C8"] and abs(farads(N.value["C8"]) - 1e-6) < 1e-10, "C8 = 1 uF from U5's - input to its output")
+    check("Film_Panasonic_ECWF" in N.footprint["C8"],
+          "C8 is a polypropylene film (Panasonic ECW-F): no ceramic's loss of value with voltage")
     check(N.net("U5", OUT) == "I", "U5's output is I")
     check(N.net("SW4", 2) == "I" and N.net("SW4", 1) == m5, "SW4: common I; pole 1 shorts the capacitor (I OFF, reset)")
 
@@ -172,23 +174,29 @@ def main(path):
     for ref in ("RV2", "RV3", "RV4"):
         check(N.net(ref, 2) == N.net(ref, 3) and N.net(ref, 1) != N.net(ref, 2),
               f"{ref}: rheostat between 1 and 2, 3 tied to the wiper, so clockwise is more resistance")
-    tau_min, tau_max = 1e3 * 10e-6, 1.001e6 * 10e-6
-    check(abs(tau_min - 0.01) < 1e-6 and abs(tau_max - 10.01) < 0.1, f"I's RC runs from {tau_min*1e3:.0f} ms to {tau_max:.0f} s")
+    # the LM321's bias current (45 nA typical, 250 max: TI's data sheet) flows through the
+    # input resistance and the integrator nulls it: a residual of IB x (1k + RV4)
+    v_ib = 45e-9 * 1.001e6
+    check(v_ib < 0.05, f"I GAIN fully clockwise (1M) leaves {v_ib*1e3:.0f} mV of the LM321's bias current as residual: "
+                       "a quarter of a millimetre of slider, inside the friction's dead band")
+    tau_min, tau_max = 1e3 * 1e-6, 1.001e6 * 1e-6
+    check(abs(tau_min - 0.001) < 1e-7 and abs(tau_max - 1.001) < 0.01, f"I's RC runs from {tau_min*1e3:.0f} ms to {tau_max:.0f} s")
 
     # --- U6 and the push-pull: the motor driver ---------------------------------------------
     check(N.net("U6", PLUS) == "SUM", "U6's + input is SUM")
     m6 = N.net("U6", MINUS)
     check(N.between(m6, N.net("U6", OUT), "C") == ["C9"] and abs(farads(N.value["C9"]) - 330e-9) < 1e-12,
           "C9 = 0.33 uF from U6's own output to its - input (the fast feedback)")
-    check(N.between(m6, "DRIVE") == ["R18"] and ohms(N.value["R18"]) == 10e3, "R18 = 10k from DRIVE (the motor side) to U6's - input (the DC feedback)")
+    check(N.between(m6, "DRIVE") == ["R18"] and ohms(N.value["R18"]) == 10e3, "R18 = 10k from DRIVE (the motor side, behind the fuse) to U6's - input (the DC feedback)")
     check(N.between(N.net("U6", OUT), "BASES") == ["R19"] and ohms(N.value["R19"]) == 270, "R19 = 270 ohm from U6's output to the bases")
     check(N.value["Q1"] == "MJB44H11" and N.value["Q2"] == "MJB45H11", "Q1 is the MJB44H11 NPN, Q2 the MJB45H11 PNP")
     check(N.footprint["Q1"].endswith("TO-263-2") and N.footprint["Q2"].endswith("TO-263-2"),
           "Q1 and Q2 are D2PAKs (RthJC 2.5 C/W): a stall at a few volts is up to 3.7 W in one")
     check(N.net("Q1", 1) == "BASES" and N.net("Q2", 1) == "BASES", "both bases are driven by BASES")
     check(N.net("Q1", 2) == "+15V" and N.net("Q2", 2) == "-15V", "Q1's collector (tab) is +15 V, Q2's is -15 V")
-    check(N.between(N.net("Q1", 3), "DRIVE") == ["R21"] and ohms(N.value["R21"]) == 1, "R21 = 1 ohm from Q1's emitter to DRIVE")
-    check(N.between(N.net("Q2", 3), "DRIVE") == ["R22"] and ohms(N.value["R22"]) == 1, "R22 = 1 ohm from Q2's emitter to DRIVE")
+    pp = N.net("F1", 1)                                  # the push-pull's output, ahead of the fuse
+    check(N.between(N.net("Q1", 3), pp) == ["R21"] and ohms(N.value["R21"]) == 1, "R21 = 1 ohm from Q1's emitter to the push-pull's output")
+    check(N.between(N.net("Q2", 3), pp) == ["R22"] and ohms(N.value["R22"]) == 1, "R22 = 1 ohm from Q2's emitter to the push-pull's output")
     check(N.footprint["R21"].endswith("R_2512_6332Metric") and N.footprint["R22"].endswith("R_2512_6332Metric"),
           "the sense resistors are 2512, 1 W")
     # no current limiter: the PTC is the protection.  A stall (0.6 A) must trip it,
@@ -199,18 +207,24 @@ def main(path):
     check(0.55 > i_hold > 0.25, f"the PTC holds {i_hold} A: below the motor's 0.4-0.8 A stall, above its 0.2 A running current")
     p_stall = (15.0 - 9.0) * 0.6
     check(p_stall < 5, f"a full-drive stall puts {p_stall:.1f} W in one D2PAK until the PTC trips (seconds): survivable with its copper")
-    # the clamps, the snubber, the fuse and its lamp
-    check(N.net("D3", 1) == "+15V" and N.net("D3", 2) == "DRIVE", "D3 clamps DRIVE to +15 V (cathode on the rail)")
-    check(N.net("D4", 1) == "DRIVE" and N.net("D4", 2) == "-15V", "D4 clamps DRIVE to -15 V (anode on the rail)")
+    # the fuse between the push-pull and DRIVE: nothing a student can reach is ahead of it
+    check(pp != "DRIVE" and N.net("F1", 2) == "DRIVE" and N.value["F1"] == "0.35A",
+          "F1, the 0.35 A resettable fuse, is between the push-pull's output and DRIVE")
+    ahead = {ref for (ref, pin) in N.pins_on(pp)}
+    check(ahead == {"R21", "R22", "F1", "D3", "D4", "R20", "R23"},
+          f"ahead of the fuse only the emitter resistors, the clamps, the snubber and the lamp: {sorted(ahead)}")
+    check(not any(r.startswith(("TP", "J")) for r in ahead), "no probe loop and no connector ahead of the fuse")
+    # the clamps and the snubber at the transistors, the fuse's lamp
+    check(N.net("D3", 1) == "+15V" and N.net("D3", 2) == pp, "D3 clamps the push-pull's output to +15 V (cathode on the rail)")
+    check(N.net("D4", 1) == pp and N.net("D4", 2) == "-15V", "D4 clamps the push-pull's output to -15 V (anode on the rail)")
     check(N.value["D3"] == "SS34" and N.value["D4"] == "SS34", "the clamps are 3 A Schottkys")
     sn = N.net("R20", 2)
-    check(N.net("R20", 1) == "DRIVE" and ohms(N.value["R20"]) == 10 and N.between(sn, "GND", "C") == ["C10"]
-          and abs(farads(N.value["C10"]) - 100e-9) < 1e-12, "the snubber is 10 ohm + 0.1 uF from DRIVE to ground, as the book draws it")
-    check(N.net("F1", 1) == "DRIVE" and N.net("F1", 2) == "MOTOR" and N.value["F1"] == "0.35A", "F1, the 0.35 A resettable fuse, is between DRIVE and MOTOR")
-    check(N.net("R23", 1) == "DRIVE" and ohms(N.value["R23"]) == 1000 and N.net("LED3", 1) == N.net("R23", 2)
-          and N.net("LED3", 2) == "MOTOR" and N.net("LED4", 2) == N.net("R23", 2) and N.net("LED4", 1) == "MOTOR",
+    check(N.net("R20", 1) == pp and ohms(N.value["R20"]) == 10 and N.between(sn, "GND", "C") == ["C10"]
+          and abs(farads(N.value["C10"]) - 100e-9) < 1e-12, "the snubber is the book's 10 ohm + 0.1 uF, from the push-pull's output to ground")
+    check(N.net("R23", 1) == pp and ohms(N.value["R23"]) == 1000 and N.net("LED3", 1) == N.net("R23", 2)
+          and N.net("LED3", 2) == "DRIVE" and N.net("LED4", 2) == N.net("R23", 2) and N.net("LED4", 1) == "DRIVE",
           "the tripped lamp: 1k and two anti-parallel red LEDs across the fuse")
-    check(N.net("J4", 1) == "MOTOR" and N.net("J4", 2) == "GND" and N.net("J4", 3) == "GND", "J4: MOTOR, ground, ground (shield)")
+    check(N.net("J4", 1) == "DRIVE" and N.net("J4", 2) == "GND" and N.net("J4", 3) == "GND", "J4: DRIVE, ground, ground (shield)")
     check(N.between("DRIVE", N.net("J3", 1)) == ["R24"] and ohms(N.value["R24"]) == 1000 and N.net("J3", 2) == "GND",
           "the DRIVE OUT jack is DRIVE through 1k")
     check(N.footprint["R24"].endswith("R_1206_3216Metric") and N.footprint["R25"].endswith("R_1206_3216Metric"),
@@ -251,8 +265,8 @@ def main(path):
 
     # --- probe loops on the nodes they claim -------------------------------------------------------
     for tp, net in (("TP1", "TARGET"), ("TP2", "ERROR"), ("TP3", "P"), ("TP4", "D"), ("TP5", "I"), ("TP6", "SUM"),
-                    ("TP7", "DRIVE"), ("TP8", "POSITION"), ("TP9", "+15V"), ("TP10", "-15V"), ("TP11", "MOTOR"),
-                    ("TP12", "BASES"), ("TP13", N.net("U6", OUT)), ("TP14", N.net("U7", OUT)),
+                    ("TP7", "DRIVE"), ("TP8", "POSITION"), ("TP9", "+15V"), ("TP10", "-15V"),
+                    ("TP11", "BASES"), ("TP12", N.net("U6", OUT)), ("TP13", N.net("U7", OUT)),
                     ("TP100", "GND"), ("TP101", "GND"), ("TP102", "GND"), ("TP103", "GND")):
         check(N.net(tp, 1) == net, f"{tp} ({N.value[tp]}) is on {net}")
 

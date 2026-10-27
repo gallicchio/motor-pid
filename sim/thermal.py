@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """How hot the push-pull gets in the worst stall, for each way of cooling it.
 
-The worst stall puts 3.7 W in one transistor for as long as it lasts
+The worst stall puts 3.4 W in one transistor for as long as it lasts
 (sim/results.json, stall_sweep: DRIVE about 7 V into the stalled 14 ohm motor,
-0.49 A, which the 0.35 A fuse may hold for minutes).  This is a steady-state
+0.5 A, which the 0.35 A fuse may hold for minutes).  The model takes 3.7 W:
+the peak between the sweep's samples, a supply a little above 15 V, and the
+0.25 W in the 1 ohm emitter resistor beside the tab.  This is a steady-state
 model of the board as two copper sheets with FR4 between them: the top one
 copper only under the collector pour, the bottom one the ground plane over the
 whole 170 x 120 mm; both faces lose heat by convection and radiation (h, in
@@ -33,7 +35,7 @@ import scipy.sparse as sp
 import scipy.sparse.linalg as spl
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-P_WORST = 3.7          # W in one transistor (sim/results.json, stall_sweep)
+P_WORST = 3.7          # W: the transistor's 3.4 (sim/results.json, stall_sweep), rounded up (see above)
 T_AIR = 25.0
 T_LIMIT = 125.0        # the build fails above this junction temperature (see above)
 RTH_JC = {"MJB44H11": 2.5, "MJB45H11": 2.5, "MJD44H11": 6.25, "MJD45H11": 6.25}
@@ -173,7 +175,7 @@ def board(geom_path, out_path, dx_mm=0.5):
 
 if __name__ == "__main__":
     if "--board" in sys.argv:
-        print(f"the worst stall, {P_WORST} W in one transistor, air at {T_AIR:.0f} C, board on a bench")
+        print(f"the worst stall, {P_WORST} W into one transistor's pour (3.4 W in it, rounded up), air at {T_AIR:.0f} C, board on a bench")
         sys.exit(0 if board(os.path.join(HERE, "..", "out", "pcb_geom.json"),
                             os.path.join(HERE, "thermal.json")) else 1)
     main()

@@ -8,15 +8,15 @@
   "rth_jc": 2.5,
   "pour_mm2": 836,
   "bench": {
-   "junction_c": 119.5,
-   "tab_c": 109.1,
-   "pour_mean_c": 84.6,
-   "pour_edge_c": 69.0
+   "junction_c": 119.6,
+   "tab_c": 109.2,
+   "pour_mean_c": 84.7,
+   "pour_edge_c": 69.1
   },
   "standoffs": {
-   "junction_c": 113.2,
+   "junction_c": 113.3,
    "tab_c": 102.9,
-   "pour_mean_c": 78.6,
+   "pour_mean_c": 78.7,
    "pour_edge_c": 63.4
   }
  },
@@ -25,16 +25,16 @@
   "rth_jc": 2.5,
   "pour_mm2": 670,
   "bench": {
-   "junction_c": 121.7,
-   "tab_c": 111.3,
-   "pour_mean_c": 87.9,
-   "pour_edge_c": 70.4
+   "junction_c": 121.9,
+   "tab_c": 111.5,
+   "pour_mean_c": 88.1,
+   "pour_edge_c": 70.8
   },
   "standoffs": {
-   "junction_c": 115.6,
-   "tab_c": 105.2,
-   "pour_mean_c": 82.0,
-   "pour_edge_c": 64.9
+   "junction_c": 115.7,
+   "tab_c": 105.4,
+   "pour_mean_c": 82.2,
+   "pour_edge_c": 65.2
   }
  }
 }

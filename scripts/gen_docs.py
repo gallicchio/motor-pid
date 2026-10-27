@@ -178,7 +178,8 @@ def main():
     a(f"The board has **{smt} SMT joints** and **{tht} through-hole joints** on")
     a(f"{len(rows)} BOM lines; {len(ext_codes)} distinct order codes are JLCPCB *Extended* parts")
     a(f"(the op-amps, the BNCs, the terminal blocks, the knob, the trimmers, the slide")
-    a(f"switches, the test loops, the power transistors, the fuse and the 1 ohm resistors),")
+    a(f"switches, the test loops, the power transistors, the bulk capacitors, the integrator's")
+    a(f"film capacitor, the fuse and the 1 ohm resistors),")
     a(f"each with a one-off {money(EXTENDED_PART_FEE)} feeder fee.  Parts alone are")
     a(f"**{money(parts_cost)} per board**, of which the three BNC jacks are")
     a(f"{money(3 * parts.PARTS['BNC']['price'])} and the {loops} test loops {money(loops * parts.PARTS['TP']['price'])}.")
@@ -386,11 +387,11 @@ PREVIEW_CHECKS = [
     ("J4, J5", "screw terminal wire openings", "facing the BOTTOM edge"),
     ("J6", "screw terminal wire openings", "facing the TOP edge"),
     ("D1, D2", "SMA cathode band", "D1 cathode on the LEFT (toward the rail); D2 cathode at the TOP (toward the terminal)"),
-    ("D3, D4", "SMA cathode band", "D3 cathode UP toward the +15 V pour; D4 cathode DOWN toward the DRIVE row"),
+    ("D3, D4", "SMA cathode band", "both cathodes UP: D3's into the +15 V pour, D4's toward the push-pull's output row above it"),
     ("LED1, LED2", "0805 LED cathode mark", "LED1 cathode DOWN toward its ground via; LED2 cathode UP toward its 10k"),
     ("LED3, LED4", "0805 LED cathode mark", "antiparallel across the fuse: LED3 cathode on the RIGHT, LED4 cathode on the LEFT"),
-    ("C11, C12", "electrolytic stripe (negative)", "C11 negative DOWN toward its ground; C12 negative DOWN toward its ground"),
-    ("TP1-TP14, TP100-TP103", "test loops", "the loop lying along the pad's long side; not polarised"),
+    ("C11, C12", "electrolytic stripe (negative)", "C11 negative DOWN toward its ground; C12 negative UP toward the -15 V rail (its + DOWN to ground)"),
+    ("TP1-TP13, TP100-TP103", "test loops", "the loop lying along the pad's long side; not polarised"),
 ]
 
 

@@ -146,6 +146,14 @@ def fuse_1812():
     return "Fuse_1812.wrl", s
 
 
+def film_ecwf():
+    """Panasonic ECW-F 1 uF 450 V: an epoxy-dipped body 18.1 x 9.3 mm and
+    12.6 mm tall over its leads on 15 mm, centred."""
+    s = HEAD
+    s += box(0, 0, 6.3 + 0.5, 18.1, 9.3, 12.6, (0.55, 0.12, 0.10))
+    return "C_Film_ECWF_L18.1_W9.3.wrl", s
+
+
 def testloop():
     """RH-5019: a 3.8 mm long wire loop, 2.0 mm wide, standing 1.5 mm up."""
     s = HEAD
@@ -158,7 +166,7 @@ def testloop():
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    for maker in (bnc, trimpot, testloop, lambda: kf301(3), slide_switch, knob_pot, fuse_1812):
+    for maker in (bnc, trimpot, testloop, lambda: kf301(3), slide_switch, knob_pot, fuse_1812, film_ecwf):
         name, body = maker()
         with open(os.path.join(OUT, name), "w") as fh:
             fh.write(body)

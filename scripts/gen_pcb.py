@@ -335,6 +335,8 @@ class Board:
                 self.via(*e, net)
         for f in L.FLAGS:
             self.via(f[1], f[2], f[0])
+        for (net, x, y) in getattr(L, "EXTRA_VIAS", ()):
+            self.via(x, y, net)
         self.stub_dir = {}
         for (padref, path) in L.GND_STUBS:
             pad = self.pads[padref]
@@ -938,6 +940,18 @@ class Board:
             else:
                 self._text(tx, ty + 1.5 * size, fp.Value().GetText(), size, 0.15, justify=just)
 
+    def silk_switch_marks(self):
+        """A 1 and a 3 at the two ends of each slide switch, where the legends
+        and the handbook say "1 = ..." and "3 = ..."."""
+        for ref, marks in L.SW_MARKS.items():
+            fp = self.fps[ref]
+            cx, cy = tomm(fp.GetPosition().x), tomm(fp.GetPosition().y)
+            a = math.radians(fp.GetOrientationDegrees())
+            for num, (lx, ly) in marks.items():
+                x = cx + lx * math.cos(a) + ly * math.sin(a)
+                y = cy - lx * math.sin(a) + ly * math.cos(a)
+                self._text(x, y, num, 0.8, 0.15, justify="center")
+
     def silk_fields(self):
         """Reference and value beside each part, where layout.FIELD_AT says."""
         for ref, fp in self.fps.items():
@@ -1100,6 +1114,7 @@ class Board:
         self.silk_grounds()
         self.silk_opamps()
         self.silk_transistors()
+        self.silk_switch_marks()
         self.silk_fields()
         self.silk_arcs()
         self.silk_boxes()

@@ -19,7 +19,11 @@ rounds sort themselves.
 
 | directory | reviewer | verdict |
 |---|---|---|
-| `2026-10-26_Claude-Opus-5.5/` | the author's own review, written before reading any other | order after named fixes: no "1" / "3" at the switches' ends while every instruction is by number; the DRIVE probe loop is ahead of the fuse (a ground clip there is an unfused 2.3 A, 28 W short). Minor: thermal margin needs standoffs, the integrator's X5R capacitor, one via for Q2's current, the friction dead band reported as overshoot, document lines. Patch in its `patch_round1.diff`, built clean in its copy; not applied (Jason's call) |
+| `2026-10-26_Claude-Opus-5.5/` | the author's own review, written before reading any other | order after named fixes: no "1" / "3" at the switches' ends while every instruction is by number; the DRIVE probe loop is ahead of the fuse (a ground clip there is an unfused 2.3 A, 28 W short). Minor: thermal margin needs standoffs, the integrator's X5R capacitor, one via for Q2's current, the friction dead band reported as overshoot, document lines. **Applied 2026-10-26**: its `patch_round1.diff`, the fuse moved between the push-pull and DRIVE, the integrator's capacitor a 1 µF polypropylene film (Jason's decisions). Open: findings 6, 11, 12 |
+
+The author's review was applied before any other reviewer started, so the other
+round-1 reviews are of the board with those changes (`docs/DESIGN_NOTES.md`,
+"Review round 1").
 
 Reconciliation of the round (what each found, what changed) is written up in
 `CLAUDE_CODE_CHAT.md` when the round closes.
