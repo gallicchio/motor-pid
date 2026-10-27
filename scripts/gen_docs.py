@@ -81,7 +81,7 @@ def order_form(w, h, min_drill, min_via, tht_refs):
         ("Base Material", "FR-4", "the default"),
         ("Layers", "2", "what the gerber set contains"),
         ("Dimensions", f"{w:.0f} x {h:.0f} mm", "read from the board outline; past the 100 x 100 mm discount, so the bare boards cost a little more"),
-        ("PCB Qty", "5", "the minimum; 10 costs about three dollars more"),
+        ("PCB Qty", "5", f"the minimum; 10 costs about ${PCB_2L_10PCS - PCB_2L_5PCS:.0f} more"),
         ("Product Type", "Industrial/Consumer electronics", "the default"),
         ("PCB Specifications", None, None),
         ("Different Design", "1", "one board in the outline"),

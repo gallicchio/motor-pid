@@ -32,3 +32,6 @@ fp-info-cache
 /next_prompt.md
 /QUESTIONS.md
 /ANSWERS.md
+
+# Design reviewers' working copies of the project (their reports are kept)
+/design_reviews/*/project/
