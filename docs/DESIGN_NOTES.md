@@ -187,20 +187,66 @@ stall the fuse was chosen for (0.63 A) is the easy case.
 
 Holding the slider by hand at a low P gain does the same.  The board says so
 on the back and in the handbook ("seconds, not minutes"); that is not
-protection.  The fixes, for Jason to choose:
+protection.  A smaller fuse does not help: the motor needs 0.15 A just to
+slide, and a stall at 2 V (0.14 A) already puts 1.8 W in the transistor.
 
-1. **TO-220 transistors on clip-on heatsinks** (D44H11 / D45H11 come in TO-220,
-   as the book's push-pull is drawn).  With a 10–13 °C/W heatsink, 3.7 W is a
-   50 °C rise: a stall can last all afternoon.  Through-hole, hand-fitted;
-   the fuse stays for a short and for the motor.
-2. **More copper under the DPAKs**, both layers, stitched with vias: perhaps
-   30 °C/W from 20 cm², so 3.7 W is still a 110 °C rise and the board too hot
-   to touch.  Not enough on its own.
-3. **Leave it**, with the warnings: the DPAKs are 30 cents and the board is
-   at a lab station, but a dead driver mid-lab is a lost afternoon.
+**The two ways out, compared (2026-10-26).**  `sim/thermal.py` models the board
+(two copper sheets and the FR4 between, the ground plane under everything,
+convection and radiation from both faces; it reproduces TI's 26 °C/W for a
+DDPAK on a square inch of 1 oz, within 25 % at a guess) and works the TO-220
+cases from the heatsink ratings.  At the worst stall, 3.7 W for as long as it
+lasts, board on a bench in 25 °C air:
 
-A smaller fuse does not help: the motor needs 0.15 A just to slide, and a
-stall at 2 V (0.14 A) already puts 1.8 W in the transistor.
+| cooling | junction | hottest thing you can touch |
+|---|---|---|
+| today: DPAK, its 12 x 5.8 mm pour, 1 oz | 241 °C (dead) | the pour, 200 °C |
+| DPAK, 25 x 25 mm pour, 2 oz | 141 °C | the pour, 92 °C |
+| D2PAK, 25 x 25 mm pour, 1 oz | 151 °C | the pour, 108 °C |
+| **D2PAK, 28 x 30 mm pour, 2 oz** | **113 °C** | the pour, 84 °C |
+| TO-220 MJE3055T/MJE2955T, 13.6 °C/W heatsink (30 x 30 x 25 mm) | 83–88 °C | the heatsink, 75 °C |
+| TO-220, 4.4 °C/W heatsink (Aavid 6398BG) | 49–54 °C | the heatsink, 41 °C |
+
+(Junction limit 150 °C for all of them.  Heatsink ratings are at a 75 °C rise;
+at smaller rises they are 10–20 % worse.)
+
+*Surface mount: MJB44H11T4G / MJB45H11T4G (D2PAK) on 2 oz copper.*  The same
+family as today's MJD44H11/45H11, D2PAK instead of DPAK (RthJC 2.5 °C/W
+instead of 6.25), both stocked at JLCPCB (C233689, 1458; C154570, 486; about
+$1.20 each).  Each collector pour grows to about 28 x 30 mm, which the MOTOR
+DRIVER box has room for above and below the emitter resistors.
+- For: nothing to solder, no heatsinks, a flat board; the copper is under
+  solder mask, so nothing bare sits at ±15 V for a scope clip to find; the
+  assembler places it, so every board is the same.
+- Against: the junction reaches about 110 °C in the worst stall, a 40 °C
+  margin on a model good to 25 %; the board round the transistor reaches
+  80–90 °C (worth a "HOT if stalled" on the silk); 2 oz outer copper costs
+  extra on the bare boards (JLCPCB does not publish the step; the quote page
+  shows it) and needs 8 mil track and gap (this board's rule is 0.2 mm, which
+  goes to 0.21); a dead D2PAK wants hot air to replace.  The transistor
+  symbols round the packages are redrawn bigger.  Confirm on the first board:
+  hold a 7 V stall for five minutes and read the tab with a thermocouple.
+
+*Through-hole: the lab's MJE3055T / MJE2955T, hand-soldered, screw-on heatsinks.*
+The book's own parts (Fig. 10L.3), from the lab's drawers.
+- For: the coolest junction by far (50–90 °C, depending on the heatsink); a
+  stall can last all afternoon; the parts students meet in the book; a dead
+  one comes out with an iron.
+- Against: hand work on every board (three joints and a heatsink with its
+  screw and grease each, two per board); the tab is the collector, so each
+  heatsink sits bare at +15 V or −15 V among the probe loops, where a scope's
+  ground clip shorts a rail, unless each gets an insulating pad and shoulder
+  washer (more work, and 1–2 °C/W more); a small heatsink is itself 75 °C in
+  the worst stall, only the big ones stay touchable; 25–60 mm tall parts on a
+  flat board; heatsinks to buy (a few dollars each).  Electrically fine: the
+  book's circuit was drawn for this pair, and although its gain is lower than
+  the D44H11 family's (hFE 20 minimum at 4 A, fT 2 MHz) the LM321 can drive it
+  (about 15 mA of base at the 0.78 A step peak).
+
+Recommendation: the D2PAKs on 2 oz copper.  They meet Jason's wish (nothing
+to solder, no heatsinks) with the silicon inside its rating in the worst
+case, and leave no bare rail-voltage metal among the probe loops.  The TO-220s
+are the more robust choice and the book's, at the cost of the hand work and
+the live heatsinks.  Waiting on Jason's choice.
 
 ## The fader, measured (bench, 2026-10-26)
 

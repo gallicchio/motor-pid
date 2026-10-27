@@ -3790,8 +3790,8 @@
 		)
 	)
 	(rectangle
-		(start 410.02 96.58)
-		(end 452.85 162.08)
+		(start 193.04 237.74)
+		(end 320.04 305.26)
 		(stroke
 			(width 0.15)
 			(type dash)
@@ -3799,7 +3799,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "0939317a-85af-438a-9786-28dc433fc9a2")
+		(uuid "08506c8c-fc30-426a-9673-71fbbe0ade6e")
 	)
 	(rectangle
 		(start 193.04 166.62)
@@ -3811,7 +3811,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "25cd7d1a-d807-4a45-b29a-01772d6fba21")
+		(uuid "1186e82c-a7a3-46bd-a511-0ddfa710cc9d")
 	)
 	(rectangle
 		(start 124.46 100.08)
@@ -3823,7 +3823,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "c04b62a2-ed96-41da-bd90-91b0f5ed1c52")
+		(uuid "2ce3273a-bb08-41c0-8b17-63710ce04bcc")
 	)
 	(rectangle
 		(start 454.2 119.08)
@@ -3835,11 +3835,11 @@
 		(fill
 			(type none)
 		)
-		(uuid "dd74f14b-cd8b-4e8d-af29-ce1441bff6c1")
+		(uuid "9502de55-dee2-413b-82e9-852141c56eb6")
 	)
 	(rectangle
-		(start 193.04 237.74)
-		(end 320.04 305.26)
+		(start 410.02 96.58)
+		(end 452.85 162.08)
 		(stroke
 			(width 0.15)
 			(type dash)
@@ -3847,7 +3847,7 @@
 		(fill
 			(type none)
 		)
-		(uuid "fd81ede9-c085-4135-9383-85b86fc1b941")
+		(uuid "db21761e-dc47-46c0-adfa-f4e0a93397ad")
 	)
 	(text "6.8k ends keep it to ±6.4 V, inside what the motor pot"
 		(exclude_from_sim no)

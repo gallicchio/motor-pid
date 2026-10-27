@@ -394,3 +394,24 @@ DESIGN_NOTES under "The trimmers' ranges".
   TARGET/2, a twitch that the movement itself cures.  Nothing added.
 - Back silk: fader pins, ±3 V square and triangle tests, the stall warning.  Build: ERC 0,
   DRC 0, 249 checks, 25 of 25 claims.
+
+## Prompt 12
+
+> I like the idea of not having to solder anything and not having to attach heat sinks, but if you think TO-220's are the way to go, use the ones that we already have in the lab, which the lab manual suggests. Go a bit more into the pros and cons of each approach: the best surface-mount option vs the TO-220's from the manual, hand soldered, with screw-on heat sinks.
+
+## Response 9
+
+*2026-10-26 PDT.*  A board thermal model (`sim/thermal.py`: two copper sheets, the FR4 between,
+the ground plane under everything, both faces cooling; it reproduces TI's 26 °C/W for a DDPAK
+on a square inch of 1 oz) at the worst stall, 3.7 W sustained:
+- today's DPAK on its small pour: junction 241 °C, so it would die;
+- the best surface-mount option, MJB44H11T4G / MJB45H11T4G (D2PAK, the same family, both
+  stocked at JLCPCB) on 28 x 30 mm pours with 2 oz copper: junction about 110 °C, the board
+  round it 80-90 °C; 1 oz copper is not enough (151 °C);
+- the lab's MJE3055T / MJE2955T on screw-on heatsinks: junction 83-88 °C with a 13.6 °C/W
+  heatsink (the heatsink itself 75 °C), about 50 °C with a 4.4 °C/W one.
+Surface mount: no hand work, nothing bare at the rail voltage, but less margin, a hot patch
+of board, 2 oz copper at extra cost.  TO-220: cooler and the book's parts, but six joints
+and two heatsinks per board by hand, and each heatsink is bare collector metal at ±15 V among
+the probe loops unless insulated.  Recommended the D2PAKs on 2 oz; waiting on Jason's
+choice.  The comparison is in DESIGN_NOTES under "A stall at a few volts".
