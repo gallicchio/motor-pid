@@ -643,3 +643,17 @@ DESIGN_NOTES has a "Review round 1" section.  Still open from my review:
 - **The board's date.**  It gets set on the order day.
 
 **Build:** ERC 0, 258 checks, DRC 0, thermal 120/122 °C, fab checks, 31/31 claims.
+
+## Prompt 16
+
+> Confirmed that the last reviewer to write a review was Kimi K3.
+
+## Response 13
+
+*2026-10-28 PDT.  The reviewer's name settled.*
+
+The folder `design_reviews/2026-10-27_KimiK3/` keeps its name.  The note atop its report,
+the reviews' README and DESIGN_NOTES ("Review round 1") now say Kimi K3, confirmed by Jason,
+in place of "to be confirmed"; the report itself still reads as it was written, signed
+"Claude (Fable 5)".  The lesson in `CLAUDE_PCB.md` names the model.  Nothing in the design
+changes.

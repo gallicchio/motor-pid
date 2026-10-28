@@ -1,9 +1,8 @@
 # Design review: motor-pid rev A — 2026-10-27, Kimi K3
 
-> Renamed by the author, 2026-10-27: this should be the Kimi K3 run (through the
-> Copilot SDK), which named itself "Claude (Fable 5)" and its directory
-> `2026-10-27_Claude-Fable-5`.  Jason is to confirm which model was selected.  The
-> report below is as it wrote it.  Before committing, the author moved its
+> Renamed by the author, 2026-10-27: this is the Kimi K3 run (through the Copilot
+> SDK; Jason confirmed the model on 2026-10-28), which named itself "Claude (Fable 5)"
+> and its directory `2026-10-27_Claude-Fable-5`.  The report below is as it wrote it.  Before committing, the author moved its
 > datasheet excerpts (the extracted texts and the crops of vendors' pages: `b3362*`,
 > `bpsm*`, `md100.txt`, `rk09k*`, `lm321_*`, `msk12_*`, `ptc_tt_*`, `jvjcap_dim.png`,
 > `mjd_land.png`) into `project/datasheet_excerpts/`, which git ignores (datasheets

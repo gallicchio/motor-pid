@@ -311,7 +311,8 @@ called the friction's dead band an overshoot) was closed by the second wave.
 
 Then two independent reviews of the patched board, 2026-10-27:
 `design_reviews/2026-10-27_Gemini-4-Argon/` and `design_reviews/2026-10-27_KimiK3/`
-(the latter named itself Claude Fable 5).  What changed for them:
+(the latter by Kimi K3, which named itself Claude Fable 5).  What changed for
+them:
 
 - RV1's JLCPCB rotation and datum were wrong (Gemini; KimiK3 had passed them):
   their drawing, overlaid by the new CPL, now lands on our pins to 0.00 mm;
