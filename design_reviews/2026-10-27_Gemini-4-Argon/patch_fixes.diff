@@ -1,0 +1,383 @@
+--- make.py	2026-10-26 20:03:14.559475000 -0700
++++ design_reviews/2026-10-27_Gemini-4-Argon/project/make.py	2026-10-27 16:00:45.078080549 -0700
+@@ -73,6 +73,9 @@
+ 
+ def stage_sim():
+     banner("simulation (ngspice)")
++    net = os.path.join(OUT, STEM + ".net")
++    if not os.path.exists(net):
++        stage_sch()
+     r = subprocess.run([sys.executable, os.path.join(ROOT, "sim", "pid_sim.py"), "--plots"],
+                        capture_output=True, text=True)
+     sys.stdout.write(r.stdout)
+diff -ru '--exclude=__pycache__' '--exclude=*.json' scripts/check_circuit.py design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/check_circuit.py
+--- scripts/check_circuit.py	2026-10-26 22:13:13.219472000 -0700
++++ design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/check_circuit.py	2026-10-27 16:00:44.903079394 -0700
+@@ -156,7 +156,7 @@
+     f_roll = 1 / (2 * math.pi * 640e3 * 470e-12)
+     check(300 < f_roll < 1500, f"the 470 pF rolls the differentiator off above {f_roll:.0f} Hz at 640k")
+     f_lo, f_hi = 1 / (2 * math.pi * 1e6 * 22e-9), 1 / (2 * math.pi * 200e3 * 22e-9)
+-    check(f_lo < 11 and f_hi > 25, f"with 22 nF the D rule covers natural oscillations from {f_lo:.0f} to {f_hi:.0f} Hz (the book's slider: 25 Hz; the simulation: 11 Hz)")
++    check(f_lo < 11 and f_hi > 25, f"with 22 nF the D rule covers natural oscillations from {f_lo:.0f} to {f_hi:.0f} Hz (the book's slider: 25 Hz; the simulation: 31 Hz)")
+ 
+     # --- U5: the integrator -----------------------------------------------------------------
+     check(N.net("U5", PLUS) == "GND", "U5's + input is grounded")
+diff -ru '--exclude=__pycache__' '--exclude=*.json' scripts/check_outputs.py design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/check_outputs.py
+--- scripts/check_outputs.py	2026-10-26 22:02:57.236747000 -0700
++++ design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/check_outputs.py	2026-10-27 16:00:45.685084555 -0700
+@@ -336,7 +336,7 @@
+     for key, p in parts.PARTS.items():
+         if "stock" not in p:
+             continue
+-        need = {"OPAMP": 7, "BNC": 3, "SW": 5, "TERM3": 3, "TP": 15, "DSCH": 4, "TRIM": 3, "LED": 2, "LED_R": 2, "CBULK": 2}.get(key, 1)
++        need = {"OPAMP": 7, "BNC": 3, "SW": 5, "TERM3": 3, "TP": 17, "DSCH": 4, "TRIM": 3, "LED": 2, "LED_R": 2, "CBULK": 2}.get(key, 1)
+         boards = p["stock"] // need
+         if boards < 50:
+             low.append(f"{p['mpn']} ({p['stock']} in stock = {boards} boards)")
+diff -ru '--exclude=__pycache__' '--exclude=*.json' scripts/gen_docs.py design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/gen_docs.py
+--- scripts/gen_docs.py	2026-10-26 22:22:08.743485000 -0700
++++ design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/gen_docs.py	2026-10-27 16:00:45.439082932 -0700
+@@ -4,9 +4,9 @@
+ Generated, from the parts table, the costed BOM, the board geometry and the
+ simulation results, so none of their numbers can drift from the files in out/:
+ 
+-    docs/MANUFACTURING.md                 what to upload, what to pick, what it costs
+-    out/opamp/opamp-fabrication-notes.txt JLCPCB's order form, field by field
+-    out/opamp/PLACEMENT_CHECKS.txt        what to look at in JLCPCB's preview
++    docs/MANUFACTURING.md                    what to upload, what to pick, what it costs
++    out/motorpid/motorpid-fabrication-notes.txt JLCPCB's order form, field by field
++    out/motorpid/PLACEMENT_CHECKS.txt        what to look at in JLCPCB's preview
+ 
+ Checked: every number README.md, docs/HANDBOOK.md and docs/DESIGN_NOTES.md
+ quote from the build is matched against the build (CLAIMS below), and the
+diff -ru '--exclude=__pycache__' '--exclude=*.json' scripts/gen_pcb.py design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/gen_pcb.py
+--- scripts/gen_pcb.py	2026-10-26 21:47:28.945729000 -0700
++++ design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/gen_pcb.py	2026-10-27 16:01:59.331570569 -0700
+@@ -3,7 +3,7 @@
+ ground plane and the silkscreen that is the schematic.
+ 
+ Runs under KiCad's bundled Python (it needs pcbnew):
+-    <AppRun> python3.11 scripts/gen_pcb.py out/opamp.net hardware/opamp.kicad_pcb
++    <AppRun> python3.11 scripts/gen_pcb.py out/motorpid.net hardware/motorpid.kicad_pcb
+ 
+ There is no autorouter.  Every wire in layout.WIRES is a schematic wire: it is
+ laid as copper exactly where it is drawn, and drawn again on the silkscreen
+@@ -310,7 +310,7 @@
+             for num, path in g["copper"].items():
+                 net = self.pads[(ref, num)]["net"]
+                 for a, b in zip(path, path[1:]):
+-                    self.track(a, b, 2.0 if num in g.get("wide", ()) else L.W_SIG, net)
++                    self.track(a, b, L.W_RAIL if num in g.get("wide", ()) else L.W_SIG, net)
+         for ref in L.OPAMPS:
+             g = self.oa_geometry(ref)
+             for num, path in g["copper"].items():
+@@ -610,7 +610,7 @@
+         # junction dots: a point where three or more segment ends of one net meet,
+         # or where a segment ends on the interior of another of the same net
+         count = {}
+-        front = [sg for sg in self.segments if sg[3] != pcbnew.B_Cu]
++        front = [sg for sg in self.segments if sg[3] != pcbnew.B_Cu or sg[0] in L.DASHED_BACK]
+         for (net, a, b, layer) in front:
+             for e in (a, b):
+                 k = (net, round(e[0], 2), round(e[1], 2))
+@@ -662,7 +662,8 @@
+         # signals that go round the back: dashed where they run
+         for (net, a, b, layer) in self.segments:
+             if layer == pcbnew.B_Cu and net in L.DASHED_BACK:
+-                self._dashed(a, b, dash=1.0, gap=0.6, width=0.2)
++                for (p, q) in self.clip(a, b):
++                    self._dashed(p, q, dash=1.0, gap=0.6, width=0.2)
+ 
+     def ground_symbol(self, x, y, ux, uy, start=0.55):
+         """Three shortening bars across the direction (ux, uy), beyond `start`
+@@ -816,7 +817,7 @@
+         px, py = -u[1], u[0]
+         arrow = [tip, (tail[0] + px * 0.5, tail[1] + py * 0.5), (tail[0] - px * 0.5, tail[1] - py * 0.5)]
+         return dict(
+-            cx=P(0, y0)[0], cy=P(0, y0)[1], R=R, wide=set(), arc=arc,
++            cx=P(0, y0)[0], cy=P(0, y0)[1], R=R, wide={nE}, arc=arc,
+             exit={nB: P(*b_out), nC: P(xc, yc), nE: P(*e_out)},
+             bar=[P(-BX, y0 - BH), P(-BX, y0 + BH)],
+             leads=[[P(*q) for q in ld] for ld in leads],
+diff -ru '--exclude=__pycache__' '--exclude=*.json' scripts/gen_sch.py design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/gen_sch.py
+--- scripts/gen_sch.py	2026-10-26 22:05:26.091490000 -0700
++++ design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/gen_sch.py	2026-10-27 16:01:59.324570523 -0700
+@@ -80,9 +80,9 @@
+     s = Sheet(kienv.share_dir(), paper="A2",
+               title=f"{parts.BOARD_NAME}: Lab 10L of Learning the Art of Electronics",
+               date=parts.BOARD_DATE, rev=parts.REV,
+-              company="Circuit: Hayes & Horowitz, Learning the Art of Electronics (2016), Lab 10L  |  Board: Jason Gallicchio and Claude",
+-              comments=["LM321 (the single LM358) in SOT-23-5, one per triangle; MJB44H11 / MJB45H11 (D2PAK) push-pull",
+-                        "P from 1 to 101, D up to 10 ms (slide pot) or 100 ms (rotary), I up to 10 s",
++              company="Circuit: Hayes & Horowitz, Learning the Art of Electronics (2016), Lab 10L | Board: J. Gallicchio & Claude",
++              comments=["LM321 (single LM358) in SOT-23-5, one per triangle; MJB44H11 / MJB45H11 (D2PAK) push-pull",
++                        "P from 1 to 101, D up to 22 ms (slide pot) or 100 ms (rotary), I up to 1 s",
+                         "Open source, CERN-OHL-P-2.0 -- " + parts.PROJECT_URL])
+     pwr_n = [0]
+ 
+@@ -300,7 +300,7 @@
+     gnd(JX, g(66))
+     s.text("TARGET IN", g(13), g(55.0), size=2.2)
+     s.text("±12 V max; a slow square wave", g(13), g(56.7), size=1.1)
+-    s.text("(±0.5 V at 0.2 Hz) replaces the knob", g(13), g(57.9), size=1.1)
++    s.text("(±3 V at 0.2 Hz) replaces the knob", g(13), g(57.9), size=1.1)
+     label("TARGET IN", j1[0] + 5.08, j1[1], justify="left")
+     # the switched target, then on to the difference amplifier
+     TX = w2[0] + 5.08
+@@ -526,11 +526,11 @@
+     # the push-pull: NPN above, PNP below, 1 ohm in each emitter, joined at DRIVE
+     QX = BX + 7.62
+     s.place(sym("NPN_PWR"), "Q1", "MJB44H11", QX, A_Y - 22.86, footprint=fp("NPN_PWR"),
+-            fields=part_fields("NPN_PWR"), ref_off=(5.6, -3.0), val_off=(5.6, -0.6),
+-            ref_justify="left", val_justify="left")
++            fields=part_fields("NPN_PWR"), ref_off=(-1.5, -5.0), val_off=(-1.5, -3.0),
++            ref_justify="right", val_justify="right")
+     s.place(sym("PNP_PWR"), "Q2", "MJB45H11", QX, A_Y + 22.86, mirror="x", footprint=fp("PNP_PWR"),
+-            fields=part_fields("PNP_PWR"), ref_off=(5.6, 0.6), val_off=(5.6, 3.0),
+-            ref_justify="left", val_justify="left")
++            fields=part_fields("PNP_PWR"), ref_off=(-1.5, 3.0), val_off=(-1.5, 5.0),
++            ref_justify="right", val_justify="right")
+     q1b, q1c, q1e = s.pin("Q1", 1, "1"), s.pin("Q1", 1, "2"), s.pin("Q1", 1, "3")
+     q2b, q2c, q2e = s.pin("Q2", 1, "1"), s.pin("Q2", 1, "2"), s.pin("Q2", 1, "3")
+     s.wire(q1b, (BX, q1b[1]), (BX, q2b[1]), q2b)
+@@ -726,8 +726,8 @@
+             ref_off=(4.0, -2.6), val_off=(4.0, 0.4), ref_justify="left", val_justify="left")
+     s.wire(s.pin("J2", 1, "2"), (o7[0] + 22.86, o7[1] + 7.62))
+     gnd(o7[0] + 22.86, o7[1] + 7.62)
+-    s.text("POSITION OUT", o7[0] + 14.0, o7[1] - 8.0, size=2.2)
+-    s.text("the pot's voltage, buffered: ±7.7 V, 1k out", o7[0] + 14.0, o7[1] - 6.2, size=1.1)
++    s.text("POSITION OUT", o7[0] + 14.0, o7[1] - 8.6, size=2.2)
++    s.text("the pot's voltage, buffered: ±7.7 V, 1k out", o7[0] + 14.0, o7[1] - 6.0, size=1.1)
+     s.text("follower", U7_X - 2.0, U7_Y - 26.67, size=1.1, justify=None)
+ 
+     # ========================================================== the loop switch
+@@ -938,7 +938,7 @@
+           "POWER: ±15 V, 1 A (the motor's stall current).",
+           "Series Schottkys against a reversed supply; 100 uF a",
+           "rail for the motor's pulses; a green LED per rail.",
+-          "Quiescent about 10 mA.  100 nF at every op-amp pin."],
++          "Quiescent about 4 mA.  100 nF at every op-amp pin."],
+          col[4], NOTE_Y)
+     return s
+ 
+diff -ru '--exclude=__pycache__' '--exclude=*.json' scripts/kienv.py design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/kienv.py
+--- scripts/kienv.py	2026-10-24 18:11:10.985269000 -0700
++++ design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/kienv.py	2026-10-27 15:37:53.768038901 -0700
+@@ -55,8 +55,23 @@
+     return ten + [p for p in out if p not in ten]
+ 
+ 
++def _plain_cli_10():
++    if os.environ.get("KICAD_APPIMAGE"):
++        return None
++    cli_path = shutil.which("kicad-cli")
++    if not cli_path:
++        return None
++    try:
++        r = subprocess.run([cli_path, "--version"], capture_output=True, text=True, timeout=10)
++        if r.returncode == 0 and r.stdout.strip().startswith("10."):
++            return cli_path
++    except Exception:
++        pass
++    return None
++
++
+ APPRUN = find_apprun()
+-PLAIN_CLI = shutil.which("kicad-cli")
++PLAIN_CLI = None if APPRUN else _plain_cli_10()
+ _SHARE = None
+ _TRIED = []
+ _MOUNT = None            # the --appimage-mount process, kept alive on purpose
+@@ -188,6 +203,8 @@
+     global _SHARE
+     if _SHARE:
+         return _SHARE
++    if APPRUN is None and _MOUNT is None and PLAIN_CLI is None:
++        _use_appimage()
+     override = os.environ.get("KICAD_SHARE_DIR")
+     if override:
+         override = os.path.expanduser(override)
+diff -ru '--exclude=__pycache__' '--exclude=*.json' scripts/layout.py design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/layout.py
+--- scripts/layout.py	2026-10-26 22:10:02.253313000 -0700
++++ design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/layout.py	2026-10-27 16:06:56.953515539 -0700
+@@ -354,7 +354,7 @@
+ EXTRA_VIAS = [("-15V", 166.0, Q2Y - 6.0), ("-15V", 166.0, Q2Y - 5.0), ("-15V", 164.5, VM_TOP), ("-15V", 165.5, VM_TOP)]
+ # Flags where the back copper surfaces: (net, x, y[, dx, dy, justify]) for the name's place
+ FLAGS = [
+-    ("-15V", 24.0, 50.0), ("-15V", POS_X - 5.0, 102.3),
++    ("-15V", 24.0, 50.0), ("-15V", POS_X - 5.0, 102.3, 1.6, 0.35, "left"),
+     ("+15V", U4X + 1.14, D_Y - 7.5, -1.6, 0.0, "right"), ("+15V", U5X + 1.14, I_Y - 7.0, -1.6, 0.0, "right"),
+     ("+15V", U7X + 1.14, U7Y - 7.5, -1.6, 0.0, "right"), ("+15V", POS_X + 5.0, 100.5),
+ ]
+@@ -426,8 +426,8 @@
+     (147.0, 4.0, "POWER ±15 V, 1 A", 1.0, 0.18, "left", 0),
+     (147.0, 5.6, "both green lamps light", 0.8, 0.15, "left", 0),
+     # the TARGET knob and jack
+-    (17.0, 20.3, "TARGET", 1.8, 0.3, "center", 0),
+-    (17.0, 22.2, "centre = 0 V, clockwise +", 0.8, 0.15, "center", 0),
++    (17.0, 20.1, "TARGET", 1.8, 0.3, "center", 0),
++    (17.0, 22.4, "centre = 0 V, clockwise +", 0.8, 0.15, "center", 0),
+     (12.5, 54.6, "TARGET IN", 1.2, 0.2, "left", 0),
+     (12.5, 56.2, "±12 V max.  A square wave", 0.8, 0.15, "left", 0),
+     (12.5, 57.6, "±3 V at 0.2 Hz replaces the knob", 0.8, 0.15, "left", 0),
+@@ -533,7 +533,7 @@
+     (71.0, 86.0, 109.5, 117.3, [("INTEGRATOR", 71.5, 87.4, 0.85)]),
+     (126.0, 28.2, 168.5, 92.5, [("MOTOR DRIVER", 126.5, 29.7, 0.8), ("gain 1", 126.5, 31.1, 0.8)]),
+     (149.0, 92.8, 169.0, 109.0, []),
+-    (111.5, 99.3, 139.5, 109.6, [("THE FADER'S TRACK", 113.5, 101.2, 0.8)]),
++    (111.5, 99.3, 139.5, 109.6, [("THE FADER'S TRACK", 113.5, 100.7, 0.8)]),
+     (10.5, 76.0, 38.0, 101.7, [("FOLLOWER", 30.2, 77.4, 0.85), ("x1", 30.2, 78.8, 0.85)]),
+     (123.5, 1.5, 168.5, 27.2, []),
+ ]
+diff -ru '--exclude=__pycache__' '--exclude=*.json' scripts/parts.py design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/parts.py
+--- scripts/parts.py	2026-10-26 22:18:00.010869000 -0700
++++ design_reviews/2026-10-27_Gemini-4-Argon/project/scripts/parts.py	2026-10-27 16:00:48.288101734 -0700
+@@ -63,22 +63,6 @@
+         symbol="Transistor_BJT:Q_PNP_BCE",
+         desc="10 A 80 V 50 W PNP, D2PAK: the lower half of the push-pull, tab on the -15 V rail",
+         alt=["MJB45H11G / C463327 (151)"]),
+-    # ---- the current limit's small transistors: Chapter 4's pair ------------
+-    "NPN": dict(
+-        value="MMBT3904", mpn="MMBT3904", lcsc="C20526", jlc_type="basic",
+-        process="SMT", stock=2045890, price=0.0116,
+-        footprint="Package_TO_SOT_SMD:SOT-23",
+-        symbol="Transistor_BJT:MMBT3904",
+-        desc="2N3904 in SOT-23 (1 = B, 2 = E, 3 = C): senses the upper 1 ohm and steals "
+-             "the drive above 0.65 A",
+-        alt=["MMBT3904-1AM / C364310 (Preferred)"]),
+-    "PNP": dict(
+-        value="MMBT3906", mpn="MMBT3906LT1G", lcsc="C53444", jlc_type="extended",
+-        process="SMT", stock=944043, price=0.019,
+-        footprint="Package_TO_SOT_SMD:SOT-23",
+-        symbol="Transistor_BJT:MMBT3906",
+-        desc="2N3906 in SOT-23: senses the lower 1 ohm",
+-        alt=["MMBT3906 / C727128 (335k)", "MMBT3906 2A / C2143 (110k)"]),
+     # ---- passives: 0805 so a student can probe and rework them -------------
+     "R_0805": dict(footprint="Resistor_SMD:R_0805_2012Metric", process="SMT",
+                    symbol="Device:R_US"),
+@@ -177,11 +161,6 @@
+              "supply does nothing) and two clamping the motor node to the rails (the "
+              "motor's inductive kick when a brush breaks contact)",
+         alt=["SS34 / C115205 (67k)", "SS34A / C211775 (100k)"]),
+-    "DSW": dict(
+-        value="1N4148W", mpn="1N4148W", lcsc="C81598", jlc_type="basic",
+-        process="SMT", stock=4129073, price=0.0124,
+-        footprint="Diode_SMD:D_SOD-123", symbol="Device:D",
+-        desc="the current limit's steering diodes, as on the op-amp board"),
+     "PTC": dict(
+         value="0.35A", mpn="1812L035/30GR", lcsc="C18198328", jlc_type="extended",
+         process="SMT", stock=40708, price=0.046,
+@@ -257,17 +236,14 @@
+     "C233689": (180, (-2.45, 0), "predicted", "D2PAK: their pins at +x, KiCad's TO-263-2 at -x; turned, their "
+                                                "pins land 2.45 mm from KiCad's origin toward the pins (the tabs differ)"),
+     "C154570": (180, (-2.45, 0), "predicted", "D2PAK, the same drawing as the NPN"),
+-    "C20526": (180, (0, 0), "predicted", "SOT-23: their pad 1 is at (+1.0,+0.95), KiCad's at (-0.94,-0.95)"),
+-    "C53444": (180, (0, 0), "predicted", "SOT-23, same drawing as the NPN"),
+     "C431540": (0, (0, 0.3), "predicted", "MSK12C02: pins along x in both drawings, pin 1 at -x; their origin "
+                                           "0.3 mm toward the posts"),
+-    "C351173": (90, (2.5, -3.5), "predicted", "RK09K: KiCad's pin row runs along +y from pin 1, theirs along +x; "
+-                                              "their origin at the middle of the body"),
++    "C351173": (270, (3.5, -2.5), "predicted", "RK09K: KiCad's pin row runs along +y from pin 1, theirs along +x; "
++                                               "their origin at the middle of the body"),
+     "C118945": (0, (0, 0), "predicted", "3362P: their pads 1/3 at y=+1.27 and 2 at y=-1.27, as drawn here"),
+     "C2297": (0, (0, 0), "read", "KT-0805G on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1"),
+     "C84256": (0, (0, 0), "read", "NCD0805R1 on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1"),
+     "C8678": (0, (0, 0), "predicted", "SS34 SMA: cathode (pad 1) at -x in both drawings"),
+-    "C81598": (0, (0, 0), "predicted", "1N4148W SOD-123: as the op-amp board"),
+     "C18198328": (0, (0, 0), "predicted", "1812 fuse: two pads along x, not polarised"),
+     "C242107": (0, (0, 0), "predicted", "ECWF2W105JA: two leads on 15 mm along x, origin the body's middle "
+                                         "in both drawings (easyeda CAP-TH_L18.1-W9.3-P15.00-D0.8); not polarised"),
+--- docs/HANDBOOK.md	2026-10-26 22:13:33.094162000 -0700
++++ design_reviews/2026-10-27_Gemini-4-Argon/project/docs/HANDBOOK.md	2026-10-27 16:02:39.345832316 -0700
+@@ -140,8 +140,9 @@
+ is for a slower rotary pot: here it puts the rule at the bottom twentieth of
+ the trimmer.
+ 
+-**I.**  Back to a low P gain with its residual error: 5 to 10 (the book's
+-100k is 10, where the simulation leaves 124 mV of a 1 V step).  Switch I IN
++**I.**  Back to a low P gain with its residual error: 5 (where the simulation
++leaves 373 mV short of a 1 V step; at the book's 10 without D the step
++overshoots and sticks 124 mV past).  Switch I IN
+ with I GAIN still fully clockwise, its least I: RC = (1k + 1M) × 1 µF, a
+ second.  The residual walks to zero over a couple of seconds, in steps: the
+ slider sticks, I ramps until the drive breaks it loose, it jumps, and sticks
+@@ -169,12 +170,13 @@
+ 
+ **Measure your gains.**  The trimmers have arcs, not scales; the book's
+ procedure runs on numbers, and the board can measure every one.  Motor wires
+-out of the MOTOR terminal, LOOP open, D and I off, TARGET from the knob at
+-0.10 V: P GAIN is SUM / ERROR (set 1.5, 22, 68 and 100 the book's way).  D:
+-switch D IN and feed TARGET IN a ±1 V triangle at 10 Hz, a slope of 40 V/s: the
+-D loop is a square wave of ±(RV3 × C) × 40 V/s, ±0.2 V at the rule's 5 ms.  I:
+-switch I IN with TARGET at 0.10 V; the I loop ramps at 0.10 V / RC volts per
+-second (RC in seconds) until it reaches a rail.
++out of the MOTOR terminal, LOOP open, D and I off, TARGET SOURCE on 1 (the
++knob) at 0.10 V: P GAIN is SUM / ERROR (set 1.5, 22, 68 and 100 the book's
++way).  D: switch TARGET SOURCE to 3 (the jack), switch D IN and feed TARGET IN
++a ±1 V triangle at 10 Hz, a slope of 40 V/s: the D loop is a square wave of
++±(RV3 × C) × 40 V/s, ±0.2 V at the rule's 5 ms.  I: switch TARGET SOURCE back
++to 1 (0.10 V) and toggle I IN / OFF from 1 to 3; the I loop ramps down from
++0 V at −0.10 V / RC volts per second (RC in seconds) until it reaches a rail.
+ 
+ ## 4. Probe loops
+ 
+@@ -196,7 +198,8 @@
+ The 1 Ω resistors in the push-pull's emitters read the motor current: 1 V per
+ ampere across either one.  Use two probes and the scope's A − B: their ends are
+ ahead of the fuse, so a ground clip there is a short that only the transistors
+-limit.  No probe loop is ahead of the fuse.
++limit.  No motor-driver probe loop (DRIVE) is ahead of the fuse; never clip a
++scope ground to +15 V, −15 V or a signal loop (use the four GND loops).
+ 
+ ## 5. Limits
+ 
+--- docs/DESIGN_NOTES.md	2026-10-26 22:14:40.468199000 -0700
++++ design_reviews/2026-10-27_Gemini-4-Argon/project/docs/DESIGN_NOTES.md	2026-10-27 16:02:40.123837399 -0700
+@@ -4,9 +4,10 @@
+ 
+ ## The circuit is the book's, with these departures
+ 
+-**The op-amps are LM321 singles, not '411s.**  The lab says "not 411" for the
+-motor driver (the 411's output cannot drive the push-pull's bases) and uses
+-411s elsewhere.  One type everywhere keeps the BOM short; the LM321 is a
++**The op-amps are LM321 singles, not '411s.**  The lab says "not 411"
++(§10L.2.3, p. 423: the LF411's input phase reversal when an input swings near
++the negative rail locks up the loop in positive feedback) and uses LM358s
++ throughout (Fig. 10L.6).  One type everywhere keeps the BOM short; the LM321 is a
+ single 358-class amplifier in SOT-23-5, slow (1 MHz, 0.4 V/µs) but the loop
+ lives below 100 Hz, and its output reaches within 1.5 V of the rails.  Being a
+ single, each triangle on the board is its own chip, so the silkscreen can draw
+@@ -28,7 +29,7 @@
+ **A 0.35 A resettable fuse between the push-pull and DRIVE, with red lamps
+ across it.**  Not in the book.  It sits right after the emitter resistors:
+ the driver's feedback (R18), the DRIVE loop, DRIVE OUT and the MOTOR terminal
+-are all behind it, so a scope's ground clip on any probe loop, or a shorted
++are all behind it, so a scope's ground clip on the DRIVE loop, or a shorted
+ motor lead, opens it.  (Until review round 1 it was in the motor lead, and a
+ ground clip on the DRIVE loop was a short that only the transistors limited:
+ 2.3 A and 28 W.)  Ahead of it are only the copper between R21 and R22, the
+@@ -221,7 +222,7 @@
+ 3. **The fader model.**  Resistance and friction are now measured (below);
+    the speed, the inertia and the friction's fall with speed are not.  The
+    gains at which the loop rings, and so the D rule's trimmer position, move
+-   with them: the D rule went from 611k to 234k when the measurements came in.
++   with them: the D rule went from 611k to 231k when the measurements came in.
+ 4. **JLCPCB rotations and datums** for the SOT-23-5, the D2PAK (JLCPCB draws
+    it turned 180° from KiCad), the slide
+    switch, the knob and the trimmers are predicted from the land patterns, not
+@@ -230,11 +231,10 @@
+    curve; if it is much longer the D2PAK heats toward its worst-stall
+    temperature (3.4 W).  A stall below full drive does not trip it at all:
+    next section.
+-6. **The knob's turn direction**: pin 3 is assumed to be the end the wiper
+-   reaches turning clockwise, by the convention Bourns' 3362 sheet states
+-   for the trimmers (terminal 3 = CW) and ALPS follows; the RK09K sheet itself
+-   could not be fetched.  If it is the other way, the knob's arc and
+-   "clockwise +" read backwards; the loop is unaffected.
++6. **The knob's turn direction**: ALPS's RK09K data sheet (Drawing No. 6,
++   p. 363, and Circuit Diagram, p. 366) shows the shaft in its full CCW
++   position at terminal 1, so the wiper reaches terminal 3 turning clockwise,
++   matching Bourns' 3362 convention.
+ 7. **The pours as heatsinks.**  `sim/thermal.py --board` puts the junctions at
+    120 and 122 °C in the worst stall, from a model checked against one data
+    sheet figure.  On the first board hold a 7 V stall (LOOP open, P GAIN

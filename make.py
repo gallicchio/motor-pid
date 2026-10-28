@@ -73,6 +73,14 @@ def stage_libs():
 
 def stage_sim():
     banner("simulation (ngspice)")
+    # The simulation reads the netlist the schematic exports, and the sheet quotes
+    # the simulation's numbers: so draw the sheet and export its netlist first (a
+    # fresh clone has none: out/*.net is not committed), simulate, and let the
+    # sch stage draw it again with the new numbers.
+    sys_py("gen_sch.py")
+    os.makedirs(OUT, exist_ok=True)
+    kienv.cli("sch", "export", "netlist", "--format", "kicadsexpr", "-o",
+              os.path.join(OUT, STEM + ".net"), os.path.join(HW, STEM + ".kicad_sch"))
     r = subprocess.run([sys.executable, os.path.join(ROOT, "sim", "pid_sim.py"), "--plots"],
                        capture_output=True, text=True)
     sys.stdout.write(r.stdout)

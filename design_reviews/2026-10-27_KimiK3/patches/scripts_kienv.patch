@@ -1,0 +1,15 @@
+--- a/scripts/kienv.py
++++ b/scripts/kienv.py
+@@ -144,7 +144,11 @@
+     """The AppRun to use, mounting a plain .AppImage the first time one is
+     needed.  Returns None if KiCad is on PATH instead, or nowhere at all."""
+     global APPRUN
+-    if APPRUN is None and _MOUNT is None and PLAIN_CLI is None:
++    if APPRUN is None and _MOUNT is None and (PLAIN_CLI is None or _ENV_APPRUN
++                                              or os.environ.get("KICAD_APPIMAGE")):
++        # an explicit KICAD_APPRUN/KICAD_APPIMAGE wins over a PATH kicad-cli,
++        # which may be the wrong major version (the failure text advises
++        # setting KICAD_APPIMAGE, which did nothing when PATH had a kicad-cli)
+         _use_appimage()
+     return APPRUN
+ 

@@ -554,3 +554,92 @@ DESIGN_NOTES has a "Review round 1" section.  Still open from my review:
 - 12: the board's date, to be set on the order day.
 
 **Build:** ERC 0, 252 checks, DRC 0, thermal 120/122 °C, fab checks, 30/30 claims.
+
+## Prompt 15
+
+> Two new reviews are in. Look at them and make any changes that should be made without violating the spirit of this project.
+
+> (mid-turn) Did the KimiK3 LLM not write a review document or any info in the review folder?  Does Kimi call itself Claude in this review? It should have been the latest one.  Let's rename the Fable one from after 4pm today to be KimiK3.  I'll check which model was selected tomorrow.  Keep going with incorporating any good findings into the actual schematic and PCB design before I submit and call it revA.
+
+## Response 12
+
+*2026-10-27 PDT.  Round 1 reconciled and closed.*
+
+**The reviews.**
+- **Gemini-4-Argon** (15:39–16:12): its findings were applied (below).
+- **The other one** (15:25–18:45) called itself "Claude (Fable 5)" and named its folder
+  `2026-10-27_Claude-Fable-5`.  Nothing on disk names the model that wrote it.  Jason expects
+  Kimi K3, so the folder is now `2026-10-27_KimiK3`, with a note at the top of its report.
+  Jason is to confirm the model.
+- **Before committing them:** the reviews' datasheet extracts (full text pulled from four vendor
+  sheets, and crops of their pages) were moved into the folder's gitignored `project/`, and the
+  home paths in their logs were shortened.
+
+**Applied (board, sheet, simulation, documents):**
+- **RV1's JLCPCB rotation and datum were wrong.**  Gemini caught it; KimiK3 had passed them.
+  - The old table would have placed the knob 180° round and 6–8 mm off.
+  - The new entry is (+270, (3.5, −2.5)).  Overlaid on our pads, JLCPCB's drawing lands to
+    0.00 mm.  The calibration parts (Q1, Q2, D4, C12, SW3, C8, F1, RV2) land the same way.
+  - Their drawing's posts are 10 mm apart against ALPS's 8.8, so the preview will show each post
+    0.6 mm off.  That is noted in the table.
+- **The fuse's stall story was wrong** (both reviews).
+  - A full-drive stall (0.61 A, 0.56–0.64 A depending on the fuse's own resistance) is between
+    the 0.35 A hold and 0.70 A trip.  The typical curve reads about a minute, cold.
+  - A smaller fuse doesn't cure it.  The 0.30 A part's own resistance (up to 3 Ω) pulls the
+    stall back to its 0.60 A trip, and a 0.20 A part would trip on the gain-100 ringing.
+  - So the part stays at 0.35 A, but in its 60 V grade (C18198330: same hold, trip and
+    resistance).  A short of DRIVE to a rail puts about 29.6 V across it, the 30 V grade's limit.
+  - The words are fixed everywhere: the sheet, the back, the handbook, the parts table and the
+    design notes.  The fuse opens a short in about a second; a stall may take minutes or never;
+    the pours carry the stall; let go.
+- **D5 and D6 (SS34)** now clamp each rail to ground, so a rail left open can't reverse-bias its
+  electrolytic (Gemini).  They are the same order code as D1–D4.  They sit in the POWER box, and
+  on the sheet beside the bulk capacitors.
+- **The LM321's real swing** is now in the model: 2 V from each rail (TI: V+ − 2 V typical;
+  it sinks milliamps only about 2 V above V−) (KimiK3).
+  - The D rule is now 239k.
+  - A full-drive stall is 0.61 A at 8.5 V.
+  - A 10 V step peaks at 11.7 V of drive.
+  - "±13 V" became "±12 V" everywhere.
+- **The step metrics** now report the peak past the target, the swing back from it and where
+  the slider comes to rest, separately (Gemini, and my finding 6).  At gain 22 with D by the
+  rule: a 0.4 % swing, at rest 9.7 % past the target, in 54 ms.  That 9.7 % is the dead band,
+  and the design notes now say so.
+- **The docs:**
+  - The book's real reason for "not 411": phase reversal anywhere in the loop.  It draws the
+    driver with an LM358.
+  - The knob's direction is settled from ALPS's drawing.
+  - The fader's quoted 200 mm/s at 10 V is noted against the model.
+  - Scope grounds go on the GND loops only, on the back and in the handbook.  "Any probe loop is
+    fused" was wrong: only the DRIVE loop is.
+  - ×10 probes.
+  - The "measure your gains" recipe gets its switch settings and signs.
+  - The I exercise uses gain 5.
+  - The sheet's stale ranges, ±0.5 V and 10 mA are fixed, and the title block is shortened.
+- **The silkscreen:**
+  - a dot where the dashed POSITION line branches;
+  - dots at the track's end capacitors (R3 up 0.6 mm, C4's tap down 0.8 mm);
+  - C3 and C4 inside their box;
+  - the "−15 V" flag clear of the box title;
+  - the D2PAKs' emitter copper at full width.
+- **The build:**
+  - A KiCad 9 `kicad-cli` on PATH no longer beats a KiCad 10 AppImage.
+  - The sim stage exports its own netlist (a fresh clone has none).
+  - The schematic is byte-identical from build to build: rectangles wrote their key as the
+    UUID, and KiCad replaced it at random.
+  - The check messages quote the simulation.
+  - Stock is counted from the BOM.
+  - The dead limiter parts are gone.
+  - BOCHEN's 3362P is named as such.
+  - A 31st claim ties the sheet's title-block ranges to the parts.
+
+**Left as it was, with reasons** (in DESIGN_NOTES, "Review round 1"):
+- **The rail sag through D2** (Gemini).  With TARGET from the jack, the board can rest with DRIVE
+  at −0.3 V (gain 10) to −1.2 V (gain 22) and the slider stuck.  From the knob it cancels
+  exactly.  Feeding the pots from ahead of the diodes, or dropping the diodes, would cost the
+  book's wiring or the reversed-supply protection.
+- **C11's place.**  78 mm of 2 oz track is about 30 mΩ.
+- **Loops across F1.**  A PTC is no current shunt.
+- **The board's date.**  It gets set on the order day.
+
+**Build:** ERC 0, 258 checks, DRC 0, thermal 120/122 °C, fab checks, 31/31 claims.

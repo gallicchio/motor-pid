@@ -1,0 +1,16 @@
+--- a/scripts/check_circuit.py
++++ b/scripts/check_circuit.py
+@@ -153,8 +153,11 @@
+     rc_book = 1e6 * 100e-9
+     check(abs(rc_slide - 0.022) < 1e-6 and abs(rc_book - 0.1) < 1e-6,
+           f"D's RC reaches {rc_slide*1e3:.0f} ms with 22 nF and {rc_book*1e3:.0f} ms with 100 nF (the book's 1M x 0.1 uF)")
+-    f_roll = 1 / (2 * math.pi * 640e3 * 470e-12)
+-    check(300 < f_roll < 1500, f"the 470 pF rolls the differentiator off above {f_roll:.0f} Hz at 640k")
++    f_roll_lo = 1 / (2 * math.pi * 1.0e6 * 470e-12)
++    f_roll_hi = 1 / (2 * math.pi * 231e3 * 470e-12)
++    check(f_roll_lo > 300 and f_roll_hi < 1500,
++          f"the 470 pF rolls the differentiator off between {f_roll_lo:.0f} Hz "
++          f"(RV3 at the top) and {f_roll_hi:.0f} Hz (RV3 at the D rule)")
+     f_lo, f_hi = 1 / (2 * math.pi * 1e6 * 22e-9), 1 / (2 * math.pi * 200e3 * 22e-9)
+     check(f_lo < 11 and f_hi > 25, f"with 22 nF the D rule covers natural oscillations from {f_lo:.0f} to {f_hi:.0f} Hz (the book's slider: 25 Hz; the simulation: 11 Hz)")
+ 

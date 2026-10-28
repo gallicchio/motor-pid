@@ -5,8 +5,8 @@ Generated, from the parts table, the costed BOM, the board geometry and the
 simulation results, so none of their numbers can drift from the files in out/:
 
     docs/MANUFACTURING.md                 what to upload, what to pick, what it costs
-    out/opamp/opamp-fabrication-notes.txt JLCPCB's order form, field by field
-    out/opamp/PLACEMENT_CHECKS.txt        what to look at in JLCPCB's preview
+    out/motorpid/motorpid-fabrication-notes.txt JLCPCB's order form, field by field
+    out/motorpid/PLACEMENT_CHECKS.txt  what to look at in JLCPCB's preview
 
 Checked: every number README.md, docs/HANDBOOK.md and docs/DESIGN_NOTES.md
 quote from the build is matched against the build (CLAIMS below), and the
@@ -432,9 +432,15 @@ def CLAIMS(parts_cost, nchecks, loops, smt, tht, n_vias, R, p1, p2, each10, TH):
         ("docs/DESIGN_NOTES.md", r"quiescent (\d+) mA", f"{R['i_supply_ma']:.0f}"),
         ("docs/DESIGN_NOTES.md", r"overshoots (\d+) % at gain 22 and rings at about (\d+) Hz",
          (f"{p22['overshoot_pct']:.0f}", f"{R['f_nat_hz']:.0f}")),
-        ("docs/DESIGN_NOTES.md", r"with D by the rule: ([0-9.]+) % overshoot at gain 22; at gain 100, (\d+) % and (\d+) ms",
-         (f"{R['pd']['rule']['overshoot_pct']:.1f}", f"{R['pd_gain100']['overshoot_pct']:.0f}",
+        ("docs/DESIGN_NOTES.md", r"with D by the rule at gain 22 the step swings back only ([0-9.]+) % and comes to rest "
+                                 r"([0-9.]+) % past the target in (\d+) ms; at gain 100, (\d+) % and (\d+) ms",
+         (f"{R['pd']['rule']['swing_pct']:.1f}", f"{R['pd']['rule']['final_error_pct']:.1f}",
+          f"{R['pd']['rule']['rest_s'] * 1e3:.0f}", f"{R['pd_gain100']['overshoot_pct']:.0f}",
           f"{R['pd_gain100']['settle_s'] * 1e3:.0f}")),
+        # the sheet's title block: the D and I ranges from the parts on the board
+        ("hardware/motorpid.kicad_sch", r"D up to (\d+) ms \(22 nF\) or (\d+) ms \(100 nF\); I 1 ms to (\d+) s",
+         (f"{1e6 * 22e-9 * 1e3:.0f}", f"{1e6 * 100e-9 * 1e3:.0f}",
+          f"{1.001e6 * float(parts.PARTS['CFILM']['value'].rstrip('uF')) * 1e-6:.0f}")),
         ("docs/DESIGN_NOTES.md", r"Q1's pour is (\d+) mm² and its junction reaches (\d+) °C in the worst stall, "
                                  r"Q2's (\d+) mm² and (\d+) °C \((\d+) and (\d+) °C on standoffs\)",
          (str(q1["pour_mm2"]), f"{q1['bench']['junction_c']:.0f}", str(q2["pour_mm2"]),

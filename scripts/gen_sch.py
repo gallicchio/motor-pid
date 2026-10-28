@@ -80,9 +80,9 @@ def build():
     s = Sheet(kienv.share_dir(), paper="A2",
               title=f"{parts.BOARD_NAME}: Lab 10L of Learning the Art of Electronics",
               date=parts.BOARD_DATE, rev=parts.REV,
-              company="Circuit: Hayes & Horowitz, Learning the Art of Electronics (2016), Lab 10L  |  Board: Jason Gallicchio and Claude",
-              comments=["LM321 (the single LM358) in SOT-23-5, one per triangle; MJB44H11 / MJB45H11 (D2PAK) push-pull",
-                        "P from 1 to 101, D up to 10 ms (slide pot) or 100 ms (rotary), I up to 10 s",
+              company="Circuit: Hayes & Horowitz (LAoE, Lab 10L).  Board: J. Gallicchio, Claude",
+              comments=["LM321 (the single LM358), one per triangle; MJB44H11/45H11 D2PAK push-pull",
+                        "P 1 to 101; D up to 22 ms (22 nF) or 100 ms (100 nF); I 1 ms to 1 s",
                         "Open source, CERN-OHL-P-2.0 -- " + parts.PROJECT_URL])
     pwr_n = [0]
 
@@ -300,7 +300,7 @@ def build():
     gnd(JX, g(66))
     s.text("TARGET IN", g(13), g(55.0), size=2.2)
     s.text("±12 V max; a slow square wave", g(13), g(56.7), size=1.1)
-    s.text("(±0.5 V at 0.2 Hz) replaces the knob", g(13), g(57.9), size=1.1)
+    s.text("(±3 V at 0.2 Hz) replaces the knob", g(13), g(57.9), size=1.1)
     label("TARGET IN", j1[0] + 5.08, j1[1], justify="left")
     # the switched target, then on to the difference amplifier
     TX = w2[0] + 5.08
@@ -613,11 +613,12 @@ def build():
     s.wire(l4k, (XK, l4k[1]), (XK, LY))
     s.junction(XK, LY)
     s.wire((XK, LY), (TR, LY))
-    s.text("FUSE 0.35 A, resettable", CLX + 2.0, A_Y - 28.5, size=1.2)
-    s.text("not in the book.  A stall at full drive", CLX + 2.0, A_Y - 26.5, size=1.0)
-    s.text("(0.6 A) trips it in 5-10 s, a short in", CLX + 2.0, A_Y - 24.6, size=1.0)
-    s.text("about 1 s; the red lamp lights while it", CLX + 2.0, A_Y - 22.7, size=1.0)
-    s.text("is tripped.  It resets when the drive stops.", CLX + 2.0, A_Y - 20.8, size=1.0)
+    # (clear of Q1's value, which ends just right of CLX + 2)
+    s.text("FUSE 0.35 A, resettable", CLX + 4.54, A_Y - 28.5, size=1.2)
+    s.text("not in the book.  A short opens it", CLX + 4.54, A_Y - 26.5, size=1.0)
+    s.text("in about a second; a full-drive", CLX + 4.54, A_Y - 24.6, size=1.0)
+    s.text("stall (0.6 A) can take minutes.", CLX + 4.54, A_Y - 22.7, size=1.0)
+    s.text("Red lamps while it is open.", CLX + 4.54, A_Y - 20.8, size=1.0)
     s.rect(CLX - 4.0, A_Y - 35.5, TR + 1.0, A_Y + 30.0, style="dash", key="box/fuse")
     # DRIVE OUT: DRIVE through 1k to a jack, under the DRIVE loop
     J3Y = A_Y + 40.64
@@ -631,7 +632,7 @@ def build():
     gnd(DOX + 5.08, J3Y + 7.62)
     s.text("DRIVE OUT", DOX - 1.5, J3Y + 4.0, size=2.2, justify="right")
     s.text("the motor's voltage", DOX - 1.5, J3Y + 6.4, size=1.1, justify="right")
-    s.text("through 1k: ±13 V", DOX - 1.5, J3Y + 8.4, size=1.1, justify="right")
+    s.text("through 1k: ±12 V", DOX - 1.5, J3Y + 8.4, size=1.1, justify="right")
 
     # ------------------------------------------------- the plant: motor and pot
     # MOTOR terminal: motor +, motor - (ground), shield (ground); the motor drawn on it
@@ -646,7 +647,7 @@ def build():
     s.junction(jm3[0] - 2.54, jm3[1])
     gnd(jm2[0] - 2.54, jm3[1] + 2.54)
     s.text("MOTOR", JM_X + 1.0, A_Y - 3.6, size=2.2)
-    s.text("±13 V, 0.35 A fuse", JM_X - 12.0, A_Y + 14.0, size=1.0)
+    s.text("±12 V, 0.35 A fuse", JM_X - 12.0, A_Y + 14.0, size=1.0)
     s.text("+ makes POSITION rise", JM_X - 12.0, A_Y + 16.0, size=1.0)
     MX = JM_X + 15.24
     s.place("Motor:Motor_DC", "M1", "fader motor", MX, A_Y + 2.54, footprint="",
@@ -726,7 +727,7 @@ def build():
             ref_off=(4.0, -2.6), val_off=(4.0, 0.4), ref_justify="left", val_justify="left")
     s.wire(s.pin("J2", 1, "2"), (o7[0] + 22.86, o7[1] + 7.62))
     gnd(o7[0] + 22.86, o7[1] + 7.62)
-    s.text("POSITION OUT", o7[0] + 14.0, o7[1] - 8.0, size=2.2)
+    s.text("POSITION OUT", o7[0] + 14.0, o7[1] - 8.6, size=2.2)
     s.text("the pot's voltage, buffered: ±7.7 V, 1k out", o7[0] + 14.0, o7[1] - 6.2, size=1.1)
     s.text("follower", U7_X - 2.0, U7_Y - 26.67, size=1.1, justify=None)
 
@@ -798,7 +799,7 @@ def build():
     s.wire((BXc, g(34) + 3.81), (BXc, g(38)))
     gnd(BXc, g(38))
     s.junction(BXc, VP_Y)
-    cap("C13", "100nF", BXc - 7.62, g(34))
+    cap("C13", "100nF", BXc - 7.62, g(34), side="left")
     s.wire((BXc - 7.62, VP_Y), (BXc - 7.62, g(34) - 3.81))
     s.wire((BXc - 7.62, g(34) + 3.81), (BXc - 7.62, g(38)))
     gnd(BXc - 7.62, g(38))
@@ -810,11 +811,31 @@ def build():
     s.wire((BXc, g(118) - 3.81), (BXc, g(114)))
     gnd(BXc, g(114), up=True)
     s.junction(BXc, VM_Y)
-    cap("C14", "100nF", BXc - 7.62, g(118))
+    cap("C14", "100nF", BXc - 7.62, g(118), side="left")
     s.wire((BXc - 7.62, VM_Y), (BXc - 7.62, g(118) + 3.81))
     s.wire((BXc - 7.62, g(118) - 3.81), (BXc - 7.62, g(114)))
     gnd(BXc - 7.62, g(114), up=True)
     s.junction(BXc - 7.62, VM_Y)
+    # clamps, not in the book: with one rail connected and the other left open,
+    # the open rail is pulled through the loads toward the other one, past ground,
+    # and its electrolytic would be reverse-biased.  A Schottky from each rail to
+    # ground, reverse-biased in use, holds it within 0.4 V of ground (review round 1).
+    CLP = BXc - 17.78
+    s.place("Device:D_Schottky", "D5", "SS34", CLP, g(34), rot=270,
+            footprint=fp("DSCH"), fields=part_fields("DSCH"),
+            ref_off=(-2.4, -1.4), val_off=(-2.4, 1.4), ref_justify="right", val_justify="right")
+    s.wire((CLP, VP_Y), (CLP, g(34) - 3.81))
+    s.wire((CLP, g(34) + 3.81), (CLP, g(38)))
+    gnd(CLP, g(38))
+    s.junction(CLP, VP_Y)
+    s.place("Device:D_Schottky", "D6", "SS34", CLP, g(118), rot=270,
+            footprint=fp("DSCH"), fields=part_fields("DSCH"),
+            ref_off=(-2.4, -1.4), val_off=(-2.4, 1.4), ref_justify="right", val_justify="right")
+    s.wire((CLP, VM_Y), (CLP, g(118) + 3.81))
+    s.wire((CLP, g(118) - 3.81), (CLP, g(114)))
+    gnd(CLP, g(114), up=True)
+    s.junction(CLP, VM_Y)
+    s.text("D5, D6: clamps, if one rail is left open", CLP - 10.0, g(38) + 5.0, size=1.0)
     LX2 = PR
     res("R26", "10k", LX2, g(34))
     s.wire((LX2, VP_Y), (LX2, g(34) - 3.81))
@@ -917,16 +938,17 @@ def build():
           "the 0.33 uF feeds the op-amp's own output straight back",
           "so the phase-shifting transistors are bypassed at high",
           "frequency (split feedback, Lab 9L).  10 ohm + 0.1 uF snub",
-          "the brush hash.  ±13 V unloaded, ±9 V into a stall; 10 V motor,",
+          f"the brush hash.  ±12 V unloaded, ±{R.get('stall', {}).get('v_motor', 8.5):.1f} V into a stall; 10 V motor,",
           "6-11 V running, and sees full drive only in a step.",
           "",
           "FUSE: not in the book.  Between the push-pull and DRIVE:",
           "the feedback, the DRIVE loop, DRIVE OUT and the motor are",
-          "behind it.  The 0.35 A PTC opens a full-drive stall (0.6 A)",
-          "in seconds and a short in about one, then resets.  A stall",
-          f"at a few volts it holds: one transistor takes up to {max((x['p_q1_w'] for x in R.get('stall_sweep', [])), default=3.7):.1f} W,",
-          "so they are D2PAKs on 2 oz pours.  Across R21 or R22, 1 V",
-          "per ampere: two probes, A - B (never a ground clip there)."],
+          "behind it.  The 0.35 A PTC opens a short of DRIVE (2 A) in",
+          "about a second; a full-drive stall (0.6 A) is between its",
+          "hold and trip and may take minutes; a stall at a few volts",
+          f"may never open it: one transistor then carries up to {max((x['p_q1_w'] for x in R.get('stall_sweep', [])), default=3.4):.1f} W,",
+          "a D2PAK on a 2 oz pour.  Across R21 or R22, 1 V per ampere:",
+          "two probes, A - B, never a ground clip there."],
          col[3], NOTE_Y)
     note(["THE PLANT",
           "The lab's Bourns PSM01-082A-103B2, or any fader with a",
@@ -935,10 +957,10 @@ def build():
           "lever toward 1).  Others: POT 1 to the end that must",
           "read +7.7 V; if the loop runs away, swap the motor wires.",
           "The servo track (1' 2' 3') and touch pin T stay free.",
-          "POWER: ±15 V, 1 A (the motor's stall current).",
-          "Series Schottkys against a reversed supply; 100 uF a",
-          "rail for the motor's pulses; a green LED per rail.",
-          "Quiescent about 10 mA.  100 nF at every op-amp pin."],
+          "POWER: ±15 V, 1 A.  Series Schottkys block a reversed",
+          "supply; D5, D6 clamp a rail left open.  100 uF a rail for",
+          "the motor's pulses, a green LED per rail, 100 nF at every",
+          f"op-amp pin.  Quiescent about {R.get('i_supply_ma', 4):.0f} mA."],
          col[4], NOTE_Y)
     return s
 

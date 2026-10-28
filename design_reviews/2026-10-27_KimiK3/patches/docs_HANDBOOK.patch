@@ -1,0 +1,14 @@
+--- a/docs/HANDBOOK.md
++++ b/docs/HANDBOOK.md
+@@ -93,8 +93,9 @@
+ It sticks: it takes 2 to 3 V across the motor to break the slider loose, and
+ about 0.16 A to keep it sliding, so at a low P gain a small step does not move
+ it at all.  Holding the slider against a full drive stalls the motor at about
+-0.6 A; within seconds the 0.35 A resettable fuse opens, the red lamps across it
+-light, and it closes itself once you let go.  A stall at a few volts does not
++0.6 A -- between the fuse's 0.35 A hold and its 0.7 A trip, so from cold it
++opens in a minute or two (fastest once the board is warm), the red lamps across
++it light, and it closes itself once you let go.  A stall at a few volts does not
+ open the fuse: the motor draws DRIVE / 14 Ω, 0.15 to 0.5 A, and the driver
+ transistor carries the rest of the 15 V at that current, 2 to 3.4 W, for as
+ long as the stall lasts.  The transistors are built for it: each sits in a

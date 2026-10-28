@@ -29,7 +29,9 @@ Power: +15 V, ground, −15 V into the POWER terminal (the pins are labelled),
 from a supply that can give 1 A on each rail but set its current limit to 100 mA
 for this first step.  Both green lamps light.  The board draws about 4 mA with
 no motor.  The series diodes D1, D2 protect it from a reversed supply: swapped
-rails light neither lamp and nothing is hurt.
+rails light neither lamp and nothing is hurt.  One rail connected and the other
+open lights one lamp; D5 and D6 hold the open rail at ground, and nothing is
+hurt either.
 
 Then with a meter or scope on the probe loops (four ground loops, at the left
 and centre):
@@ -40,12 +42,12 @@ and centre):
 | TARGET | the knob, through the switch | −6.4 V to +6.4 V as the knob turns, 0 at the detent |
 | ERROR | U1's output | = TARGET with the loop open (ERROR = TARGET − 0) |
 | P | U2's output | −ERROR |
-| SUM | U3's output | ERROR × P GAIN; the trimmer turns it from 1 × to about 100 × ERROR, so a small TARGET saturates it at ±13 V |
+| SUM | U3's output | ERROR × P GAIN; the trimmer turns it from 1 × to about 100 × ERROR, so a small TARGET saturates it near ±12.8 V (the LM321 swings to about 2 V from each rail) |
 | D | U4's output | 0 with D OFF; with D IN, a kick when TARGET changes |
 | I | U5's output | 0 with I OFF |
 | U6 OUT | the driver op-amp's own output | = DRIVE plus a jump of about 1.2 V as DRIVE crosses zero |
 | BASES | the two transistors' bases | = DRIVE + 0.6 V when the NPN conducts, − 0.6 V when the PNP does |
-| DRIVE | the motor driver's output, behind the fuse | = SUM (the driver's gain is 1), up to about ±13 V |
+| DRIVE | the motor driver's output, behind the fuse | = SUM (the driver's gain is 1), up to about ±12 V |
 | POSITION | the POT terminal's wiper | floating with nothing on the terminal |
 | U7 OUT | the follower's output | = POSITION |
 
@@ -89,13 +91,15 @@ at its detent.  The slider either goes to the middle and stays, or runs to an
 end and sits there pushing: if it runs away, power down and swap the two motor
 wires.  A positive DRIVE must move the wiper toward the + end.
 
-The motor is rated 10 V; the driver can give it 13 V, but only during a step.
+The motor is rated 10 V; the driver can give it about 12 V, but only during a step.
 It sticks: it takes 2 to 3 V across the motor to break the slider loose, and
 about 0.16 A to keep it sliding, so at a low P gain a small step does not move
 it at all.  Holding the slider against a full drive stalls the motor at about
-0.6 A; within seconds the 0.35 A resettable fuse opens, the red lamps across it
-light, and it closes itself once you let go.  A stall at a few volts does not
-open the fuse: the motor draws DRIVE / 14 Ω, 0.15 to 0.5 A, and the driver
+0.6 A.  That is between the 0.35 A resettable fuse's hold and trip currents: it
+may open after a minute or more, or not at all, so let go rather than wait for
+the red lamps.  (A short of MOTOR to ground does open it, in about a second;
+the lamps across it light, and it closes itself once the drive stops.)  A stall
+at a few volts does not open the fuse either: the motor draws DRIVE / 14 Ω, 0.15 to 0.5 A, and the driver
 transistor carries the rest of the 15 V at that current, 2 to 3.4 W, for as
 long as the stall lasts.  The transistors are built for it: each sits in a
 pour of thick copper that is its heatsink, and the worst case leaves the
@@ -111,7 +115,7 @@ ERROR loop shows the leftover: the residual error that only I will remove (at a
 gain of 5 the simulation leaves 373 mV of a 1 V step; below a gain of about 3 a
 1 V step does not unstick the slider at all).  Keep raising the gain and the
 slider overshoots, then rings: at the top of the trimmer each step rings near
-31 Hz, the natural frequency of motor plus slider, until friction catches it,
+30 Hz, the natural frequency of motor plus slider, until friction catches it,
 and then the slider hunts slowly about the target.  Put a scope on POSITION
 and DRIVE together and watch DRIVE swing rail to rail while POSITION wobbles:
 the book's picture.
@@ -134,14 +138,15 @@ the simulation).  Switch D IN.  Turn D GAIN up from zero (clockwise): the
 ringing dies, the step gets crisp, and too much D makes the slider buzz on the
 brush noise.  The lab's rule for the time constant, RC = 1 / (2π f) with f the
 ringing frequency, puts D GAIN a quarter of the way up with the 22 nF capacitor
-(5 ms; 231k).  Watch the D loop on the scope: the spike at each step.  Now the
+(5 ms; 239k).  Watch the D loop on the scope: the spike at each step.  Now the
 gain can go all the way up: at the top with D the simulated step settles (to
-5 %) in 28 ms with 3 % overshoot.  The book's 100 nF (switch D CAPACITOR to 3)
+5 %) in 29 ms with 3 % overshoot.  The book's 100 nF (switch D CAPACITOR to 3)
 is for a slower rotary pot: here it puts the rule at the bottom twentieth of
 the trimmer.
 
-**I.**  Back to a low P gain with its residual error: 5 to 10 (the book's
-100k is 10, where the simulation leaves 124 mV of a 1 V step).  Switch I IN
+**I.**  Back to a low P gain with its residual error, about 5 (at 10, the
+book's gain, the simulation's step overshoots and sticks about 0.1 V past the
+target instead: both are the friction's dead band).  Switch I IN
 with I GAIN still fully clockwise, its least I: RC = (1k + 1M) × 1 µF, a
 second.  The residual walks to zero over a couple of seconds, in steps: the
 slider sticks, I ramps until the drive breaks it loose, it jumps, and sticks
@@ -169,12 +174,14 @@ between the loop and no loop is the point of the lab.
 
 **Measure your gains.**  The trimmers have arcs, not scales; the book's
 procedure runs on numbers, and the board can measure every one.  Motor wires
-out of the MOTOR terminal, LOOP open, D and I off, TARGET from the knob at
-0.10 V: P GAIN is SUM / ERROR (set 1.5, 22, 68 and 100 the book's way).  D:
-switch D IN and feed TARGET IN a ±1 V triangle at 10 Hz, a slope of 40 V/s: the
-D loop is a square wave of ±(RV3 × C) × 40 V/s, ±0.2 V at the rule's 5 ms.  I:
-switch I IN with TARGET at 0.10 V; the I loop ramps at 0.10 V / RC volts per
-second (RC in seconds) until it reaches a rail.
+out of the MOTOR terminal, LOOP open, D and I off.  P: TARGET from the knob
+(TARGET SOURCE on 1) at 0.10 V; P GAIN is SUM / ERROR (set 1.5, 22, 68 and 100
+the book's way).  D: TARGET SOURCE to 3, a ±1 V triangle at 10 Hz into TARGET
+IN (a slope of 40 V/s), D IN: the D loop is a square wave of ±(RV3 × C) ×
+40 V/s, ±0.2 V at the rule's 5 ms (inverted: U4 inverts).  I: TARGET SOURCE
+back to 1, the knob at 0.10 V, D OFF, then I IN: the I loop ramps away from
+zero at 0.10 V / RC volts per second (RC in seconds; downward, U5 inverts)
+until it saturates near −12.8 V.  I OFF resets it to zero.
 
 ## 4. Probe loops
 
@@ -193,10 +200,15 @@ second (RC in seconds) until it reaches a rail.
 | +15 V, −15 V | the rails |
 | GND x 4 | for the scope clip |
 
+Use ×10 probes on the loops: a ×1 probe and its cable is more capacitance
+than the LM321 is specified to drive.  Clip the scope's ground only to the GND
+loops: on a signal loop it shorts an op-amp's output (about 40 mA, which heats
+the chip if left there), on the +15 V or −15 V loop it shorts the supply.
+
 The 1 Ω resistors in the push-pull's emitters read the motor current: 1 V per
 ampere across either one.  Use two probes and the scope's A − B: their ends are
 ahead of the fuse, so a ground clip there is a short that only the transistors
-limit.  No probe loop is ahead of the fuse.
+limit.  No probe loop is ahead of the fuse; the DRIVE loop is the one behind it.
 
 ## 5. Limits
 
@@ -212,4 +224,6 @@ limit.  No probe loop is ahead of the fuse.
   90 °C.  The transistors are rated for it, on standoffs; fingers are not.
 - R21, R22 and the copper between them are ahead of the fuse: measure across
   them with two probes, never a ground clip.
+- Scope ground clips on the GND loops only (section 4).
+- One rail alone: the other is held at ground by D5 or D6; connect both.
 - The DRIVE OUT and POSITION OUT jacks are through 1k: scope inputs, not loads.

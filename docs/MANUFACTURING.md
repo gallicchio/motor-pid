@@ -2,7 +2,7 @@
 
 One board, two layers, 170 x 120 mm, every part on the top side, a solid
 ground plane on the back.  It passes ERC, DRC with schematic parity, the
-252 circuit assertions and the fab-package checks with zero violations,
+258 circuit assertions and the fab-package checks with zero violations,
 and `./make.py` rebuilds and rechecks everything from scratch in about a minute.
 
 ## What to upload
@@ -60,13 +60,13 @@ ordering.  The values that come from the board are computed, not typed.
 
 ## Cost
 
-The board has **197 SMT joints** and **29 through-hole joints** on
+The board has **201 SMT joints** and **29 through-hole joints** on
 48 BOM lines; 13 distinct order codes are JLCPCB *Extended* parts
 (the op-amps, the BNCs, the terminal blocks, the knob, the trimmers, the slide
 switches, the test loops, the power transistors, the bulk capacitors, the integrator's
 film capacitor, the fuse and the 1 ohm resistors),
 each with a one-off $3.00 feeder fee.  Parts alone are
-**$12.12 per board**, of which the three BNC jacks are
+**$12.21 per board**, of which the three BNC jacks are
 $3.88 and the 17 test loops $1.64.
 
 **2 boards, fully assembled, through-hole parts included**
@@ -74,43 +74,43 @@ $3.88 and the 17 test loops $1.64.
 | line | cost |
 |---|---|
 | bare PCBs (5 made) | $21.00 |
-| parts ($12.12 x 2) | $24.23 |
-| assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 13 extended codes + 394 SMT and 58 THT joints | $54.49 |
+| parts ($12.21 x 2) | $24.42 |
+| assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 13 extended codes + 402 SMT and 58 THT joints | $54.50 |
 | shipping (DHL) | $22.00 |
-| **total** | **$121.72**  ($60.86 each) |
+| **total** | **$121.92**  ($60.96 each) |
 
 **5 boards, fully assembled, through-hole parts included**
 
 | line | cost |
 |---|---|
 | bare PCBs (5 made) | $21.00 |
-| parts ($12.12 x 5) | $60.58 |
-| assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 13 extended codes + 985 SMT and 145 THT joints | $58.10 |
+| parts ($12.21 x 5) | $61.04 |
+| assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 13 extended codes + 1005 SMT and 145 THT joints | $58.14 |
 | shipping (DHL) | $22.00 |
-| **total** | **$161.68**  ($32.34 each) |
+| **total** | **$162.18**  ($32.44 each) |
 
 **10 boards, fully assembled, through-hole parts included**
 
 | line | cost |
 |---|---|
 | bare PCBs (10 made) | $36.00 |
-| parts ($12.12 x 10) | $121.16 |
-| assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 13 extended codes + 1970 SMT and 290 THT joints | $64.13 |
+| parts ($12.21 x 10) | $122.08 |
+| assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 13 extended codes + 2010 SMT and 290 THT joints | $64.20 |
 | shipping (DHL) | $22.00 |
-| **total** | **$243.29**  ($24.33 each) |
+| **total** | **$244.28**  ($24.43 each) |
 
 **20 boards, fully assembled, through-hole parts included**
 
 | line | cost |
 |---|---|
 | bare PCBs (20 made) | $64.80 |
-| parts ($12.12 x 20) | $242.32 |
-| assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 13 extended codes + 3940 SMT and 580 THT joints | $76.18 |
+| parts ($12.21 x 20) | $244.16 |
+| assembly: setup $8.00 + stencil $1.50 + THT setup $3.58 + 13 extended codes + 4020 SMT and 580 THT joints | $76.31 |
 | shipping (DHL) | $22.00 |
-| **total** | **$405.30**  ($20.26 each) |
+| **total** | **$407.27**  ($20.36 each) |
 
 The fixed fees dominate a small order: a second board costs about
-$13.32 more than the first, so order one per bench, not one per class.
+$13.42 more than the first, so order one per bench, not one per class.
 
 ## Rotations JLCPCB needs
 
@@ -121,13 +121,13 @@ angles already applied, per LCSC code, from `scripts/parts.py`:
 
 | parts | LCSC | turned by | datum shift | evidence |
 |---|---|---|---|---|
+| RV1 | C351173 | 270 deg | (+3.5, -2.5) mm | predicted: RK09K: their pins along +x at the body's bottom edge, pin 1 at -x, the posts above; turned 270, the pins land on KiCad's (overlay of easyeda C351173: 0.00 mm); their origin is the body's middle, 3.5 mm from the pins toward the posts.  Their posts are 10 mm apart, ALPS's slots 8.8: the preview shows each post 0.6 mm off its slot (review round 1) |
 | Q2 | C154570 | 180 deg | (-2.5, +0.0) mm | predicted: D2PAK, the same drawing as the NPN |
 | Q1 | C233689 | 180 deg | (-2.5, +0.0) mm | predicted: D2PAK: their pins at +x, KiCad's TO-263-2 at -x; turned, their pins land 2.45 mm from KiCad's origin toward the pins (the tabs differ) |
 | U1, U2, U3, U4, U5, U6, U7 | C9405 | 180 deg | none | predicted: SOT-23-5: their pad 1 at (+1.3,+0.95), KiCad's at (-1.14,-0.95); +180 was read on 59 SOT-23-5 placements on the GPSDO board |
-| RV1 | C351173 | 90 deg | (+2.5, -3.5) mm | predicted: RK09K: KiCad's pin row runs along +y from pin 1, theirs along +x; their origin at the middle of the body |
 | J1, J2, J3 | C41416668 | 90 deg | none | read: BNC-KYWE-295-W4-N: Lorenz board rev A/B preview, built and working |
 | RV2, RV3, RV4 | C118945 | 0 deg | none | predicted: 3362P: their pads 1/3 at y=+1.27 and 2 at y=-1.27, as drawn here |
-| F1 | C18198328 | 0 deg | none | predicted: 1812 fuse: two pads along x, not polarised |
+| F1 | C18198330 | 0 deg | none | predicted: 1812 fuse: two pads along x, not polarised |
 | LED1, LED2 | C2297 | 0 deg | none | read: KT-0805G on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1 |
 | C8 | C242107 | 0 deg | none | predicted: ECWF2W105JA: two leads on 15 mm along x, origin the body's middle in both drawings (easyeda CAP-TH_L18.1-W9.3-P15.00-D0.8); not polarised |
 | R21, R22 | C3000711 | 0 deg | none | predicted: 2512: pads along x, not polarised |
@@ -136,7 +136,7 @@ angles already applied, per LCSC code, from `scripts/parts.py`:
 | J4, J5, J6 | C474882 | 0 deg | none | predicted: KF301-3P: pins along x at -5/0/+5, as drawn here |
 | TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP12, TP13, TP100, TP101, TP102, TP103 | C5199800 | 0 deg | none | predicted: RH-5019 test loop: one 4.0 x 2.2 pad, as drawn here; the loop lies along x |
 | LED3, LED4 | C84256 | 0 deg | none | read: NCD0805R1 on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1 |
-| D1, D2, D3, D4 | C8678 | 0 deg | none | predicted: SS34 SMA: cathode (pad 1) at -x in both drawings |
+| D1, D2, D3, D4, D5, D6 | C8678 | 0 deg | none | predicted: SS34 SMA: cathode (pad 1) at -x in both drawings |
 
 *read* means seen in a JLCPCB preview on a real order of that part on that
 footprint; *predicted* means derived by fitting JLCPCB's own land pattern
@@ -196,8 +196,8 @@ upload shows it per line.
 | C8 | 1uF | C242107 | extended | $0.3259 | 2,052 | 1 uF 5 % metallized polypropylene film, 450 V, Panasonic ECW-F, 18.1 x 9.3 mm, leads on 15 mm: the integrator's capacitor, C8 |
 | C9 | 330nF | C1740 | preferred | $0.0207 | 103,724 | X7R 50V 0805: the driver's split feedback, the book's 0.33 uF |
 | C11,C12 | 100uF | C46550402 | extended | $0.0423 | 200,110 | 100 uF 25 V aluminium electrolytic, SMD 6.3 x 5.4 mm, one per rail at the motor driver: the motor draws 0.8 A pulses through a metre of bench lead |
-| D1,D2,D3,D4 | SS34 | C8678 | basic | $0.0351 | 3,642,483 | 3 A 40 V Schottky, SMA.  Two in series with the supplies (a reversed bench supply does nothing) and two clamping the motor node to the rails (the motor's inductive kick when a brush breaks contact) |
-| F1 | 0.35A | C18198328 | extended | $0.0460 | 40,708 | resettable fuse between the push-pull and DRIVE: 0.35 A hold, 0.7 A trip, 30 V, 0.2-1.7 ohm. A stalled motor (0.6 A at full drive, 1.7 x hold) trips it in 5-10 s and it resets when the drive stops; the loop's running current is 50-150 mA rms even when it rings (sim/pid_sim.py) |
+| D1,D2,D3,D4,D5,D6 | SS34 | C8678 | basic | $0.0351 | 3,642,483 | 3 A 40 V Schottky, SMA.  Two in series with the supplies (a reversed bench supply does nothing) and two clamping the motor node to the rails (the motor's inductive kick when a brush breaks contact) |
+| F1 | 0.35A | C18198330 | extended | $0.0667 | 9,170 | LUTE resettable fuse between the push-pull and DRIVE: 0.35 A hold, 0.7 A trip, 60 V, 0.2-1.7 ohm.  Opens a short of DRIVE (2 A) in about a second and resets when the drive stops; a full-drive stall (about 0.6 A) sits between hold and trip and may take a minute or more.  The loop's running current is 50-190 mA rms even when it rings (sim/pid_sim.py) |
 | J1,J2,J3 | BNC | C41416668 | extended | $1.2929 | 215 | 50 ohm BNC jack, right angle, 4 ground posts on 8x8 mm (the op-amp board's jack: JLCPCB rotation +90 read off a real preview) |
 | J4 | MOTOR + - shield | C474882 | extended | $0.1396 | 28,051 | 3-way 5.0 mm screw terminal block, blue: MOTOR, POT and POWER all use the same block so one order code covers the three |
 | J5 | POT 1 (+) 2 (wiper) 3 (-) | C474882 | extended | $0.1396 | 28,051 | 3-way 5.0 mm screw terminal block, blue: MOTOR, POT and POWER all use the same block so one order code covers the three |
@@ -216,7 +216,7 @@ upload shows it per line.
 | R21,R22 | 1R | C3000711 | extended | $0.0313 | 73,941 | 2512, 1 W: the push-pull's emitter resistors; 1 V per ampere of motor current across either |
 | R24,R25 | 1k | C4410 | basic | $0.0085 | 1,945,919 | 1206, 0.25 W: the series resistors to the BNC outputs |
 | RV1 | 10k | C351173 | extended | $0.5335 | 6,351 | ALPS RK09K 9 mm vertical potentiometer, 10 k linear, 30 mm knurled knob shaft with a centre detent: TARGET.  The detent is 0 V |
-| RV2,RV3,RV4 | 1M | C118945 | extended | $0.1585 | 1,113 | Bourns 3362P 1 M single-turn cermet trimmer, top adjust: P GAIN, D GAIN and I GAIN.  JLCPCB stocks no 1 M potentiometer with a shaft, so these take a screwdriver; the slot shows the setting |
+| RV2,RV3,RV4 | 1M | C118945 | extended | $0.1585 | 1,113 | 3362P 1 M single-turn cermet trimmer (BOCHEN's, Bourns' pattern and pinout: the wiper reaches 3 turning clockwise), top adjust: P GAIN, D GAIN and I GAIN.  JLCPCB stocks no 1 M potentiometer with a shaft, so these take a screwdriver; the slot shows the setting |
 | SW1 | TARGET SOURCE | C431540 | extended | $0.0544 | 194,273 | SPDT slide switch, SMD, 2 = common; the knob slides toward the pin it connects.  TARGET source, LOOP, D, I and the D capacitor |
 | SW2 | LOOP | C431540 | extended | $0.0544 | 194,273 | SPDT slide switch, SMD, 2 = common; the knob slides toward the pin it connects.  TARGET source, LOOP, D, I and the D capacitor |
 | SW3 | D IN / OFF | C431540 | extended | $0.0544 | 194,273 | SPDT slide switch, SMD, 2 = common; the knob slides toward the pin it connects.  TARGET source, LOOP, D, I and the D capacitor |
@@ -251,13 +251,6 @@ upload shows it per line.
 **MJB45H11T4G** (C154570)
   - MJB45H11G / C463327 (151)
 
-**MMBT3904** (C20526)
-  - MMBT3904-1AM / C364310 (Preferred)
-
-**MMBT3906LT1G** (C53444)
-  - MMBT3906 / C727128 (335k)
-  - MMBT3906 2A / C2143 (110k)
-
 **JVJ25V100M6x5** (C46550402)
   - RST100UF25V004 / C4747964 (196k)
   - RVT25V100M6X5 / C47023107 (141k)
@@ -271,7 +264,7 @@ upload shows it per line.
   - RK09K1130AP5 / C470295 (15 mm screwdriver shaft)
 
 **3362P-1-105** (C118945)
-  - 3362P-1-105LF / C111656 (1383 in stock, $0.41)
+  - 3362P-1-105LF (Bourns) / C111656 (1278 in stock, $0.41)
 
 **MSK12C02** (C431540)
   - MSK12C02-HB / C431541 (78k, black knob)
@@ -288,9 +281,8 @@ upload shows it per line.
   - SS34 / C115205 (67k)
   - SS34A / C211775 (100k)
 
-**1812L035/30GR** (C18198328)
-  - 1812L035/60GR / C18198330 (9k, 60 V)
-  - 1812L050/60GR / C19078719 (0.5 A hold: trips a stall in a minute)
+**1812L035/60GR** (C18198330)
+  - 1812L035/30GR / C18198328 (40k, 30 V: at its limit in a short to a rail)
 
 The thinnest line is the BNC-KYWE-295-W4-N: 215 in stock and 3 per
 board, about 71 boards' worth; next the 3362P-1-105 at about 371.

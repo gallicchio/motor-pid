@@ -289,7 +289,7 @@ CODE_EXPECT = {
     "OPAMP": ["LM321", "SOT-23-5"], "NPN_PWR": ["NPN", "D2PAK"], "PNP_PWR": ["PNP", "D2PAK"],
     "CBULK": ["100uF", "25V"], "POT_KNOB": ["10k"], "TRIM": ["1M"], "SW": ["SPDT"],
     "BNC": ["BNC"], "TERM3": ["3P", "5mm"], "TP": ["Test"],
-    "DSCH": ["Schottky", "SMA"], "PTC": ["350mA", "30V"], "LED": ["0805"], "LED_R": ["0805"],
+    "DSCH": ["Schottky", "SMA"], "PTC": ["350mA", "60V"], "LED": ["0805"], "LED_R": ["0805"],
     "100k": ["100kΩ", "0805"], "10k": ["10kΩ", "0805"], "1k": ["1kΩ", "0805"], "1k_1206": ["1kΩ", "1206"],
     "6.8k": ["6.8kΩ", "0805"], "4.7k": ["4.7kΩ", "0805"], "270R": ["270Ω", "0805"], "10R": ["10Ω", "0805"],
     "1R": ["1Ω", "2512"], "100nF": ["100nF", "0805"], "22nF": ["22nF", "0805"], "470pF": ["470pF", "0805"],
@@ -333,10 +333,15 @@ def check_codes(problems, notes):
 def check_stock(problems, notes):
     """Every chosen part had stock when the design was frozen."""
     low = []
+    per_board = {}                      # placements of each order code, from the BOM itself
+    bom = os.path.join(OUT, "motorpid", "motorpid_bom_jlcpcb_upload.csv")
+    if os.path.exists(bom):
+        for r in csv.DictReader(open(bom)):
+            per_board[r["LCSC Part #"]] = per_board.get(r["LCSC Part #"], 0) + len(r["Designator"].split(","))
     for key, p in parts.PARTS.items():
         if "stock" not in p:
             continue
-        need = {"OPAMP": 7, "BNC": 3, "SW": 5, "TERM3": 3, "TP": 15, "DSCH": 4, "TRIM": 3, "LED": 2, "LED_R": 2, "CBULK": 2}.get(key, 1)
+        need = per_board.get(p.get("lcsc"), 1)
         boards = p["stock"] // need
         if boards < 50:
             low.append(f"{p['mpn']} ({p['stock']} in stock = {boards} boards)")

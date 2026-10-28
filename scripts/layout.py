@@ -140,8 +140,12 @@ PLACE = {
     "J4": (146.0, BOT_Y, 180),
     # the plant's track: its terminal, end resistors, decoupling; the POSITION loop
     "J5": (POS_X, BOT_Y, 180),
-    "R3": (POS_X + 5.0, 107.5, 270), "C3": (133.0, 109.4, 0),
-    "R4": (POS_X - 5.0, 107.5, 90), "C4": (115.5, 109.4, 180),
+    # C3, C4 tap the track's ends far enough below R3's and R4's pads for the
+    # junction dots, inside THE FADER'S TRACK box: R3 up 0.6 mm (C3's tap stays
+    # clear of J5's "+"), C4's tap down 0.8 mm (R4's top pad keeps clear of the
+    # dashed POSITION line at y 105)
+    "R3": (POS_X + 5.0, 106.9, 270), "C3": (133.0, 109.4, 0),
+    "R4": (POS_X - 5.0, 107.5, 90), "C4": (115.5, 110.2, 180),
     "TP8": (POS_X, 107.5, 0),
     # the POSITION follower and its jack, at the left under the TARGET block
     "U7": (U7X, U7Y, 0), "R25": (32.0, U7Y, 0), "J2": (5.7, 101.0, 180),
@@ -156,6 +160,9 @@ PLACE = {
     "C12": (155.5, 18.0, 90), "C14": (148.5, 17.5, 90),
     "R26": (102.0, 17.0, 270), "LED1": (102.0, 22.0, 90),
     "R27": (163.5, 15.5, 90), "LED2": (163.5, 20.0, 270),
+    # the rail clamps, beside the input diodes: D5 from the +15 V rail down to ground
+    # (cathode up), D6 from the -15 V tie at D2 down to ground (cathode down)
+    "D5": (130.5, 18.7, 270), "D6": (145.4, 17.3, 90),
     "TP9": (125.0, VP_Y, 90), "TP10": (167.0, 12.5, 90),
     # op-amp bypass: +15 hangs from the rail (or a flag) beside each V+ line, -15 under each triangle
     "C20": (U1X + 4.5, VP_Y + 3.0, 270), "C21": (U1X, A_Y + VM_CAP, 90),
@@ -198,6 +205,8 @@ WIRES = [
     ("-15V", [(163.5, 12.5), ("R27", "2")], W_SIG),
     ("-15V", [(155.5, 12.5), ("C12", "2")], W_SIG),
     ("Net-(LED2-K)", [("R27", "1"), ("LED2", "1")], W_SIG),
+    ("+15V", [("D5", "1"), (130.5, VP_Y)], W_SIG),
+    ("-15V", [("D6", "2"), (145.4, 13.5), (148.5, 13.5)], W_SIG),
     # ---- TARGET: knob, end resistors, decoupling, jack, source switch
     ("Net-(C1-Pad1)", [("RV1", "3"), (28.0, 31.5), ("R1", "2")], W_SIG),
     ("Net-(C1-Pad1)", [(28.0, 27.0), ("C1", "1")], W_SIG),
@@ -296,7 +305,7 @@ WIRES = [
     ("/POT+", [(POS_X + 5.0, 109.4), ("C3", "1")], W_SIG),
     ("+15V", [("R3", "1"), (POS_X + 5.0, 100.5)], W_SIG),
     ("/POT-", [("J5", "3"), ("R4", "1")], W_SIG),
-    ("/POT-", [(POS_X - 5.0, 109.4), ("C4", "1")], W_SIG),
+    ("/POT-", [(POS_X - 5.0, 110.2), ("C4", "1")], W_SIG),
     ("-15V", [("R4", "2"), (POS_X - 5.0, 102.3)], W_SIG),
     ("/POSITION", [("J5", "2"), (POS_X, 105.0)], W_SIG),
     # ---- the POSITION follower and its jack (POSITION arrives on the back)
@@ -354,7 +363,7 @@ DASHED_BACK = {"/POSITION"}
 EXTRA_VIAS = [("-15V", 166.0, Q2Y - 6.0), ("-15V", 166.0, Q2Y - 5.0), ("-15V", 164.5, VM_TOP), ("-15V", 165.5, VM_TOP)]
 # Flags where the back copper surfaces: (net, x, y[, dx, dy, justify]) for the name's place
 FLAGS = [
-    ("-15V", 24.0, 50.0), ("-15V", POS_X - 5.0, 102.3),
+    ("-15V", 24.0, 50.0), ("-15V", POS_X - 5.0, 102.3, 1.6, 0.45, "left"),   # its name low, clear of THE FADER'S TRACK
     ("+15V", U4X + 1.14, D_Y - 7.5, -1.6, 0.0, "right"), ("+15V", U5X + 1.14, I_Y - 7.0, -1.6, 0.0, "right"),
     ("+15V", U7X + 1.14, U7Y - 7.5, -1.6, 0.0, "right"), ("+15V", POS_X + 5.0, 100.5),
 ]
@@ -379,10 +388,11 @@ GND_STUBS = [
     (("C27", "1"), (U4X, D_Y + VM_GND)), (("C29", "1"), (U5X, I_Y + VM_GND)), (("C31", "1"), (U6X, DRV_Y + VM_GND)),
     (("C33", "1"), (U7X, U7Y + VM_GND)),
     (("C10", "2"), (155.5875, PP_Y + 4.9)),
-    (("C3", "2"), (133.95, 112.5)), (("C4", "2"), (114.55, 112.5)),
+    (("C3", "2"), (133.95, 112.5)), (("C4", "2"), (114.55, 112.9)),
     (("C11", "2"), (76.0, 24.0)), (("C13", "2"), (83.0, 22.5)),
     (("C12", "1"), (155.5, 23.0)), (("C14", "1"), (148.5, 21.0)),
     (("LED1", "1"), (102.0, 25.5)), (("LED2", "2"), (163.5, 23.5)),
+    (("D5", "2"), (130.5, 23.3)), (("D6", "1"), (145.4, 21.4)),
     (("J6", "2"), (138.0, 8.5)),
     (("J4", "2"), [(146.0, 110.5), (146.0, 108.5)]),
     (("TP100", "1"), (40.0, 95.0)), (("TP101", "1"), (42.0, 102.0)), (("TP102", "1"), (50.0, 102.0)), (("TP103", "1"), (118.0, 73.0)),
@@ -422,6 +432,7 @@ TEXTS = [
     (165.2, 16.2, "10k", 0.8, 0.15, "left", 0),
     (155.5, 26.4, "100uF", 0.8, 0.15, "center", 0), (148.5, 24.4, "100nF", 0.8, 0.15, "center", 0),
     (151.0, 7.4, "D1, D2: SS34", 0.8, 0.15, "left", 0),
+    (151.0, 8.8, "D5, D6: SS34 clamps", 0.8, 0.15, "left", 0),
     (132.2, 9.1, "+15", 0.8, 0.15, "right", 0), (143.8, 9.1, "-15", 0.8, 0.15, "left", 0),
     (147.0, 4.0, "POWER ±15 V, 1 A", 1.0, 0.18, "left", 0),
     (147.0, 5.6, "both green lamps light", 0.8, 0.15, "left", 0),
@@ -500,10 +511,10 @@ FIELD_AT.update({
 _BYPASS = {f"C{n}" for n in range(20, 34)}
 HIDE_REF = _BYPASS | {"J1", "J2", "J3", "J4", "J5", "J6", "SW1", "SW2", "SW3", "SW4", "SW5",
                       "LED1", "LED2", "LED3", "LED4", "C11", "C13", "C12", "C14", "R26", "R27", "R23",
-                      "D1", "D2", "D3", "D4", "F1", "R20", "C10"}
+                      "D1", "D2", "D3", "D4", "D5", "D6", "F1", "R20", "C10"}
 HIDE_VALUE = _BYPASS | {"J1", "J2", "J3", "J4", "J5", "J6", "SW1", "SW2", "SW3", "SW4", "SW5",
                         "LED1", "LED2", "LED3", "LED4", "C11", "C13", "C12", "C14", "R26", "R27", "R23",
-                        "D1", "D2", "D3", "D4", "R20", "C10"}
+                        "D1", "D2", "D3", "D4", "D5", "D6", "R20", "C10"}
 
 # Each slide switch's ends numbered as its legend numbers them, in the
 # footprint's own frame (pin 1 at -x, the actuator edge at +y): beyond the
@@ -533,7 +544,7 @@ BOXES = [
     (71.0, 86.0, 109.5, 117.3, [("INTEGRATOR", 71.5, 87.4, 0.85)]),
     (126.0, 28.2, 168.5, 92.5, [("MOTOR DRIVER", 126.5, 29.7, 0.8), ("gain 1", 126.5, 31.1, 0.8)]),
     (149.0, 92.8, 169.0, 109.0, []),
-    (111.5, 99.3, 139.5, 109.6, [("THE FADER'S TRACK", 113.5, 101.2, 0.8)]),
+    (111.5, 99.3, 138.5, 111.4, [("THE FADER'S TRACK", 113.5, 101.2, 0.8)]),
     (10.5, 76.0, 38.0, 101.7, [("FOLLOWER", 30.2, 77.4, 0.85), ("x1", 30.2, 78.8, 0.85)]),
     (123.5, 1.5, 168.5, 27.2, []),
 ]
@@ -600,7 +611,8 @@ BACK_TEXT = [
     (3, "LOOP to 3: the slider follows the knob.  Raise P GAIN until it rings."),
     (3, "D IN, raise D GAIN: the ringing dies.  Lower P; I IN: the error goes to 0."),
     "WARNINGS",
-    (3, "A stall at full drive or a short to GND opens the fuse (red lamps); it resets."),
-    (3, "A stall at a few volts does not: HOT copper reaches 90 C, so use the standoffs."),
+    (3, "A short to GND opens the fuse in about a second (red lamps); it resets."),
+    (3, "A stall may never open it: HOT copper reaches 90 C, so use the standoffs."),
     (3, "Never short MOTOR or DRIVE to a rail.  Power off to wire the fader."),
+    (3, "Scope ground clips go on the GND loops only, never on a signal or a rail."),
 ]

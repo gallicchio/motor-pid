@@ -16,7 +16,7 @@ scripts/parts.py JLC_ROTATION and rebuild.
             D2PAK, the same drawing as the NPN
             look for: D2PAK tab; should be: tab pointing DOWN into the copper pour, the two leads up inside the circle
 
-[PREDICTED] F1  (C18198328, +0 deg)
+[PREDICTED] F1  (C18198330, +0 deg)
             1812 fuse: two pads along x, not polarised
 
 [PREDICTED] Q1  (C233689, +180 deg, datum (-2.5, +0.0) mm)
@@ -29,8 +29,8 @@ scripts/parts.py JLC_ROTATION and rebuild.
 [PREDICTED] R21, R22  (C3000711, +0 deg)
             2512: pads along x, not polarised
 
-[PREDICTED] RV1  (C351173, +90 deg, datum (+2.5, -3.5) mm)
-            RK09K: KiCad's pin row runs along +y from pin 1, theirs along +x; their origin at the middle of the body
+[PREDICTED] RV1  (C351173, +270 deg, datum (+3.5, -2.5) mm)
+            RK09K: their pins along +x at the body's bottom edge, pin 1 at -x, the posts above; turned 270, the pins land on KiCad's (overlay of easyeda C351173: 0.00 mm); their origin is the body's middle, 3.5 mm from the pins toward the posts.  Their posts are 10 mm apart, ALPS's slots 8.8: the preview shows each post 0.6 mm off its slot (review round 1)
             look for: RK09K knob, keyed by its two posts; should be: fits one way; the shaft up, the pins toward the switch
 
 [PREDICTED] SW1, SW2, SW3, SW4, SW5  (C431540, +0 deg, datum (+0.0, +0.3) mm)
@@ -48,7 +48,7 @@ scripts/parts.py JLC_ROTATION and rebuild.
 [PREDICTED] TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP12, TP13, TP100, TP101, TP102, TP103  (C5199800, +0 deg)
             RH-5019 test loop: one 4.0 x 2.2 pad, as drawn here; the loop lies along x
 
-[PREDICTED] D1, D2, D3, D4  (C8678, +0 deg)
+[PREDICTED] D1, D2, D3, D4, D5, D6  (C8678, +0 deg)
             SS34 SMA: cathode (pad 1) at -x in both drawings
             look for: SMA cathode band; should be: D1 cathode on the LEFT (toward the rail); D2 cathode at the TOP (toward the terminal)
 

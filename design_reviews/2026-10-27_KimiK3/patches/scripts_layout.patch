@@ -1,0 +1,11 @@
+--- a/scripts/layout.py
++++ b/scripts/layout.py
+@@ -600,7 +600,7 @@
+     (3, "LOOP to 3: the slider follows the knob.  Raise P GAIN until it rings."),
+     (3, "D IN, raise D GAIN: the ringing dies.  Lower P; I IN: the error goes to 0."),
+     "WARNINGS",
+-    (3, "A stall at full drive or a short to GND opens the fuse (red lamps); it resets."),
++    (3, "A short opens the fuse in a second (red lamps); a stall takes a minute or two."),
+     (3, "A stall at a few volts does not: HOT copper reaches 90 C, so use the standoffs."),
+     (3, "Never short MOTOR or DRIVE to a rail.  Power off to wire the fader."),
+ ]

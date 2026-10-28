@@ -3,7 +3,7 @@
 ground plane and the silkscreen that is the schematic.
 
 Runs under KiCad's bundled Python (it needs pcbnew):
-    <AppRun> python3.11 scripts/gen_pcb.py out/opamp.net hardware/opamp.kicad_pcb
+    <AppRun> python3.11 scripts/gen_pcb.py out/motorpid.net hardware/motorpid.kicad_pcb
 
 There is no autorouter.  Every wire in layout.WIRES is a schematic wire: it is
 laid as copper exactly where it is drawn, and drawn again on the silkscreen
@@ -309,8 +309,9 @@ class Board:
             g = self.q_geometry(ref)
             for num, path in g["copper"].items():
                 net = self.pads[(ref, num)]["net"]
+                width = 2.0 if num in g.get("wide", ()) else L.W_RAIL if num in g.get("rail", ()) else L.W_SIG
                 for a, b in zip(path, path[1:]):
-                    self.track(a, b, 2.0 if num in g.get("wide", ()) else L.W_SIG, net)
+                    self.track(a, b, width, net)
         for ref in L.OPAMPS:
             g = self.oa_geometry(ref)
             for num, path in g["copper"].items():
@@ -610,7 +611,8 @@ class Board:
         # junction dots: a point where three or more segment ends of one net meet,
         # or where a segment ends on the interior of another of the same net
         count = {}
-        front = [sg for sg in self.segments if sg[3] != pcbnew.B_Cu]
+        # the dashed back runs are drawn wires too: where one branches, it gets a dot
+        front = [sg for sg in self.segments if sg[3] != pcbnew.B_Cu or sg[0] in L.DASHED_BACK]
         for (net, a, b, layer) in front:
             for e in (a, b):
                 k = (net, round(e[0], 2), round(e[1], 2))
@@ -816,7 +818,7 @@ class Board:
         px, py = -u[1], u[0]
         arrow = [tip, (tail[0] + px * 0.5, tail[1] + py * 0.5), (tail[0] - px * 0.5, tail[1] - py * 0.5)]
         return dict(
-            cx=P(0, y0)[0], cy=P(0, y0)[1], R=R, wide=set(), arc=arc,
+            cx=P(0, y0)[0], cy=P(0, y0)[1], R=R, wide=set(), rail={nE}, arc=arc,
             exit={nB: P(*b_out), nC: P(xc, yc), nE: P(*e_out)},
             bar=[P(-BX, y0 - BH), P(-BX, y0 + BH)],
             leads=[[P(*q) for q in ld] for ld in leads],

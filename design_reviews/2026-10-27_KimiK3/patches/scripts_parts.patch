@@ -1,0 +1,26 @@
+--- a/scripts/parts.py
++++ b/scripts/parts.py
+@@ -129,7 +129,8 @@
+         process="THT", stock=1113, price=0.1585,
+         footprint="motorpid:Potentiometer_Bourns_3362P_Vertical",
+         symbol="Device:R_Potentiometer_Trim_US",
+-        desc="Bourns 3362P 1 M single-turn cermet trimmer, top adjust: P GAIN, D GAIN "
++        desc="3362P-pattern 1 M single-turn cermet trimmer (LCSC stock is the BOCHEN clone; "
++             "the Bourns original fits the same footprint), top adjust: P GAIN, D GAIN "
+              "and I GAIN.  JLCPCB stocks no 1 M potentiometer with a shaft, so these "
+              "take a screwdriver; the slot shows the setting",
+         alt=["3362P-1-105LF / C111656 (1383 in stock, $0.41)"]),
+@@ -187,9 +188,10 @@
+         process="SMT", stock=40708, price=0.046,
+         footprint="Fuse:Fuse_1812_4532Metric", symbol="Device:Polyfuse",
+         desc="resettable fuse between the push-pull and DRIVE: 0.35 A hold, 0.7 A trip, 30 V, 0.2-1.7 ohm. "
+-             "A stalled motor (0.6 A at full drive, 1.7 x hold) trips it in 5-10 s and it "
+-             "resets when the drive stops; the loop's running current is 50-150 mA rms "
+-             "even when it rings (sim/pid_sim.py)",
++             "A dead short (2 A) trips it in about a second; a stalled motor at full drive "
++             "(0.6 A, 1.7 x hold) sits between hold and trip: the typical curve reads of order "
++             "a minute there, faster once warm, and it resets when the drive stops; the loop's "
++             "running current is 50-150 mA rms even when it rings (sim/pid_sim.py)",
+         alt=["1812L035/60GR / C18198330 (9k, 60 V)", "1812L050/60GR / C19078719 (0.5 A hold: trips a stall in a minute)"]),
+     "LED": dict(
+         value="GREEN", mpn="KT-0805G", lcsc="C2297", jlc_type="basic",

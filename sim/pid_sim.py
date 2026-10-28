@@ -5,7 +5,7 @@ here as a loop that runs away, not as a surprise on the bench.
 
 Each part of the netlist becomes a SPICE element: resistors and capacitors
 as they are, the diodes and transistors with their models, every LM321 as a
-behavioural macro (1 MHz, 0.4 V/us, output to V+ - 1.5 V), the slide
+behavioural macro (1 MHz, 0.4 V/us, output within 2 V of either rail), the slide
 switches as the positions a scenario sets, the trimmers as the resistance a
 scenario sets, the fuse as its cold resistance, and the three terminals as
 the world outside the board: a bench supply on J6, the fader's motor on J4
@@ -70,13 +70,15 @@ MODELS = [
     ".model DSS34 D(IS=2e-6 RS=0.04 N=1.1 CJO=250e-12 M=0.4 BV=40)",
     ".model DLEDR D(IS=1e-20 N=1.8 RS=1.5 CJO=30e-12)",
     ".model DLEDG D(IS=1e-23 N=2.2 RS=2 CJO=30e-12)",
-    # the LM321: gm into a dominant pole, slew-limited, output clamped to the rails
+    # the LM321: gm into a dominant pole, slew-limited, output within 2 V of either rail
+    # (TI: V+ - 2 V typical, V+ - 3 V guaranteed, at 10k; and it sinks 10 mA only 2 V
+    # above V-, microamps at 0.2 V: the push-pull's base current keeps it off the rail)
     ".subckt LM321 inp inn out vp vn",
     "Rin inp inn 1e9",
     "Bg 0 x I = { min(max(1e-3*(V(inp)-V(inn)), -64u), 64u) - 1e-3*(V(x) - min(max(V(x), V(vn)-1), V(vp)+1)) }",
     "Rx x 0 1e7",
     "Cx x 0 159p",
-    "Bo o 0 V = { min(max(V(x), V(vn)+0.1), V(vp)-1.5) }",
+    "Bo o 0 V = { min(max(V(x), V(vn)+2.0), V(vp)-2.0) }",
     "Ro o out 100",
     ".ends",
 ]
@@ -230,9 +232,15 @@ def run(deck_lines, tstop, tstep=20e-6, extra_cmds=()):
 
 
 def step_metrics(t, y, t0, y0, y1, band=0.05):
-    """Overshoot (%), settling time (into +/- band of the step; 5 %, because
-    the fader's sticking friction leaves a few per cent of dead band) and the
-    period of any ringing after a step at t0."""
+    """After a step at t0 from y0 to y1, as percentages of the step:
+    overshoot_pct, the peak past the target; swing_pct, how far the peak goes
+    past where the slider ends up (a real overshoot; with friction a step can
+    stop past the target without one); final_error_pct, where it ends up
+    against the target (+ past it, - short of it: the friction's dead band,
+    about +/-2.5 V / P GAIN); settle_s, the time to stay within +/- band of the
+    target (5 %; the end of the window if the dead band is wider); rest_s, the
+    time to stay within +/- band of where it ends up; and the period of any
+    ringing."""
     import numpy as np
     t, y = np.asarray(t), np.asarray(y)
     sel = t >= t0
@@ -251,7 +259,15 @@ def step_metrics(t, y, t0, y0, y1, band=0.05):
     # more than 5 % of the step; a stick-slip hunt sticks for a while each cycle
     tail = yy[tt > tt[-1] - max(0.4, 0.25 * (tt[-1] - t0))]
     sustained = (tail.max() - tail.min()) > 0.05 * abs(span) if len(tail) else False
-    return dict(overshoot_pct=float(over), settle_s=float(ts), period_s=period, sustained=bool(sustained))
+    y_end = float(np.mean(yy[tt > tt[-1] - 0.05]))
+    if span > 0:
+        swing = (yy.max() - max(y1, y_end)) / span * 100
+    else:
+        swing = (min(y1, y_end) - yy.min()) / abs(span) * 100
+    away = np.where(np.abs(yy - y_end) / abs(span) > band)[0]
+    rest = (tt[away[-1]] - t0) if len(away) else 0.0
+    return dict(overshoot_pct=float(over), settle_s=float(ts), period_s=period, sustained=bool(sustained),
+                swing_pct=float(max(0.0, swing)), final_error_pct=float((y_end - y1) / span * 100), rest_s=float(rest))
 
 
 def ring_period(t, y, t0, y1, window=0.15):
@@ -340,7 +356,8 @@ def main(plots=False):
         m["rv3_k"] = None if rv3 is None else round(min(rv3, 1e6) / 1e3)
         PD[label] = m
         curves[f"pd_{label}"] = (t, pos, drv)
-        print(f"P {g} + D {label:6s} (RV3 {m['rv3_k']}k): overshoot {m['overshoot_pct']:5.1f} %, settles {m['settle_s']*1e3:5.0f} ms")
+        print(f"P {g} + D {label:6s} (RV3 {m['rv3_k']}k): peak {m['overshoot_pct']:5.1f} % past the target, swings back "
+              f"{m['swing_pct']:4.1f} %, ends {m['final_error_pct']:+5.1f} %, at rest in {m['rest_s']*1e3:4.0f} ms")
     R["pd"] = PD
     # high P gain rescued by D
     sw = dict(base_sw, SW3=3)

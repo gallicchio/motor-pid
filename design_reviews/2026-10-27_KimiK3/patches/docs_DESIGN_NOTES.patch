@@ -1,0 +1,18 @@
+--- a/docs/DESIGN_NOTES.md
++++ b/docs/DESIGN_NOTES.md
+@@ -226,9 +226,12 @@
+    it turned 180° from KiCad), the slide
+    switch, the knob and the trimmers are predicted from the land patterns, not
+    yet seen in a preview; `out/motorpid/PLACEMENT_CHECKS.txt` lists them.
+-5. **The PTC's trip time at 0.6 A** (a stall at full drive) is 5–10 s from its
+-   curve; if it is much longer the D2PAK heats toward its worst-stall
+-   temperature (3.4 W).  A stall below full drive does not trip it at all:
++5. **The PTC's trip time at 0.6 A** (a stall at full drive): the part's
++   typical curve reads about a minute there (30 s at 0.68 A, 10 s at 0.86 A),
++   and nothing is guaranteed between the 0.35 A hold and the 0.7 A trip, so a
++   cold, worst-case part may not trip at all; a warm one opens faster.  The
++   D2PAK meanwhile heats toward its worst-stall temperature (3.4 W), which the
++   pours are sized for.  A stall below full drive does not trip it at all:
+    next section.
+ 6. **The knob's turn direction**: pin 3 is assumed to be the end the wiper
+    reaches turning clockwise, by the convention Bourns' 3362 sheet states

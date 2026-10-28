@@ -56,9 +56,30 @@ def find_appimages():
 
 
 APPRUN = find_apprun()
-PLAIN_CLI = shutil.which("kicad-cli")
 _SHARE = None
 _TRIED = []
+
+
+def _plain_cli():
+    """A `kicad-cli` on PATH, used only if nothing more explicit was asked for
+    (KICAD_APPRUN or KICAD_APPIMAGE win) and only if it is KiCad 10: a machine
+    can keep KiCad 9 in /usr/bin beside a KiCad 10 AppImage."""
+    if os.environ.get("KICAD_APPRUN") or os.environ.get("KICAD_APPIMAGE"):
+        return None
+    c = shutil.which("kicad-cli")
+    if not c:
+        return None
+    try:
+        v = subprocess.run([c, "--version"], capture_output=True, text=True, timeout=60).stdout.strip()
+    except Exception:
+        v = ""
+    if not v.startswith("10."):
+        _TRIED.append(f"{c} reports KiCad {v or '?'}; this project needs 10, so it is not used")
+        return None
+    return c
+
+
+PLAIN_CLI = _plain_cli()
 _MOUNT = None            # the --appimage-mount process, kept alive on purpose
 _MOUNTED = None          # which .AppImage that process has open
 
@@ -197,6 +218,13 @@ def share_dir():
         _TRIED.append(f"$KICAD_SHARE_DIR = {override}  (no stock libraries "
                       f"in it -- is that your *personal* library directory?)")
 
+    # no KiCad 10 found yet: mount an AppImage before believing /usr/share/kicad,
+    # which on a machine with KiCad 9 installed holds KiCad 9's libraries
+    if APPRUN is None and _MOUNT is None and PLAIN_CLI is None:
+        found = _use_appimage()
+        if found:
+            _SHARE = found
+            return _SHARE
     cands = []
     if APPRUN:
         base = os.path.dirname(os.path.abspath(APPRUN))

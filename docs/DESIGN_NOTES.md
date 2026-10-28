@@ -4,12 +4,16 @@ What was decided, why, and what is not yet proven.
 
 ## The circuit is the book's, with these departures
 
-**The op-amps are LM321 singles, not '411s.**  The lab says "not 411" for the
-motor driver (the 411's output cannot drive the push-pull's bases) and uses
-411s elsewhere.  One type everywhere keeps the BOM short; the LM321 is a
-single 358-class amplifier in SOT-23-5, slow (1 MHz, 0.4 V/µs) but the loop
-lives below 100 Hz, and its output reaches within 1.5 V of the rails.  Being a
-single, each triangle on the board is its own chip, so the silkscreen can draw
+**The op-amps are LM321s: the book's LM358, one to a package.**  The book says
+not to use '411s anywhere in this loop: a bi-FET flips its output's phase when
+an input nears the negative rail, and the loop locks up (the authors were
+caught by it breadboarding the lab).  It draws the motor driver with half an
+LM358.  The LM321 is that amplifier single, in SOT-23-5: slow (1 MHz,
+0.4 V/µs), but the loop lives below 100 Hz.  Its output reaches about 2 V from
+either rail (TI: V+ − 2 V typical, V+ − 3 V guaranteed, and it sinks
+milliamps only about 2 V above V−), so SUM saturates near ±12.8 V and DRIVE
+near ±12 V; the simulation models that.  Being a single, each triangle on the
+board is its own chip, so the silkscreen can draw
 the schematic with one op-amp symbol round each package.  Its + input is pin 1,
 at the top of the package, which is why every triangle is drawn + on top.
 
@@ -28,27 +32,51 @@ their ends are ahead of the fuse, so not with a ground clip.
 **A 0.35 A resettable fuse between the push-pull and DRIVE, with red lamps
 across it.**  Not in the book.  It sits right after the emitter resistors:
 the driver's feedback (R18), the DRIVE loop, DRIVE OUT and the MOTOR terminal
-are all behind it, so a scope's ground clip on any probe loop, or a shorted
-motor lead, opens it.  (Until review round 1 it was in the motor lead, and a
+are all behind it, so a scope's ground clip on the DRIVE loop, or a shorted
+motor lead, opens it.  A ground clip on any other signal loop shorts an
+op-amp's output instead (about 40 mA, which TI calls continuous only up to
+15 V of supply, and which heats a SOT-23-5): the handbook keeps scope grounds on
+the GND loops.  (Until review round 1 it was in the motor lead, and a
 ground clip on the DRIVE loop was a short that only the transistors limited:
 2.3 A and 28 W.)  Ahead of it are only the copper between R21 and R22, the
 clamps, the snubber and the lamp's resistor, with no loop and no name.  The
 feedback reads DRIVE behind the fuse, so the PTC's 0.2–1.7 Ω is inside the
-loop and the motor gets exactly what the loop asks for.  A stalled fader at
-full drive (the slider held against a big error, or run into its end stop with
-the loop open and the gain up) draws about 0.63 A at 8.9 V in the simulation,
-3.0 W in one transistor.  The PTC holds 0.35 A and trips at about twice that,
-so that stall opens it in seconds and it recloses when the drive stops; the
-antiparallel red LEDs light on the voltage across the open fuse.  A stall at
-a lower drive is not covered: see "A stall at a few volts" below.  An earlier
+loop and the motor gets exactly what the loop asks for.  The antiparallel red
+LEDs light on the voltage across the open fuse.  It is LUTE's 1812L035 in its
+60 V grade: a short of DRIVE to a rail leaves about 29.6 V across the open
+fuse, the 30 V grade's limit.
+
+What it does not do is open a stall promptly.  A stalled fader at full drive
+(the slider held against a big error, or run into its end stop with the loop
+open and the gain up) draws about 0.61 A at 8.5 V in the simulation, 3.1 W in
+one transistor.  That is between the PTC's 0.35 A hold and 0.70 A trip
+currents, where its data sheet promises nothing; its typical curve reads about
+a minute, cold, and a warm motor or the fuse's own resistance pulls the
+current lower (the simulation: 0.64 A with the fuse at 0.2 Ω, 0.59 A at its
+1.7 Ω maximum).  Review round 1 (both other reviewers) caught the documents
+saying "in seconds".  A smaller fuse does not cure it: the 0.30 A part's own
+resistance (up to 3 Ω) pulls a full-drive stall back to its 0.60 A trip (0.56 A
+at 3 Ω), and a 0.20 A part would trip on the ringing at gain 100 (0.19 A rms).
+So the stall is the transistors' and their pours' to carry, and they can (see
+"A stall at a few volts" below, and the thermal check); the fader's motor
+takes 5 W for as long as the stall lasts, which is why every document says to
+let go.  An earlier
 draft had an active current limit (a small transistor across each 1 Ω); it was
 dropped because the fuse covers the real case (a stall) and the limiter made
-the push-pull hard to draw.  A dead short of DRIVE to ground the fuse covers
-slowly: the simulation puts 2.0 A and 23 W into one transistor until the PTC
-opens, about a second at that current by its data sheet (0.1 s at 8 A, not
+the push-pull hard to draw.  A dead short of DRIVE to ground the fuse does
+cover: the simulation puts 1.9 A and 22 W into one transistor until the PTC
+opens, about a second at that current by its data sheet's typical curve (not
 measured).  The transistors should live; it is on the list below.  A short to
 a rail is worse (up to 30 V across the transistor and the PTC, the PTC's
 rating): the back says never.
+
+**Rail clamps D5, D6 (SS34).**  Not in the book.  With one rail connected and
+the other open (two bench supplies, one switched on first, or a loose lead),
+the loads pull the open rail through ground toward the live one and its 100 µF
+electrolytic is reverse-biased: several volts in Gemini's round-1 simulation,
+and with no motor connected nothing else holds the +15 V rail.  A Schottky
+from each rail to ground, reverse-biased in use, holds an open rail within
+0.4 V of ground.  The same part as D1–D4, so no new order code.
 
 **Clamp diodes and the book's snubber at the transistors.**  The SS34 clamps
 (not in the book) hold the push-pull's output inside the rails when the
@@ -59,9 +87,9 @@ motor adds less than a volt to the kick the motor side sees.
 
 **The D capacitor is switchable, 22 nF or 100 nF.**  The book's 100 nF suits
 its slow rotary-pot plant.  This fader's natural frequency with P gain at the
-top is about 31 Hz in the simulation (the ringing right after a step, before
+top is about 30 Hz in the simulation (the ringing right after a step, before
 friction stops it), so the lab's rule RC = 1 / 2πf asks for
-5 ms, which with 22 nF puts the D GAIN trimmer at 231k, a quarter of its
+5 ms, which with 22 nF puts the D GAIN trimmer at 239k, a quarter of its
 travel.  With 100 nF the same RC would be 52k, at the bottom of the trimmer,
 where it is hard to set.  A switch gives both, and the difference is a thing to
 show.
@@ -121,10 +149,10 @@ the one wire on the board a part hides.
 
 ## The board
 
-170 x 120 mm, two layers, every part on the top, the back a ground plane.  197
-SMT and 29 through-hole joints, 73 vias.  Every wire in `scripts/layout.py` is
+170 x 120 mm, two layers, every part on the top, the back a ground plane.  201
+SMT and 29 through-hole joints, 75 vias.  Every wire in `scripts/layout.py` is
 laid as copper on the front and drawn as a silkscreen line, so the picture is
-the netlist; `check_circuit.py` makes 252 assertions on the netlist the
+the netlist; `check_circuit.py` makes 258 assertions on the netlist the
 schematic exports, and `gen_pcb.py` refuses to lay a wire on a pad of another
 net.
 
@@ -188,26 +216,36 @@ bench fader does.  It gives:
 
 - quiescent 4 mA, all nodes at zero;
 - P only: below a gain of about 3 a 1 V step does not unstick the slider; at
-  5 it stops 0.37 V short; a 1 V step overshoots 26 % at gain 22 and rings at about 31 Hz at
+  5 it stops 0.37 V short; a 1 V step overshoots 26 % at gain 22 and rings at about 30 Hz at
   gain 100, until friction stops it and a slow hunt takes over;
-- with D by the rule: 6.6 % overshoot at gain 22; at gain 100, 3 % and 28 ms
-  (settling to 5 %: the friction leaves a few per cent of dead band).  The
-  6.6 % at gain 22 is not a peak: the step rises without one and the slider
-  sticks 0.07 V past the target, inside the friction's dead band of about
-  ±2.5 V / P GAIN.  The metric does not tell the two apart (review round 1,
-  finding 6, open);
+- with D by the rule at gain 22 the step swings back only 0.4 % and comes to
+  rest 9.7 % past the target in 54 ms; at gain 100, 3 % and 29 ms (settling to
+  5 %).  At gain 22 that 9.7 % is not an overshoot: the step rises without a
+  peak and the slider sticks past the target, inside the friction's dead band
+  of about ±2.5 V / P GAIN, which no amount of D removes; that is I's job.  The
+  step metrics report the peak past the target, the swing back from it and
+  where the slider comes to rest separately (`sim/pid_sim.py` `step_metrics`);
 - I at gain 5 with I GAIN fully clockwise (1M, RC 1 s) walks the residual to
   zero in steps over about two seconds (stick, ramp, slip); at 50k it hunts;
 - a ±3 V triangle at 0.05 Hz: P 22 + D lags 0.11 V in steps of about 0.02 V;
-  P 5 + D + I has no lag on average but steps of 0.15 V
+  P 5 + D + I has no lag on average but steps of 0.12 V
   (`docs/images/sim-triangle.png`);
-- a 10 V step peaks at 0.79 A and 13.7 V of drive.
+- with TARGET from the jack and the slider stuck, the board can rest with ERROR
+  at −27 mV and DRIVE at −0.3 V (gain 10), or −56 mV and −1.2 V (gain 22): the
+  motor's current through D2, at a few milliamps where a Schottky's resistance
+  is several ohms, lifts the −15 V rail, the track's midpoint with it, and so
+  POSITION, which asks for more drive (Gemini, round 1).  It stays inside the
+  friction's dead band, and from the knob it cancels exactly: the knob's ends
+  move with the same rails.  Feeding the pots from ahead of D1, D2 would cure
+  it at the cost of the book's wiring, so it is left and noted;
+- a 10 V step peaks at 0.63 A and 11.7 V of drive.
 
 The plots are in `docs/images/sim-*.png`.
 
 ## Not yet proven — check on the first board
 
-1. **Slide switch position vs contact.**  The MSK12C02 datasheet draws the
+1. **Slide switch position vs contact.**  (Read the same way from the data
+   sheet's views by both of round 1's other reviewers.)  The MSK12C02 datasheet draws the
    circuit (pin 2 common, 1 and 3 at the ends), not the travel, but its
    section shows the handle carrying the moving contact down onto the terminal
    on the handle's own side, with the common in the middle (Jason's reading,
@@ -215,32 +253,39 @@ The plots are in `docs/images/sim-*.png`.
    "1 = ... / 3 = ..." legends assume.  Confirm with an ohmmeter on the first
    board; if it is the other way the legends swap meaning and nothing is
    damaged.
-2. **A dead short of DRIVE (the MOTOR terminal) to ground**: 2 A for the
+2. **A dead short of DRIVE (the MOTOR terminal) to ground**: 1.9 A for the
    second or so the PTC takes.  The D2PAK's 10 A rating and the 1 Ω resistor (2 W pulse in a 1 W
    2512) should cover it.  Try it once with a current-limited supply.
 3. **The fader model.**  Resistance and friction are now measured (below);
    the speed, the inertia and the friction's fall with speed are not.  The
    gains at which the loop rings, and so the D rule's trimmer position, move
-   with them: the D rule went from 611k to 234k when the measurements came in.
+   with them: the D rule went from 611k to 234k when the measurements came in
+   (239k since the op-amp's swing was modelled).  Bourns' data sheet gives a lever
+   speed of 20 mm per 0.1 s at 10 V (200 mm/s); the model, fitted to "end to end
+   in under a second at 5 V", runs about 1.7 times faster at 10 V.  The speed at
+   5 V, measured, settles it.
 4. **JLCPCB rotations and datums** for the SOT-23-5, the D2PAK (JLCPCB draws
    it turned 180° from KiCad), the slide
    switch, the knob and the trimmers are predicted from the land patterns, not
    yet seen in a preview; `out/motorpid/PLACEMENT_CHECKS.txt` lists them.
-5. **The PTC's trip time at 0.6 A** (a stall at full drive) is 5–10 s from its
-   curve; if it is much longer the D2PAK heats toward its worst-stall
-   temperature (3.4 W).  A stall below full drive does not trip it at all:
-   next section.
-6. **The knob's turn direction**: pin 3 is assumed to be the end the wiper
-   reaches turning clockwise, by the convention Bourns' 3362 sheet states
-   for the trimmers (terminal 3 = CW) and ALPS follows; the RK09K sheet itself
-   could not be fetched.  If it is the other way, the knob's arc and
-   "clockwise +" read backwards; the loop is unaffected.
+5. **The PTC's trip time at 0.6 A** (a stall at full drive): about a minute on
+   its typical curve and not guaranteed, since 0.6 A is between hold and trip.
+   Time a cold full-drive stall on the first board; the pours carry it either
+   way.  A stall below full drive does not trip it at all: next section.
+6. **The knob's turn direction**: settled.  ALPS's RK09K drawing
+   (`datasheets/RK09K1130A70_C351173.pdf`, the vertical single-unit types) shows
+   the shaft at full CCW with pins 1, 2, 3 left to right: pin 3 is the CW end,
+   as wired (both of round 1's other reviewers read it the same way).
 7. **The pours as heatsinks.**  `sim/thermal.py --board` puts the junctions at
    120 and 122 °C in the worst stall, from a model checked against one data
    sheet figure.  On the first board hold a 7 V stall (LOOP open, P GAIN
    anticlockwise, +7 V into TARGET IN from a supply, the slider at its stop) for ten
    minutes and read Q1's tab with a thermocouple; the model says about 110 °C.
    Then −7 V for Q2.
+8. **A scope probe on an op-amp's output.**  TI's LM321 accommodates about
+   50 pF at unity gain; a ×1 probe and its cable is more, and the behavioural
+   model cannot show capacitive-load peaking at all (KimiK3, round 1).  The
+   handbook says ×10; try a ×1 on the first board's loops anyway.
 
 ## Review round 1: the author's review, applied (2026-10-26)
 
@@ -260,9 +305,42 @@ started, so round 1's other reviews see the board with these changes:
 - R4's back run off the URL under the QR code (13); the sheet's roll-off and
   output-swing notes (14, 15).
 
-Still open from it: finding 6 (the step metric calls the friction's dead band
-an overshoot), 11 (no common-mode test without a clip lead) and 12 (the date
-on the board, to be set on the order day).
+Still open from it: 11 (no common-mode test without a clip lead) and 12 (the
+date on the board, to be set on the order day).  Finding 6 (the step metric
+called the friction's dead band an overshoot) was closed by the second wave.
+
+Then two independent reviews of the patched board, 2026-10-27:
+`design_reviews/2026-10-27_Gemini-4-Argon/` and `design_reviews/2026-10-27_KimiK3/`
+(the latter named itself Claude Fable 5).  What changed for them:
+
+- RV1's JLCPCB rotation and datum were wrong (Gemini; KimiK3 had passed them):
+  their drawing, overlaid by the new CPL, now lands on our pins to 0.00 mm;
+- the fuse's stall story (both): "opens a full-drive stall in seconds" was
+  wrong, as above; the part is now the 60 V grade of the same fuse;
+- D5, D6 clamp a rail left open (Gemini);
+- the LM321 modelled with its real swing, 2 V from each rail (KimiK3), and the
+  numbers that follow from it;
+- the step metrics report the dead band separately (Gemini, and finding 6);
+- the documents: the book's real reason for "not 411", the knob's direction
+  settled from ALPS's drawing, the fader's quoted speed, which loops a scope
+  ground may go on and the ×10-probe advice, the "measure your gains" recipe's
+  switch settings and signs, the I exercise's gain, the sheet's stale ranges
+  and notes (both);
+- the silkscreen: junction dots where the dashed POSITION line branches and at
+  the track's end capacitors, C3 and C4 inside their box, the "−15 V" flag
+  clear of the box title (Gemini);
+- the build: a KiCad 9 `kicad-cli` on PATH no longer beats a KiCad 10
+  AppImage, the simulation exports its own netlist (a fresh clone has none),
+  the schematic is now byte-identical from build to build, and the check
+  messages quote the simulation's numbers (both);
+- the parts table: BOCHEN's 3362P named as such, the unused limiter parts
+  gone, stock counted from the BOM, the D2PAKs' emitter copper at full width.
+
+Left as they were, with the reason: the rail sag that the knob cancels (above);
+C11 far from Q1 (78 mm of 2 oz track is about 30 mΩ and 60 nH, against the
+bench leads' metre); a pair of loops across F1 for a fused current reading
+(the voltage across a PTC is no measure of current: its resistance moves with its temperature); the
+board's date (order day).
 
 ## A stall at a few volts (2026-10-26, closed the same day: D2PAKs on 2 oz)
 

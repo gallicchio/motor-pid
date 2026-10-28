@@ -220,7 +220,7 @@ class Sheet:
             S("start", n(x1), n(y1)), S("end", n(x2), n(y2)),
             S("stroke").add(S("width", n(width)), S("type", style)),
             S("fill").add(S("type", fill)),
-            S("uuid", q(key or f"rect/{x1},{y1}"))))
+            S("uuid", q(uid(key or f"rect/{x1},{y1}")))))
 
     def circle(self, cx, cy, r, width=0.15, fill="none", key=None):
         self.items.append(S("circle").add(

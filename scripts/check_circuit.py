@@ -33,6 +33,15 @@ def farads(text):
     return float(t)
 
 
+def sim_results():
+    """The simulation's numbers (sim/results.json), for the messages that quote them."""
+    import json
+    try:
+        return json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "sim", "results.json")))
+    except (OSError, ValueError):
+        return {}
+
+
 class Net:
     def __init__(self, path):
         root = parse_file(path)
@@ -153,10 +162,14 @@ def main(path):
     rc_book = 1e6 * 100e-9
     check(abs(rc_slide - 0.022) < 1e-6 and abs(rc_book - 0.1) < 1e-6,
           f"D's RC reaches {rc_slide*1e3:.0f} ms with 22 nF and {rc_book*1e3:.0f} ms with 100 nF (the book's 1M x 0.1 uF)")
-    f_roll = 1 / (2 * math.pi * 640e3 * 470e-12)
-    check(300 < f_roll < 1500, f"the 470 pF rolls the differentiator off above {f_roll:.0f} Hz at 640k")
+    sim = sim_results()
+    f_nat, rv3_rule = sim.get("f_nat_hz", 31.0), sim.get("rv3_k", 231) * 1e3
+    f_roll, f_roll_1m = 1 / (2 * math.pi * rv3_rule * 470e-12), 1 / (2 * math.pi * 1e6 * 470e-12)
+    check(f_roll_1m > 5 * f_nat, f"the 470 pF rolls the differentiator off at {f_roll:.0f} Hz at the D rule's "
+                                 f"{rv3_rule / 1e3:.0f}k ({f_roll_1m:.0f} Hz at 1M), well above the loop's {f_nat:.0f} Hz")
     f_lo, f_hi = 1 / (2 * math.pi * 1e6 * 22e-9), 1 / (2 * math.pi * 200e3 * 22e-9)
-    check(f_lo < 11 and f_hi > 25, f"with 22 nF the D rule covers natural oscillations from {f_lo:.0f} to {f_hi:.0f} Hz (the book's slider: 25 Hz; the simulation: 11 Hz)")
+    check(f_lo < f_nat < f_hi and f_lo < 25 < f_hi, f"with 22 nF the D rule covers natural oscillations from {f_lo:.0f} to "
+                                                     f"{f_hi:.0f} Hz (the simulation: {f_nat:.0f} Hz; the book's slider: 25 Hz)")
 
     # --- U5: the integrator -----------------------------------------------------------------
     check(N.net("U5", PLUS) == "GND", "U5's + input is grounded")
@@ -229,7 +242,7 @@ def main(path):
           "the DRIVE OUT jack is DRIVE through 1k")
     check(N.footprint["R24"].endswith("R_1206_3216Metric") and N.footprint["R25"].endswith("R_1206_3216Metric"),
           "the jack series resistors are 1206 (a shorted jack at 13 V is 0.17 W)")
-    v_drive_max = 15.0 - 1.5 - 0.7 - 0.65
+    v_drive_max = 14.78 - 2.0 - 0.7 - 0.65            # rail, LM321 swing (TI typical), Vbe, base resistor at 2.4 mA
     check(11 < v_drive_max < 13, f"full drive is about {v_drive_max:.1f} V at the motor: over its 10 V rating only in a step")
 
     # --- the plant's terminals ----------------------------------------------------------------
@@ -255,6 +268,11 @@ def main(path):
     check(N.net("D1", 2) == "+15V_IN" and N.net("D1", 1) == "+15V", "D1's anode on +15V_IN, cathode on the +15 V rail")
     check(N.net("D2", 1) == "-15V_IN" and N.net("D2", 2) == "-15V", "D2's cathode on -15V_IN, anode on the -15 V rail")
     check(N.value["D1"] == "SS34" and N.value["D2"] == "SS34", "the supply diodes are 3 A: the motor's current flows through them")
+    # one rail connected, the other open: the loads pull the open rail toward the other one
+    check(N.net("D5", 1) == "+15V" and N.net("D5", 2) == "GND" and N.value["D5"] == "SS34",
+          "D5 clamps the +15 V rail to ground (cathode on the rail): with +15 V left open it cannot go below -0.4 V")
+    check(N.net("D6", 1) == "GND" and N.net("D6", 2) == "-15V" and N.value["D6"] == "SS34",
+          "D6 clamps the -15 V rail to ground (anode on the rail): with -15 V left open it cannot go above +0.4 V")
     check(N.net("C11", 1) == "+15V" and N.net("C11", 2) == "GND" and N.value["C11"] == "100uF", "C11 = 100 uF, + on the +15 V rail")
     check(N.net("C12", 1) == "GND" and N.net("C12", 2) == "-15V" and N.value["C12"] == "100uF", "C12 = 100 uF, + on ground, - on the -15 V rail")
     check(N.between("+15V", "GND", "C").count("C13") == 1 and N.between("-15V", "GND", "C").count("C14") == 1, "C13 and C14 bypass the rails at the entry")

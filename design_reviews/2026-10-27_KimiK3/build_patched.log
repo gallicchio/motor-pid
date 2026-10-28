@@ -1,0 +1,71 @@
+KiCad 10.0.7
+  runner    /tmp/.mount_kicadremp17350511091871881925/AppRun
+  mounted   ~/.local/bin/kicad-10.0.7-x86_64.AppImage
+  libraries /tmp/.mount_kicadremp17350511091871881925/usr/share/kicad
+
+=== footprints, models and project files ============================
+  wrote hardware/lib/motorpid.3dshapes/BNC_KYWE_RightAngle.wrl
+  wrote hardware/lib/motorpid.3dshapes/Potentiometer_3362P.wrl
+  wrote hardware/lib/motorpid.3dshapes/TestLoop_RH-5019.wrl
+  wrote hardware/lib/motorpid.3dshapes/TerminalBlock_KF301_1x03.wrl
+  wrote hardware/lib/motorpid.3dshapes/SW_MSK12C02.wrl
+  wrote hardware/lib/motorpid.3dshapes/Potentiometer_RK09K.wrl
+  wrote hardware/lib/motorpid.3dshapes/Fuse_1812.wrl
+  wrote hardware/lib/motorpid.3dshapes/C_Film_ECWF_L18.1_W9.3.wrl
+  wrote hardware/lib/motorpid.pretty/BNC_KYWE_RightAngle.kicad_mod
+  wrote hardware/lib/motorpid.pretty/SW_SPDT_Shouhan_MSK12C02.kicad_mod
+  wrote hardware/lib/motorpid.pretty/Potentiometer_Bourns_3362P_Vertical.kicad_mod
+  wrote hardware/lib/motorpid.pretty/TestPoint_Loop_RH-5019.kicad_mod
+  wrote hardware/lib/motorpid.pretty/TerminalBlock_KF301_1x03_P5.00mm.kicad_mod
+  wrote hardware/lib/motorpid.pretty/C_Film_Panasonic_ECWF_L18.1mm_W9.3mm_P15.00mm.kicad_mod
+  wrote hardware/motorpid.kicad_pro
+  wrote hardware/sym-lib-table
+  wrote hardware/fp-lib-table
+
+=== simulation (ngspice) ============================================
+quiescent: {'TARGET': -0.0, 'ERROR': 0.0, 'P': -0.0, 'SUM': 0.0, 'DRIVE': 0.0, 'POSITION': -0.0, '+15V': 14.782, '-15V': -14.782, 'D': 0.0, 'I': -0.0, 'BASES': 0.388} supply 4.0 mA
+P only, gain   1.5: overshoot -98.8 %, settles   1500 ms, period None ms, sustained False, drive peak 1.6 V, residual 1038 mV, motor 111 mA rms / 111 peak
+P only, gain   5.0: overshoot -35.1 %, settles   1500 ms, period None ms, sustained False, drive peak 4.7 V, residual 373 mV, motor 134 mA rms / 281 peak
+P only, gain  10.0: overshoot  12.5 %, settles   1500 ms, period None ms, sustained False, drive peak 9.2 V, residual -124 mV, motor 98 mA rms / 554 peak
+P only, gain  22.0: overshoot  26.5 %, settles   1500 ms, period None ms, sustained False, drive peak 10.6 V, residual 92 mV, motor 159 mA rms / 630 peak
+P only, gain  50.0: overshoot  30.3 %, settles    188 ms, period None ms, sustained False, drive peak 10.9 V, residual -34 mV, motor 171 mA rms / 882 peak
+P only, gain 100.0: overshoot  30.4 %, settles    107 ms, period 115.5 ms, sustained True, drive peak 11.2 V, residual -17 mV, motor 191 mA rms / 979 peak
+natural oscillation near 31.3 Hz at gain 100: RC_D = 5.1 ms, RV3 = 231k with 22 nF
+P 22 + D none   (RV3 Nonek): overshoot  26.5 %, settles  1500 ms
+P 22 + D rule   (RV3 231k): overshoot   6.6 %, settles  1500 ms
+P 22 + D third  (RV3 77k): overshoot  17.9 %, settles  1500 ms
+P 22 + D triple (RV3 693k): overshoot -10.6 %, settles  1500 ms
+P 100 + D: overshoot 2.8 %, settles 28 ms, sustained False
+P 5 P only     (RV4 1000k): residual    408 mV, overshoot -40.2 %, sustained False
+P 5 with I     (RV4 1000k): residual    -12 mV, overshoot 1.2 %, sustained False
+P 5 too much I (RV4 50k): residual     41 mV, overshoot 27.0 %, sustained True
+triangle, P 22 + D: {'err_mean_mv': -108, 'err_pp_mv': 21}
+triangle, P 5 + D + I: {'err_mean_mv': -11, 'err_pp_mv': 146}
+open loop, end stop: {'i_motor_a': 0.634, 'v_motor': 8.88, 'p_q1_w': 2.99, 'p_motor_w': 5.63, 'i_peak_a': 0.64}
+  stalled with DRIVE =  2.0 V: {'target_v': 2.0, 'i_motor_a': 0.143, 'v_motor': 2.0, 'p_q1_w': 1.78}
+  stalled with DRIVE =  3.0 V: {'target_v': 3.0, 'i_motor_a': 0.214, 'v_motor': 3.0, 'p_q1_w': 2.42}
+  stalled with DRIVE =  5.0 V: {'target_v': 5.0, 'i_motor_a': 0.357, 'v_motor': 5.0, 'p_q1_w': 3.24}
+  stalled with DRIVE =  7.0 V: {'target_v': 7.0, 'i_motor_a': 0.5, 'v_motor': 7.0, 'p_q1_w': 3.41}
+  stalled with DRIVE =  9.0 V: {'target_v': 9.0, 'i_motor_a': 0.634, 'v_motor': 8.88, 'p_q1_w': 2.99}
+  stalled with DRIVE = 11.0 V: {'target_v': 11.0, 'i_motor_a': 0.634, 'v_motor': 8.88, 'p_q1_w': 2.99}
+DRIVE (the motor terminal) shorted to ground: {'i_short_a': 2.008, 'v_drive': 0.02, 'p_q1_w': 22.6}
+10 V step with P 22 + D: {'overshoot_pct': 1.5, 'settle_s': 0.119, 'drive_peak_v': 13.68, 'i_peak_a': 0.79}
+wrote sim/results.json
+wrote docs/images/sim-*.png
+
+=== schematic =======================================================
+  wrote hardware/motorpid.kicad_sch
+  ERC: 0 violation(s)
+  252 circuit checks passed
+  all circuit checks passed
+  sheet 594 x 420 mm, 319 text items checked
+  no text overlaps, nothing outside the frame or in the title block
+
+=== PCB =============================================================
+  wrote hardware/motorpid.kicad_pcb: 108 footprints, 374 tracks, 73 vias, 1 hops
+  wrote hardware/motorpid.kicad_pro
+  wrote hardware/sym-lib-table
+  wrote hardware/fp-lib-table
+  DRC: 2 violation(s)
+
+BUILD FAILED: DRC reported 2 violations -- see out/drc-motorpid.rpt

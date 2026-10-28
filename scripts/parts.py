@@ -63,22 +63,6 @@ PARTS = {
         symbol="Transistor_BJT:Q_PNP_BCE",
         desc="10 A 80 V 50 W PNP, D2PAK: the lower half of the push-pull, tab on the -15 V rail",
         alt=["MJB45H11G / C463327 (151)"]),
-    # ---- the current limit's small transistors: Chapter 4's pair ------------
-    "NPN": dict(
-        value="MMBT3904", mpn="MMBT3904", lcsc="C20526", jlc_type="basic",
-        process="SMT", stock=2045890, price=0.0116,
-        footprint="Package_TO_SOT_SMD:SOT-23",
-        symbol="Transistor_BJT:MMBT3904",
-        desc="2N3904 in SOT-23 (1 = B, 2 = E, 3 = C): senses the upper 1 ohm and steals "
-             "the drive above 0.65 A",
-        alt=["MMBT3904-1AM / C364310 (Preferred)"]),
-    "PNP": dict(
-        value="MMBT3906", mpn="MMBT3906LT1G", lcsc="C53444", jlc_type="extended",
-        process="SMT", stock=944043, price=0.019,
-        footprint="Package_TO_SOT_SMD:SOT-23",
-        symbol="Transistor_BJT:MMBT3906",
-        desc="2N3906 in SOT-23: senses the lower 1 ohm",
-        alt=["MMBT3906 / C727128 (335k)", "MMBT3906 2A / C2143 (110k)"]),
     # ---- passives: 0805 so a student can probe and rework them -------------
     "R_0805": dict(footprint="Resistor_SMD:R_0805_2012Metric", process="SMT",
                    symbol="Device:R_US"),
@@ -129,10 +113,11 @@ PARTS = {
         process="THT", stock=1113, price=0.1585,
         footprint="motorpid:Potentiometer_Bourns_3362P_Vertical",
         symbol="Device:R_Potentiometer_Trim_US",
-        desc="Bourns 3362P 1 M single-turn cermet trimmer, top adjust: P GAIN, D GAIN "
+        desc="3362P 1 M single-turn cermet trimmer (BOCHEN's, Bourns' pattern and pinout: the "
+             "wiper reaches 3 turning clockwise), top adjust: P GAIN, D GAIN "
              "and I GAIN.  JLCPCB stocks no 1 M potentiometer with a shaft, so these "
              "take a screwdriver; the slot shows the setting",
-        alt=["3362P-1-105LF / C111656 (1383 in stock, $0.41)"]),
+        alt=["3362P-1-105LF (Bourns) / C111656 (1278 in stock, $0.41)"]),
     # ---- the five selectors: SPDT slide switches ----------------------------
     "SW": dict(
         value="SW_SPDT", mpn="MSK12C02", lcsc="C431540", jlc_type="extended",
@@ -177,20 +162,25 @@ PARTS = {
              "supply does nothing) and two clamping the motor node to the rails (the "
              "motor's inductive kick when a brush breaks contact)",
         alt=["SS34 / C115205 (67k)", "SS34A / C211775 (100k)"]),
-    "DSW": dict(
-        value="1N4148W", mpn="1N4148W", lcsc="C81598", jlc_type="basic",
-        process="SMT", stock=4129073, price=0.0124,
-        footprint="Diode_SMD:D_SOD-123", symbol="Device:D",
-        desc="the current limit's steering diodes, as on the op-amp board"),
+    # LUTE (not Littelfuse) 1812L035 in its 60 V grade: a short of DRIVE to a rail
+    # leaves about 29.6 V across the open fuse, which is the 30 V grade's limit.
+    # Hold 0.35 A, trip 0.70 A: a dead short (2 A) opens it in about a second (the
+    # data sheet's typical curve), but a full-drive stall (0.56-0.64 A, less with a
+    # warm motor or the fuse's own 1.7 ohm) sits between hold and trip and takes a
+    # minute or more, or never, cold.  A smaller part does not fix that: the 0.30 A
+    # one's own resistance pulls the stall back to its 0.60 A trip, and a 0.20 A one
+    # would trip on the gain-100 ringing (0.19 A rms).  The pours, not the fuse,
+    # carry the stall (sim/thermal.py --board); review round 1, 2026-10-27.
     "PTC": dict(
-        value="0.35A", mpn="1812L035/30GR", lcsc="C18198328", jlc_type="extended",
-        process="SMT", stock=40708, price=0.046,
+        value="0.35A", mpn="1812L035/60GR", lcsc="C18198330", jlc_type="extended",
+        process="SMT", stock=9170, price=0.0667,
         footprint="Fuse:Fuse_1812_4532Metric", symbol="Device:Polyfuse",
-        desc="resettable fuse between the push-pull and DRIVE: 0.35 A hold, 0.7 A trip, 30 V, 0.2-1.7 ohm. "
-             "A stalled motor (0.6 A at full drive, 1.7 x hold) trips it in 5-10 s and it "
-             "resets when the drive stops; the loop's running current is 50-150 mA rms "
-             "even when it rings (sim/pid_sim.py)",
-        alt=["1812L035/60GR / C18198330 (9k, 60 V)", "1812L050/60GR / C19078719 (0.5 A hold: trips a stall in a minute)"]),
+        desc="LUTE resettable fuse between the push-pull and DRIVE: 0.35 A hold, 0.7 A trip, 60 V, "
+             "0.2-1.7 ohm.  Opens a short of DRIVE (2 A) in about a second and resets when the "
+             "drive stops; a full-drive stall (about 0.6 A) sits between hold and trip and may "
+             "take a minute or more.  The loop's running current is 50-190 mA rms even when it "
+             "rings (sim/pid_sim.py)",
+        alt=["1812L035/30GR / C18198328 (40k, 30 V: at its limit in a short to a rail)"]),
     "LED": dict(
         value="GREEN", mpn="KT-0805G", lcsc="C2297", jlc_type="basic",
         process="SMT", stock=2420908, price=0.0164,
@@ -257,18 +247,18 @@ JLC_ROTATION = {
     "C233689": (180, (-2.45, 0), "predicted", "D2PAK: their pins at +x, KiCad's TO-263-2 at -x; turned, their "
                                                "pins land 2.45 mm from KiCad's origin toward the pins (the tabs differ)"),
     "C154570": (180, (-2.45, 0), "predicted", "D2PAK, the same drawing as the NPN"),
-    "C20526": (180, (0, 0), "predicted", "SOT-23: their pad 1 is at (+1.0,+0.95), KiCad's at (-0.94,-0.95)"),
-    "C53444": (180, (0, 0), "predicted", "SOT-23, same drawing as the NPN"),
     "C431540": (0, (0, 0.3), "predicted", "MSK12C02: pins along x in both drawings, pin 1 at -x; their origin "
                                           "0.3 mm toward the posts"),
-    "C351173": (90, (2.5, -3.5), "predicted", "RK09K: KiCad's pin row runs along +y from pin 1, theirs along +x; "
-                                              "their origin at the middle of the body"),
+    "C351173": (270, (3.5, -2.5), "predicted", "RK09K: their pins along +x at the body's bottom edge, pin 1 at -x, the "
+                                               "posts above; turned 270, the pins land on KiCad's (overlay of easyeda "
+                                               "C351173: 0.00 mm); their origin is the body's middle, 3.5 mm from the "
+                                               "pins toward the posts.  Their posts are 10 mm apart, ALPS's slots 8.8: "
+                                               "the preview shows each post 0.6 mm off its slot (review round 1)"),
     "C118945": (0, (0, 0), "predicted", "3362P: their pads 1/3 at y=+1.27 and 2 at y=-1.27, as drawn here"),
     "C2297": (0, (0, 0), "read", "KT-0805G on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1"),
     "C84256": (0, (0, 0), "read", "NCD0805R1 on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1"),
     "C8678": (0, (0, 0), "predicted", "SS34 SMA: cathode (pad 1) at -x in both drawings"),
-    "C81598": (0, (0, 0), "predicted", "1N4148W SOD-123: as the op-amp board"),
-    "C18198328": (0, (0, 0), "predicted", "1812 fuse: two pads along x, not polarised"),
+    "C18198330": (0, (0, 0), "predicted", "1812 fuse: two pads along x, not polarised"),
     "C242107": (0, (0, 0), "predicted", "ECWF2W105JA: two leads on 15 mm along x, origin the body's middle "
                                         "in both drawings (easyeda CAP-TH_L18.1-W9.3-P15.00-D0.8); not polarised"),
     "C46550402": (0, (0, 0), "predicted", "SMD electrolytic: pads along x, pad 1 (+) at -x in both drawings"),
