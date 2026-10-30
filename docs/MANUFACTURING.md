@@ -121,9 +121,10 @@ angles already applied, per LCSC code, from `scripts/parts.py`:
 
 | parts | LCSC | turned by | datum shift | evidence |
 |---|---|---|---|---|
-| RV1 | C351173 | 270 deg | (+3.5, -2.5) mm | predicted: RK09K: their pins along +x at the body's bottom edge, pin 1 at -x, the posts above; turned 270, the pins land on KiCad's (overlay of easyeda C351173: 0.00 mm); their origin is the body's middle, 3.5 mm from the pins toward the posts.  Their posts are 10 mm apart, ALPS's slots 8.8: the preview shows each post 0.6 mm off its slot (review round 1) |
-| Q2 | C154570 | 180 deg | (-2.5, +0.0) mm | predicted: D2PAK, the same drawing as the NPN |
-| Q1 | C233689 | 180 deg | (-2.5, +0.0) mm | predicted: D2PAK: their pins at +x, KiCad's TO-263-2 at -x; turned, their pins land 2.45 mm from KiCad's origin toward the pins (the tabs differ) |
+| RV1 | C351173 | 270 deg | (+3.50, -2.50) mm | predicted: RK09K: their pins along +x at the body's bottom edge, pin 1 at -x, the posts above; turned 270, the pins land on KiCad's (overlay of easyeda C351173: 0.00 mm); their origin is the body's middle, 3.5 mm from the pins toward the posts.  Their posts are 10 mm apart, ALPS's slots 8.8: the preview shows each post 0.6 mm off its slot (review round 1) |
+| Q2 | C154570 | 180 deg | (-2.45, +0.00) mm | predicted: D2PAK, the same drawing as the NPN |
+| Q1 | C233689 | 180 deg | (-2.45, +0.00) mm | predicted: D2PAK: their pins at +x, KiCad's TO-263-2 at -x; turned, their pins land 2.45 mm from KiCad's origin toward the pins (the tabs differ) |
+| J4, J5, J6 | C474882 | 180 deg | none | predicted: KF301-3P: pins along x at -5/0/+5 in both drawings; EasyEDA draws the wire-entry arrows on +y, the body 3.7 mm that way and 4.0 the other; ours face -y (the board edge): the pin row is symmetric, so +180 turns only the body (the op-amp board's review round 1) |
 | U1, U2, U3, U4, U5, U6, U7 | C9405 | 180 deg | none | predicted: SOT-23-5: their pad 1 at (+1.3,+0.95), KiCad's at (-1.14,-0.95); +180 was read on 59 SOT-23-5 placements on the GPSDO board |
 | J1, J2, J3 | C41416668 | 90 deg | none | read: BNC-KYWE-295-W4-N: Lorenz board rev A/B preview, built and working |
 | RV2, RV3, RV4 | C118945 | 0 deg | none | predicted: 3362P: their pads 1/3 at y=+1.27 and 2 at y=-1.27, as drawn here |
@@ -131,9 +132,8 @@ angles already applied, per LCSC code, from `scripts/parts.py`:
 | LED1, LED2 | C2297 | 0 deg | none | read: KT-0805G on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1 |
 | C8 | C242107 | 0 deg | none | predicted: ECWF2W105JA: two leads on 15 mm along x, origin the body's middle in both drawings (easyeda CAP-TH_L18.1-W9.3-P15.00-D0.8); not polarised |
 | R21, R22 | C3000711 | 0 deg | none | predicted: 2512: pads along x, not polarised |
-| SW1, SW2, SW3, SW4, SW5 | C431540 | 0 deg | (+0.0, +0.3) mm | predicted: MSK12C02: pins along x in both drawings, pin 1 at -x; their origin 0.3 mm toward the posts |
+| SW1, SW2, SW3, SW4, SW5 | C431540 | 0 deg | (+0.00, +0.25) mm | predicted: MSK12C02: pins along x in both drawings, pin 1 at -x; their origin 0.25 mm from ours toward the terminals (check_rotations.py; their terminals are 2.25 mm from the posts, Shouhan's land pattern 1.95) |
 | C11, C12 | C46550402 | 0 deg | none | predicted: SMD electrolytic: pads along x, pad 1 (+) at -x in both drawings |
-| J4, J5, J6 | C474882 | 0 deg | none | predicted: KF301-3P: pins along x at -5/0/+5, as drawn here |
 | TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP12, TP13, TP100, TP101, TP102, TP103 | C5199800 | 0 deg | none | predicted: RH-5019 test loop: one 4.0 x 2.2 pad, as drawn here; the loop lies along x |
 | LED3, LED4 | C84256 | 0 deg | none | read: NCD0805R1 on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1 |
 | D1, D2, D3, D4, D5, D6 | C8678 | 0 deg | none | predicted: SS34 SMA: cathode (pad 1) at -x in both drawings |
@@ -142,6 +142,10 @@ angles already applied, per LCSC code, from `scripts/parts.py`:
 footprint; *predicted* means derived by fitting JLCPCB's own land pattern
 onto ours by pin number (`scripts/easyeda.py <code>`).  Every predicted part is
 in `out/motorpid/PLACEMENT_CHECKS.txt`, the list to hold against the preview.
+After adding or changing a part, run `scripts/check_rotations.py` (the fit, and
+JLCPCB's drawing laid where the upload puts it) and `scripts/check_pinouts.py`
+(our symbols' pin names against JLCPCB's); they need the network, so the build
+does not run them.
 `check_outputs.py` proves the two CPL files differ in nothing but those angles.
 
 ## Check these in the preview before you pay
@@ -160,6 +164,7 @@ in `out/motorpid/PLACEMENT_CHECKS.txt`, the list to hold against the preview.
 | J6 | screw terminal wire openings | facing the TOP edge |
 | D1, D2 | SMA cathode band | D1 cathode on the LEFT (toward the rail); D2 cathode at the TOP (toward the terminal) |
 | D3, D4 | SMA cathode band | both cathodes UP: D3's into the +15 V pour, D4's toward the push-pull's output row above it |
+| D5, D6 | SMA cathode band | D5 cathode UP toward the +15 V rail; D6 cathode DOWN toward its ground (its anode up to the -15 V rail) |
 | LED1, LED2 | 0805 LED cathode mark | LED1 cathode DOWN toward its ground via; LED2 cathode UP toward its 10k |
 | LED3, LED4 | 0805 LED cathode mark | antiparallel across the fuse: LED3 cathode on the RIGHT, LED4 cathode on the LEFT |
 | C11, C12 | electrolytic stripe (negative) | C11 negative DOWN toward its ground; C12 negative UP toward the -15 V rail (its + DOWN to ground) |

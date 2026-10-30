@@ -80,7 +80,7 @@ BH_Y = PP_Y + 7.2                # BASES crosses to Q2's base along here, under 
 BUS_X, FUSE_Y = 167.0, 94.0      # the push-pull's output down the right edge, then left to the fuse
 MOT_X = 151.0                    # DRIVE, behind the fuse, down to the motor's terminal
 PP_NET = "Net-(D3-A)"            # the push-pull's output ahead of the fuse (KiCad's name for it)
-BOT_Y = 115.5                    # the bottom-edge terminals' pin row (the body 0.5 mm inside the edge)
+BOT_Y = 115.8                    # the bottom-edge terminals' pin row (the wire face 0.5 mm inside the edge)
 VM_BR = 103.5                    # the -15 V branch down the D and I stages' east side (back)
 VP_SP = 87.5                     # the +15 V spine up their west side (back)
 POS_X = 124.0                    # the POT terminal's wiper pin
@@ -154,7 +154,7 @@ PLACE = {
     # DRIVE OUT: 1k from the DRIVE row to a jack on the bottom edge
     "R24": (112.5, 95.0, 270), "J3": (60.0, 114.3, 270),
     # power: in at the top edge, series diodes, bulk capacitors, lamps
-    "J6": (138.0, 4.5, 0),
+    "J6": (138.0, 4.2, 0),               # the wire face 0.5 mm inside the top edge
     "D1": (131.0, 11.6, 0), "D2": (148.5, 10.0, 270),
     "C11": (76.0, 17.8, 270), "C13": (83.0, 17.0, 270),
     "C12": (155.5, 18.0, 90), "C14": (148.5, 17.5, 90),

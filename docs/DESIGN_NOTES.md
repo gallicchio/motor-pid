@@ -265,9 +265,12 @@ The plots are in `docs/images/sim-*.png`.
    in under a second at 5 V", runs about 1.7 times faster at 10 V.  The speed at
    5 V, measured, settles it.
 4. **JLCPCB rotations and datums** for the SOT-23-5, the D2PAK (JLCPCB draws
-   it turned 180° from KiCad), the slide
-   switch, the knob and the trimmers are predicted from the land patterns, not
-   yet seen in a preview; `out/motorpid/PLACEMENT_CHECKS.txt` lists them.
+   it turned 180° from KiCad), the slide switch, the knob, the trimmers and the
+   screw terminals (turned 180° so their wire openings face the edges) are
+   predicted from the land patterns, not yet seen in a preview:
+   `scripts/check_rotations.py` lays JLCPCB's drawing where the upload puts it
+   and every signal pad lands within 0.3 mm of ours;
+   `out/motorpid/PLACEMENT_CHECKS.txt` lists what to look at in the preview.
 5. **The PTC's trip time at 0.6 A** (a stall at full drive): about a minute on
    its typical curve and not guaranteed, since 0.6 A is between hold and trip.
    Time a cold full-drive stall on the first board; the pours carry it either
@@ -342,6 +345,46 @@ C11 far from Q1 (78 mm of 2 oz track is about 30 mΩ and 60 nH, against the
 bench leads' metre); a pair of loops across F1 for a fused current reading
 (the voltage across a PTC is no measure of current: its resistance moves with its temperature); the
 board's date (order day).
+
+## Before the order: the newer lessons' checks (2026-10-29)
+
+`CLAUDE_PCB.md` gained lessons from other boards between round 1 and the order;
+these are the ones that apply here, and what they found.
+
+- **Fit JLCPCB's drawings, then check the upload itself**
+  (`scripts/check_rotations.py`, from AMOD-and-RFMOD's).  Every rotation in the
+  table fits JLCPCB's land pattern pad by pad, the SOT-23-5 and both D2PAKs at
+  +180 as their "-BR" package names say.  Laid where the upload CPL puts them,
+  every signal pad of every part lands within 0.28 mm of ours (0.00 for RV1's pins).
+  Three parts differ only in mechanical pads: the D2PAKs' tab (JLCPCB's 1.3 mm
+  further out, overlapping ours), RV1's posts (their 10 mm, ALPS's 8.8) and the
+  switches' shell tabs (JLCPCB's drawing 0.3 mm off Shouhan's land pattern, which
+  ours follows).  The switches' datum is now the fitted 0.25 mm, not 0.3.
+- **The screw terminals faced the wrong way.**  The KF301 footprint had read
+  the 3.60 of KEFA's front view, which is the pins' length, as the depth to the
+  back; the side view puts the pins 4.0 mm from the back and 3.6 mm from the
+  wire face.  Read that way, JLCPCB's drawing has its openings on +y, against
+  our -y, so all three blocks would have gone on with the openings facing into
+  the board.  The op-amp board had found the same on 2026-10-27.  Now the body
+  runs from -3.7 (the wire face) to +4.0, JLCPCB's drawing is turned 180 (the
+  pin row is symmetric), J4-J6 sit 0.3 mm nearer their edges so the wire faces
+  stay 0.5 mm inside, and the check compares the bodies' directions.
+- **Pin names against the distributor's symbols** (`scripts/check_pinouts.py`):
+  the LM321, the D2PAKs and the SS34 agree; JLCPCB numbers the KT-0805G LED's
+  anode 1, which is why its fit says +180, and at 0 their cathode is on ours.
+- **PLACEMENT_CHECKS.txt** printed only the first preview line for each part
+  code, so J3's barrel, J6's openings and D3/D4's bands were missing from it,
+  and D5/D6 had no line.  Every line now prints, and the build fails if a
+  polarised part has none.
+- **The assembly drawings** were plotted 1:1 on A4 with the board hanging off
+  the sheet's corner.  They are now fitted to Letter, centred, with their scale
+  printed (`scripts/fit_pdf.py`, from CostasLink's), the top one from F.Fab and
+  the silkscreen instead of the copper.
+- **Every datasheet** is now in `datasheets/` (KEFA's, the BNC's, the test
+  loop's, the D2PAKs', the 60 V fuse's and the LEDs' were missing).
+
+The RF lessons (simulate the copper's circuit, detours, stitching) do not apply
+below a few hundred kHz.  The loop's sign is asserted in `check_circuit.py`.
 
 ## A stall at a few volts (2026-10-26, closed the same day: D2PAKs on 2 oz)
 

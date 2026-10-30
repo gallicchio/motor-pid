@@ -6,7 +6,7 @@
 	(paper "A2")
 	(title_block
 		(title "PID Motor Control Loop: Lab 10L of Learning the Art of Electronics")
-		(date "2026-10-24")
+		(date "2026-10-29")
 		(rev "A")
 		(company "Circuit: Hayes & Horowitz (LAoE, Lab 10L).  Board: J. Gallicchio, Claude")
 		(comment 1 "LM321 (the single LM358), one per triangle; MJB44H11/45H11 D2PAK push-pull")

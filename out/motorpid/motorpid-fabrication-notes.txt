@@ -1,4 +1,4 @@
-PID Motor Control Loop rev A (2026-10-24) -- JLCPCB order form, field by field
+PID Motor Control Loop rev A (2026-10-29) -- JLCPCB order form, field by field
 ==============================================================================
 
 [PCB]

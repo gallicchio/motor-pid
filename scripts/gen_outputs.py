@@ -6,7 +6,7 @@ NextPCB and CircuitHub also accept.
 """
 import csv, io, os, re, shutil, subprocess, sys, zipfile
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import kienv, parts
+import fit_pdf, kienv, parts
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, ".."))
@@ -273,14 +273,21 @@ def export_prints(stem, layers):
     made = []
     kienv.cli("sch", "export", "pdf", "--black-and-white", "-o",
               os.path.join(d, f"{stem}-schematic.pdf"), sch)
-    kienv.cli("pcb", "export", "pdf", "--mode-single", "--black-and-white",
-              "--include-border-title", "--layers",
-              "F.Cu,F.Silkscreen,Edge.Cuts",
-              "-o", os.path.join(d, f"{stem}-assembly-top.pdf"), pcb)
-    kienv.cli("pcb", "export", "pdf", "--mode-single", "--black-and-white",
-              "--include-border-title", "--mirror", "--layers",
-              "B.Silkscreen,Edge.Cuts",
-              "-o", os.path.join(d, f"{stem}-assembly-bottom.pdf"), pcb)
+    # The assembly drawings fill a Letter page, centred, their scale printed
+    # (fit_pdf.py; CLAUDE_PCB.md, "Every page fits what is on it"): kicad-cli
+    # plots the board 1:1 where it lies on its A4 sheet, which put this one in
+    # the sheet's top-left corner, hanging off the page.  No frame: the drawing
+    # is the board, and the caption names it.
+    title = f"{parts.BOARD_NAME} rev {parts.REV}, {parts.BOARD_DATE}"
+    for side, lay, mirror, what in (
+            ("top", "F.Fab,F.Silkscreen,Edge.Cuts", False, "top (F.Fab, F.Silkscreen, Edge.Cuts)"),
+            ("bottom", "B.Silkscreen,Edge.Cuts", True, "bottom, seen from below (mirrored)")):
+        path = os.path.join(d, f"{stem}-assembly-{side}.pdf")
+        kienv.cli("pcb", "export", "pdf", "--mode-single", "--black-and-white",
+                  *(["--mirror"] if mirror else []), "--layers", lay, "-o", path, pcb)
+        fit_pdf.fit(path, path, caption=f"{title}: {what}, scale {{scale}}:1")
+        if not fit_pdf.check(path):
+            raise SystemExit(f"{path} does not fill its page")
     for name in os.listdir(d):
         if name.endswith(".pdf"):
             normalise_timestamps(os.path.join(d, name))

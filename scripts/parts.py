@@ -8,7 +8,7 @@ when a code's description no longer matches the value and package here.
 """
 
 REV = "A"
-BOARD_DATE = "2026-10-24"
+BOARD_DATE = "2026-10-29"
 BOARD_NAME = "PID Motor Control Loop"
 PROJECT_URL = "github.com/gallicchio/motor-pid"   # the git remote of this checkout
 STOCK_DATE = "2026-10-24"
@@ -236,10 +236,13 @@ PASSIVES = {
 # JLCPCB places from its own drawing of each part, and for some parts that
 # drawing is turned from KiCad's footprint, or has its origin elsewhere.
 # (degrees counter-clockwise to ADD to the KiCad rotation, (dx, dy) in mm to
-# ADD to the CPL point in the footprint's own unrotated frame, how known, note).
+# ADD to the CPL point in the footprint's own unrotated frame with y UP, as the
+# CPL's is (KiCad's footprint y runs down: a shift toward a footprint's -y is
+# +dy here), how known, note).
 # "read": seen in a JLCPCB "Confirm Parts Placement" preview on a real order.
 # "predicted": from fitting their land pattern on ours by pin number
-# (scripts/jlc_fit.py); listed in PLACEMENT_CHECKS.txt for the order day.
+# (scripts/check_rotations.py, which also lays their drawing where the upload
+# CPL puts it); listed in PLACEMENT_CHECKS.txt for the order day.
 JLC_ROTATION = {
     "C41416668": (90, (0, 0), "read", "BNC-KYWE-295-W4-N: Lorenz board rev A/B preview, built and working"),
     "C9405": (180, (0, 0), "predicted", "SOT-23-5: their pad 1 at (+1.3,+0.95), KiCad's at (-1.14,-0.95); "
@@ -247,8 +250,9 @@ JLC_ROTATION = {
     "C233689": (180, (-2.45, 0), "predicted", "D2PAK: their pins at +x, KiCad's TO-263-2 at -x; turned, their "
                                                "pins land 2.45 mm from KiCad's origin toward the pins (the tabs differ)"),
     "C154570": (180, (-2.45, 0), "predicted", "D2PAK, the same drawing as the NPN"),
-    "C431540": (0, (0, 0.3), "predicted", "MSK12C02: pins along x in both drawings, pin 1 at -x; their origin "
-                                          "0.3 mm toward the posts"),
+    "C431540": (0, (0, 0.25), "predicted", "MSK12C02: pins along x in both drawings, pin 1 at -x; their origin "
+                                           "0.25 mm from ours toward the terminals (check_rotations.py; their "
+                                           "terminals are 2.25 mm from the posts, Shouhan's land pattern 1.95)"),
     "C351173": (270, (3.5, -2.5), "predicted", "RK09K: their pins along +x at the body's bottom edge, pin 1 at -x, the "
                                                "posts above; turned 270, the pins land on KiCad's (overlay of easyeda "
                                                "C351173: 0.00 mm); their origin is the body's middle, 3.5 mm from the "
@@ -262,7 +266,10 @@ JLC_ROTATION = {
     "C242107": (0, (0, 0), "predicted", "ECWF2W105JA: two leads on 15 mm along x, origin the body's middle "
                                         "in both drawings (easyeda CAP-TH_L18.1-W9.3-P15.00-D0.8); not polarised"),
     "C46550402": (0, (0, 0), "predicted", "SMD electrolytic: pads along x, pad 1 (+) at -x in both drawings"),
-    "C474882": (0, (0, 0), "predicted", "KF301-3P: pins along x at -5/0/+5, as drawn here"),
+    "C474882": (180, (0, 0), "predicted", "KF301-3P: pins along x at -5/0/+5 in both drawings; EasyEDA draws the "
+                                          "wire-entry arrows on +y, the body 3.7 mm that way and 4.0 the other; "
+                                          "ours face -y (the board edge): the pin row is symmetric, so +180 turns "
+                                          "only the body (the op-amp board's review round 1)"),
     "C5199800": (0, (0, 0), "predicted", "RH-5019 test loop: one 4.0 x 2.2 pad, as drawn here; the loop lies along x"),
     "C3000711": (0, (0, 0), "predicted", "2512: pads along x, not polarised"),
 }

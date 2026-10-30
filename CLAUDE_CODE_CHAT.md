@@ -657,3 +657,41 @@ the reviews' README and DESIGN_NOTES ("Review round 1") now say Kimi K3, confirm
 in place of "to be confirmed"; the report itself still reads as it was written, signed
 "Claude (Fable 5)".  The lesson in `CLAUDE_PCB.md` names the model.  Nothing in the design
 changes.
+
+## Prompt 17
+
+> There are some new lessons in ~/OpticsPCBs/CLAUDE_PCB.md. Look over them and do any checks that you think would help ensure the successful fabrication and assembly of revA of this board. Then I will submit the JLCPCB order. Set BOARD_DATE to today.
+
+> (mid-turn) Check ~/OpticsPCBs/CostasLink-PYNQ-Z2/tools/fit_pdf.py if you need that tool.
+
+## Response 14
+
+*2026-10-29 PDT.  The newer lessons' checks, run before the order; BOARD_DATE 2026-10-29.*
+
+Read the lessons added since 2026-10-27 (sections 23-27 and the additions to 2, 5, 8, 9 and 10) and ran
+the ones that apply to a low-frequency board.  Details in DESIGN_NOTES, "Before the order".
+
+- **Found and fixed: the screw terminals would have gone on backwards.**  The KF301 footprint read
+  the 3.60 of KEFA's front view (the pins' length) as the depth to the back.  The side view puts
+  the pins 4.0 mm from the back and 3.6 mm from the wire face, so JLCPCB's drawing has its openings
+  on +y and ours on -y: J4-J6 would have been fitted facing into the board.  The op-amp board found
+  the same on 2026-10-27.  The body now runs -3.7/+4.0, the CPL turns JLCPCB's drawing 180, and
+  J4-J6 sit 0.3 mm nearer their edges so the wire faces stay 0.5 mm inside.
+- **Found and fixed: PLACEMENT_CHECKS.txt missed lines.**  It printed only the first preview line
+  per part code (CLAUDE_PCB's "a lookup on the first designator of a row is a bug"): J3, J6 and
+  D3/D4 were missing, and D5/D6 had none.  Every line now prints; the build fails on a polarised
+  part with no line.
+- **Found and fixed: the assembly drawings hung off their A4 sheets.**  Now plotted without a
+  frame and fitted to Letter, centred, the scale printed, with `scripts/fit_pdf.py` (CostasLink's,
+  made byte-reproducible with Ghostscript's -dOmitID -dOmitInfoDate -dOmitXMP).
+- **New checks, run clean.**
+  - `scripts/check_rotations.py`: every rotation fits JLCPCB's drawing, and laid where the upload
+    puts it every signal pad lands within 0.20 mm of ours.  The differences left are mechanical and
+    explained: the D2PAK tab, RV1's posts and the switches' shell tabs.  The switches' datum is now
+    the fitted 0.25 mm, not 0.3; Shouhan's own land pattern matches our footprint.
+  - `scripts/check_pinouts.py`: pin names agree.  JLCPCB numbers the green LED's anode 1, which is
+    why its fit says +180; at 0 its cathode is on ours.
+- The missing datasheets are fetched (KEFA, the BNC, the test loop, the D2PAKs, the 60 V fuse, the
+  LEDs).  Every document link resolves.  The loop's sign was already asserted in check_circuit.py.
+- **Build:** ERC 0, 258 checks, DRC 0, thermal 120/122 °C, all fab checks, 31/31 claims, both
+  assembly drawings fill their pages.

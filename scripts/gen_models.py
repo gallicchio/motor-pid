@@ -104,16 +104,17 @@ def trimpot():
 def kf301(n):
     """KEFA KF301-5.0-nP: n x 5.0 mm wide, 7.6 mm deep, 10.0 mm tall, blue.
 
-    Pins at y = 0 in the footprint; the body runs from y = -4.0 (the sloped
-    wire-entry face) to y = +3.6 (the vertical back), from the KF301-5.0
-    drawing (pins 3.6 mm from the back face).  In the model frame Y is -y."""
+    Pins at y = 0 in the footprint; the body runs from y = -3.7 (the sloped
+    wire-entry face) to y = +4.0 (the vertical back), from the KF301-5.0
+    drawing's side view (pins 4.0 mm from the back face).  In the model frame
+    Y is -y."""
     w = n * 5.0 + 0.4
     s = HEAD
-    s += box(0, 0.2, 5.0, w, 7.6, 10.0, TERMBLUE)        # y_model = -(y_fp); centre at y_fp = -0.2
+    s += box(0, -0.15, 5.0, w, 7.7, 10.0, TERMBLUE)      # y_model = -(y_fp); centre at y_fp = +0.15
     for i in range(n):
         x = (i - (n - 1) / 2.0) * 5.0
-        s += prism_z(x, 0.2, 10.0, 10.3, 1.6, SILVER)     # screw heads
-        s += box(x, 2.9, 6.0, 3.0, 0.1, 3.0, (0.05, 0.05, 0.05))  # wire openings on the -y face
+        s += prism_z(x, -0.15, 10.0, 10.3, 1.6, SILVER)   # screw heads
+        s += box(x, 3.75, 3.0, 3.0, 0.1, 3.0, (0.05, 0.05, 0.05))  # wire openings on the -y face
     return f"TerminalBlock_KF301_1x{n:02d}.wrl", s
 
 

@@ -216,13 +216,17 @@ def main():
                       key=lambda r: (re.sub(r"\d", "", r), int(re.sub(r"\D", "", r) or 0)))
         if not refs:
             continue
-        shift = f"({dx:+.1f}, {dy:+.1f}) mm" if (dx or dy) else "none"
+        shift = f"({dx:+.2f}, {dy:+.2f}) mm" if (dx or dy) else "none"
         a(f"| {', '.join(refs)} | {code} | {deg} deg | {shift} | {how}: {note} |")
     a("")
     a("*read* means seen in a JLCPCB preview on a real order of that part on that")
     a("footprint; *predicted* means derived by fitting JLCPCB's own land pattern")
     a("onto ours by pin number (`scripts/easyeda.py <code>`).  Every predicted part is")
     a(f"in `out/{STEM}/PLACEMENT_CHECKS.txt`, the list to hold against the preview.")
+    a("After adding or changing a part, run `scripts/check_rotations.py` (the fit, and")
+    a("JLCPCB's drawing laid where the upload puts it) and `scripts/check_pinouts.py`")
+    a("(our symbols' pin names against JLCPCB's); they need the network, so the build")
+    a("does not run them.")
     a("`check_outputs.py` proves the two CPL files differ in nothing but those angles.")
     a("")
     a("## Check these in the preview before you pay")
@@ -327,20 +331,28 @@ def main():
          "Look at each predicted part in the preview; if one is turned, do NOT nudge it",
          "in their viewer (the fix is lost on the next upload): change its entry in",
          "scripts/parts.py JLC_ROTATION and rebuild.", ""]
+    unnamed = []
     for code, (deg, (dx, dy), how, note) in sorted(parts.JLC_ROTATION.items(), key=lambda kv: (kv[1][2] != "predicted", kv[0])):
         refs = sorted((r for r, c in ref_lcsc.items() if c == code),
                       key=lambda r: (re.sub(r"\d", "", r), int(re.sub(r"\D", "", r) or 0)))
         if not refs:
             continue
-        shift = f", datum ({dx:+.1f}, {dy:+.1f}) mm" if (dx or dy) else ""
+        shift = f", datum ({dx:+.2f}, {dy:+.2f}) mm" if (dx or dy) else ""
         P.append(f"[{how.upper():9s}] {', '.join(refs)}  ({code}, +{deg} deg{shift})")
         P.append(f"            {note}")
-        look = next((l for l in PREVIEW_CHECKS if l[0].split(",")[0].strip() in refs), None)
-        if look:
-            P.append(f"            look for: {look[1]}; should be: {look[2]}")
+        # every row that names any of these parts, not the first row naming the first of them: one code can need
+        # several rows (J1, J2 and J3 point off different edges), and a part no row names is a gap
+        looks = [l for l in PREVIEW_CHECKS if expand_refs(l[0]) & set(refs)]
+        for look in looks:
+            P.append(f"            look for ({look[0]}): {look[1]}; should be: {look[2]}")
+        named = set().union(*(expand_refs(l[0]) for l in looks))
+        if set(refs) - named and "not polarised" not in note:
+            unnamed.append(f"{code}: {', '.join(sorted(set(refs) - named))}")
         P.append("")
     P += ["Symmetric parts (every resistor and capacitor) cannot go in wrong.",
           "The back of the board carries no parts: check it anyway, it should be empty.", ""]
+    if unnamed:
+        raise SystemExit("PLACEMENT_CHECKS: no preview row names " + "; ".join(unnamed) + " (gen_docs.PREVIEW_CHECKS)")
     path = os.path.join(OUT, STEM, "PLACEMENT_CHECKS.txt")
     open(path, "w").write("\n".join(P) + "\n")
     print(f"  wrote {os.path.relpath(path, ROOT)}")
@@ -372,6 +384,18 @@ def main():
     return 1 if bad else 0
 
 
+def expand_refs(text):
+    """The designators a row names: "U1, U2" and "TP1-TP13" as a set."""
+    out = set()
+    for item in (i.strip() for i in text.split(",")):
+        m = re.fullmatch(r"([A-Z]+)(\d+)-\1?(\d+)", item)
+        if m:
+            out |= {f"{m.group(1)}{i}" for i in range(int(m.group(2)), int(m.group(3)) + 1)}
+        elif item:
+            out.add(item)
+    return out
+
+
 # What to look for in JLCPCB's preview, per orientation-sensitive part.
 PREVIEW_CHECKS = [
     ("U1, U2, U3, U4, U5, U6, U7", "SOT-23-5: three pads on the left, two on the right",
@@ -388,6 +412,7 @@ PREVIEW_CHECKS = [
     ("J6", "screw terminal wire openings", "facing the TOP edge"),
     ("D1, D2", "SMA cathode band", "D1 cathode on the LEFT (toward the rail); D2 cathode at the TOP (toward the terminal)"),
     ("D3, D4", "SMA cathode band", "both cathodes UP: D3's into the +15 V pour, D4's toward the push-pull's output row above it"),
+    ("D5, D6", "SMA cathode band", "D5 cathode UP toward the +15 V rail; D6 cathode DOWN toward its ground (its anode up to the -15 V rail)"),
     ("LED1, LED2", "0805 LED cathode mark", "LED1 cathode DOWN toward its ground via; LED2 cathode UP toward its 10k"),
     ("LED3, LED4", "0805 LED cathode mark", "antiparallel across the fuse: LED3 cathode on the RIGHT, LED4 cathode on the LEFT"),
     ("C11, C12", "electrolytic stripe (negative)", "C11 negative DOWN toward its ground; C12 negative UP toward the -15 V rail (its + DOWN to ground)"),
