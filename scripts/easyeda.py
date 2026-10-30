@@ -62,6 +62,57 @@ def svgs(code, refresh=False):
     raise RuntimeError("cannot fetch footprint for %s: %s" % (code, last))
 
 
+COMPONENTS_URL = "https://easyeda.com/api/products/%s/components?version=6.4.19.5"
+
+
+def components(code, refresh=False):
+    """The component record (its footprint's dataStr, with the 3D model's outline in an SVGNODE), cached under
+    "components:<code>" beside the land patterns.  Fetched slowly: easyeda answers a burst with 403s."""
+    key = "components:" + code
+    ent = _cache.get(key)
+    if ent and not refresh and (time.time() - ent["fetched_epoch"]) / 3600.0 < MAX_AGE_H:
+        return ent["result"], ent["fetched"]
+    req = urllib.request.Request(COMPONENTS_URL % code, headers={
+        "User-Agent": UA, "Accept": "application/json", "Referer": "https://easyeda.com/"})
+    last = None
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=40) as r:
+                d = json.loads(r.read().decode("utf-8", "replace"))
+            if not d.get("success"):
+                raise RuntimeError("easyeda said no for %s" % code)
+            now = datetime.datetime.now().astimezone()
+            _cache[key] = dict(result=d["result"], fetched=now.isoformat(timespec="seconds"),
+                               fetched_epoch=time.time())
+            _save()
+            time.sleep(1.5)
+            return d["result"], _cache[key]["fetched"]
+        except Exception as e:  # noqa
+            last = e
+            time.sleep(10.0 * (attempt + 1))
+    raise RuntimeError("cannot fetch the component record for %s: %s" % (code, last))
+
+
+def model_outline(code, refresh=False):
+    """The box (x0, y0, x1, y1), mm, footprint-local, y down, of the 3D model's outline as JLCPCB's placement
+    preview draws it; None when the record has no model."""
+    res, _ = components(code, refresh)
+    ds = ((res or {}).get("packageDetail") or {}).get("dataStr") or {}
+    if not ds.get("head"):
+        return None
+    hx, hy = float(ds["head"]["x"]), float(ds["head"]["y"])
+    pts = []
+    for sh in ds.get("shape", []):
+        if sh.startswith("SVGNODE"):
+            node = json.loads(sh.split("~", 1)[1])
+            for c in node.get("childNodes") or []:
+                v = [float(t) for t in (c.get("attrs", {}).get("points") or "").split()]
+                pts += [((v[i] - hx) * UNIT, (v[i + 1] - hy) * UNIT) for i in range(0, len(v) - 1, 2)]
+    if not pts:
+        return None
+    return (min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts))
+
+
 def _attrs(tag):
     return {k: v for k, v in re.findall(r'([\w-]+)\s*=\s*"([^"]*)"', tag)}
 

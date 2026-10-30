@@ -250,15 +250,19 @@ JLC_ROTATION = {
     "C233689": (180, (-2.45, 0), "predicted", "D2PAK: their pins at +x, KiCad's TO-263-2 at -x; turned, their "
                                                "pins land 2.45 mm from KiCad's origin toward the pins (the tabs differ)"),
     "C154570": (180, (-2.45, 0), "predicted", "D2PAK, the same drawing as the NPN"),
-    "C431540": (0, (0, 0.25), "predicted", "MSK12C02: pins along x in both drawings, pin 1 at -x; their origin "
-                                           "0.25 mm from ours toward the terminals (check_rotations.py; their "
-                                           "terminals are 2.25 mm from the posts, Shouhan's land pattern 1.95)"),
+    "C431540": (0, (0, 0.55), "predicted", "MSK12C02: pins along x in both drawings, pin 1 at -x; their origin 0.55 mm "
+                                      "from ours toward the terminals, so their posts (and their 3D body) sit on "
+                                      "ours.  Their land pattern's terminals are 2.25 mm from the posts against "
+                                      "Shouhan's 1.95, and a datum of 0.25 that fitted them left the body 0.3 mm "
+                                      "short in rev A's preview (Jason nudged all five, 2026-10-29)"),
     "C351173": (270, (3.5, -2.5), "predicted", "RK09K: their pins along +x at the body's bottom edge, pin 1 at -x, the "
                                                "posts above; turned 270, the pins land on KiCad's (overlay of easyeda "
                                                "C351173: 0.00 mm); their origin is the body's middle, 3.5 mm from the "
                                                "pins toward the posts.  Their posts are 10 mm apart, ALPS's slots 8.8: "
                                                "the preview shows each post 0.6 mm off its slot (review round 1)"),
-    "C118945": (0, (0, 0), "predicted", "3362P: their pads 1/3 at y=+1.27 and 2 at y=-1.27, as drawn here"),
+    "C118945": (0, (0, 0), "predicted", "3362P: their pads 1/3 at y=+1.27 and 2 at y=-1.27, as drawn here; "
+                                        "their 3D body 1.30 mm toward pins 1 and 3, as BOCHEN's drawing (rev A's "
+                                        "preview, 2026-10-29: our first outline was centred on the pins)"),
     "C2297": (0, (0, 0), "read", "KT-0805G on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1"),
     "C84256": (0, (0, 0), "read", "NCD0805R1 on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1"),
     "C8678": (0, (0, 0), "predicted", "SS34 SMA: cathode (pad 1) at -x in both drawings"),

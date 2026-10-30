@@ -386,6 +386,25 @@ these are the ones that apply here, and what they found.
 The RF lessons (simulate the copper's circuit, detours, stitching) do not apply
 below a few hundred kHz.  The loop's sign is asserted in `check_circuit.py`.
 
+**JLCPCB's preview, the same evening.**  Jason had to nudge RV2-RV4 and SW1-SW5.
+The preview draws each part's 3D body from its component record, which the
+land-pattern fit above never read; `check_rotations.py` now reads it too and
+lays the body against our courtyard.
+
+- **The trimmers.**  BOCHEN's drawing puts pin 2 1.0 mm from one edge of the
+  7.1 mm body and the 1-3 row 3.6 mm from the other, so the body's middle is
+  1.30 mm from the pins' middle toward pins 1 and 3, where JLCPCB drew it.  Our
+  footprint had centred the body on the pins (the op-amp board's rev A preview
+  had shown the same).  The pins were always right; the outline, courtyard and
+  model now follow BOCHEN, and RV2 (with R14) and RV4 moved up 1.1 and 0.5 mm
+  so P GAIN and POSITION's dashed line clear the bodies.
+- **The switches.**  JLCPCB places the MSK12C02 by its body, whose posts are at
+  their land pattern's holes, 0.55 mm from that pattern's origin; the 0.25 mm
+  datum, fitted to their terminals (2.25 mm from the posts against Shouhan's
+  1.95), left the body 0.3 mm short of our posts.  The datum is now 0.55.  The
+  knob sticks out 1.45 mm sideways from the edge opposite the terminals, not
+  upward: the courtyard now includes it, and the 3D model shows it.
+
 ## A stall at a few volts (2026-10-26, closed the same day: D2PAKs on 2 oz)
 
 The measured motor is 14 Ω, so a stalled slider draws DRIVE / 14 Ω.  With the

@@ -9,7 +9,7 @@ in their viewer (the fix is lost on the next upload): change its entry in
 scripts/parts.py JLC_ROTATION and rebuild.
 
 [PREDICTED] RV2, RV3, RV4  (C118945, +0 deg)
-            3362P: their pads 1/3 at y=+1.27 and 2 at y=-1.27, as drawn here
+            3362P: their pads 1/3 at y=+1.27 and 2 at y=-1.27, as drawn here; their 3D body 1.30 mm toward pins 1 and 3, as BOCHEN's drawing (rev A's preview, 2026-10-29: our first outline was centred on the pins)
             look for (RV2, RV3, RV4): 3362P trimmer, keyed; should be: fits one way; screw on top, wiper pin toward the top
 
 [PREDICTED] Q2  (C154570, +180 deg, datum (-2.45, +0.00) mm)
@@ -33,8 +33,8 @@ scripts/parts.py JLC_ROTATION and rebuild.
             RK09K: their pins along +x at the body's bottom edge, pin 1 at -x, the posts above; turned 270, the pins land on KiCad's (overlay of easyeda C351173: 0.00 mm); their origin is the body's middle, 3.5 mm from the pins toward the posts.  Their posts are 10 mm apart, ALPS's slots 8.8: the preview shows each post 0.6 mm off its slot (review round 1)
             look for (RV1): RK09K knob, keyed by its two posts; should be: fits one way; the shaft up, the pins toward the switch
 
-[PREDICTED] SW1, SW2, SW3, SW4, SW5  (C431540, +0 deg, datum (+0.00, +0.25) mm)
-            MSK12C02: pins along x in both drawings, pin 1 at -x; their origin 0.25 mm from ours toward the terminals (check_rotations.py; their terminals are 2.25 mm from the posts, Shouhan's land pattern 1.95)
+[PREDICTED] SW1, SW2, SW3, SW4, SW5  (C431540, +0 deg, datum (+0.00, +0.55) mm)
+            MSK12C02: pins along x in both drawings, pin 1 at -x; their origin 0.55 mm from ours toward the terminals, so their posts (and their 3D body) sit on ours.  Their land pattern's terminals are 2.25 mm from the posts against Shouhan's 1.95, and a datum of 0.25 that fitted them left the body 0.3 mm short in rev A's preview (Jason nudged all five, 2026-10-29)
             look for (SW1, SW2, SW3, SW4, SW5): MSK12C02 slide switch: the three pins on one edge; should be: SW1, SW2: pins along the bottom edge of the body; SW3, SW4, SW5: pins down the left edge
 
 [PREDICTED] C11, C12  (C46550402, +0 deg)

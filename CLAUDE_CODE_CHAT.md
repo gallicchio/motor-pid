@@ -695,3 +695,29 @@ the ones that apply to a low-frequency board.  Details in DESIGN_NOTES, "Before 
   LEDs).  Every document link resolves.  The loop's sign was already asserted in check_circuit.py.
 - **Build:** ERC 0, 258 checks, DRC 0, thermal 120/122 °C, all fab checks, 31/31 claims, both
   assembly drawings fill their pages.
+
+## Prompt 18
+
+> [Two screenshots of JLCPCB's Component Placements preview, before nudging: RV2-RV4 and SW1.]  I had to nudge down RV2, RV3, and RV4. Also I had to nudge SW1 through SW5 (others that should be the same part). I'll paste the picture as I saw it before the nudging.
+
+## Response 15
+
+*2026-10-29 PDT.  What the preview showed, found and fixed for the next upload.*
+
+JLCPCB's preview draws each part's 3D body from its component record, which the land-pattern fit
+had never read.  `check_rotations.py` now reads it (`easyeda.model_outline`, cached and slow) and lays
+the body where the upload puts it against our courtyard.
+
+- **RV2-RV4.**  The preview was right.  BOCHEN's drawing puts pin 2 1.0 mm from one edge of the body
+  and the 1-3 row 3.6 mm from the other, so the body's middle is 1.30 mm from the pins' middle toward
+  pins 1 and 3, as JLCPCB draws it.  Our footprint had centred the outline on the pins (the op-amp
+  board's preview had noted the same 1.3 mm).  The pins and holes were always right, so the trimmers go
+  in correctly whatever the nudge; the real body would have covered the top of RV2's P GAIN.  The
+  outline, courtyard and model now follow BOCHEN; RV2 (with R14) moved up 1.1 mm and RV4 0.5 mm.
+- **SW1-SW5.**  Jason's nudge was right: toward the terminals, about 0.3 mm.  JLCPCB places the part by
+  its body, whose posts sit at their land pattern's holes, 0.55 mm from that pattern's origin; our
+  0.25 mm datum had been fitted to their terminals, which are 0.3 mm further out than Shouhan's.  The
+  datum is now 0.55.  The knob sticks out sideways from the edge opposite the terminals: the courtyard
+  and the 3D model now show it.
+- **Build:** ERC 0, 258 checks, DRC 0, thermal 120/122 °C, all fab checks, 31/31 claims;
+  check_rotations.py passes (fit, upload, bodies).

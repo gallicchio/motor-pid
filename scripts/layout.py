@@ -106,7 +106,7 @@ PLACE = {
     "TP3": (100.5, A_Y, 90),
     # U3 the summing amplifier with its gain trimmer
     "U3": (U3X, A_Y, 0), "R11": (106.5, A_Y + OA_IN, 0),
-    "R14": (U3X - 4.7, A_Y + 18.77, 0), "RV2": (U3X + 1.0, A_Y + 17.5, 0),
+    "R14": (U3X - 4.7, A_Y + 17.67, 0), "RV2": (U3X + 1.0, A_Y + 16.4, 0),   # 1.1 mm up with R14: P GAIN fits under its body
     "TP6": (U6X - 7.2, 40.0, 0),
     # the differentiator row: the capacitor switch, the two capacitors, 1k, U4, 1M || 470 pF
     "SW5": (74.0, D_Y + OA_IN + 0.75, 90), "C6": (80.0, D_Y - 2.0, 0), "C5": (80.0, D_Y + 9.0, 0),
@@ -117,7 +117,7 @@ PLACE = {
     "TP4": (U4X + 7.2, D_Y + 9.8, 90),
     # the integrator row: 1k + 1M in, U5, the 1 uF film across: its leads on 15 mm
     # land on U5's input and output columns (pad 2 on the output's)
-    "R17": (73.0, I_Y + OA_IN, 0), "RV4": (RV4X, I_Y + 6.0, 0),
+    "R17": (73.0, I_Y + OA_IN, 0), "RV4": (RV4X, I_Y + 5.5, 0),    # its body's far edge 0.15 mm clear of POSITION's dashed line
     "U5": (U5X, I_Y, 0),
     "C8": (U5X + 7.2 - 7.5, I_Y + 16.3, 0),        # FBI, the integrator's feedback row
     "SW4": (106.0, I_Y + 2.75, 90), "R13": (106.5, I_Y - 14.0, 0),
@@ -232,15 +232,15 @@ WIRES = [
     ("/P", [(U2X + 7.2, A_Y), (U2X + 7.2, FBA), ("R10", "2")], W_SIG),
     # ---- U3, the summing amplifier; its - node is the SUM_X column the D and I stages feed
     ("Net-(U3--)", [("R11", "2"), oa("U3", "-")], W_SIG),
-    ("Net-(U3--)", [(SUM_X, A_Y + OA_IN), (SUM_X, A_Y + 18.77), ("R14", "1")], W_SIG),
-    ("Net-(U3--)", [(SUM_X, A_Y + 18.77), (SUM_X, D_Y - 6.0), ("R12", "2")], W_SIG),
+    ("Net-(U3--)", [(SUM_X, A_Y + OA_IN), (SUM_X, A_Y + 17.67), ("R14", "1")], W_SIG),
+    ("Net-(U3--)", [(SUM_X, A_Y + 17.67), (SUM_X, D_Y - 6.0), ("R12", "2")], W_SIG),
     ("Net-(U3--)", [(SUM_X, D_Y - 6.0), (SUM_X, I_Y - 14.0), ("R13", "2")], W_SIG),
     ("Net-(R14-Pad2)", [("R14", "2"), ("RV2", "1")], W_SIG),
     ("/SUM", [oa("U3", "out"), (U3X + 7.2, A_Y), (U6X - 7.2, A_Y), (U6X - 7.2, DRV_Y - OA_IN), oa("U6", "+")], W_SIG),
-    ("/SUM", [(U3X + 7.2, A_Y), (U3X + 7.2, A_Y + 18.77), ("RV2", "3")], W_SIG),
+    ("/SUM", [(U3X + 7.2, A_Y), (U3X + 7.2, A_Y + 17.67), ("RV2", "3")], W_SIG),
     # each trimmer's wiper is tied to its clockwise end (3) by a short wire under the body,
     # so the top of the trimmer is clear for the clockwise arc
-    ("/SUM", [("RV2", "2"), (U3X + 3.54, A_Y + 16.23), ("RV2", "3")], W_SIG),
+    ("/SUM", [("RV2", "2"), (U3X + 3.54, A_Y + 15.13), ("RV2", "3")], W_SIG),
     # ---- the differentiator: ERROR into the switch, a capacitor per pole, 1k, U4, 1M || 470 pF
     ("/ERROR", [(ERR_X, D_Y + OA_IN), ("SW5", "2")], W_SIG),
     ("Net-(SW5-C)", [("SW5", "3"), (72.05, D_Y - 2.0), ("C6", "1")], W_SIG),
@@ -260,8 +260,8 @@ WIRES = [
     # ---- the integrator: 1k + 1M in, U5, 1 uF film across, the switch shorts it for reset
     ("/ERROR", [(ERR_X, I_Y + OA_IN), ("R17", "1")], W_SIG),
     ("Net-(R17-Pad2)", [("R17", "2"), (RV4X - 2.54, I_Y + OA_IN), ("RV4", "1")], W_SIG),
-    ("Net-(SW4-A)", [("RV4", "3"), (84.0, I_Y + 7.27), (84.0, I_Y + OA_IN), oa("U5", "-")], W_SIG),
-    ("Net-(SW4-A)", [("RV4", "2"), (RV4X + 2.54, I_Y + 4.73), ("RV4", "3")], W_SIG),
+    ("Net-(SW4-A)", [("RV4", "3"), (84.0, I_Y + 6.77), (84.0, I_Y + OA_IN), oa("U5", "-")], W_SIG),
+    ("Net-(SW4-A)", [("RV4", "2"), (RV4X + 2.54, I_Y + 4.23), ("RV4", "3")], W_SIG),
     ("Net-(SW4-A)", [(U5X - 7.2, I_Y + OA_IN), (U5X - 7.2, FBI), ("C8", "1")], W_SIG),
     # I OFF: on down from C8's input lead, under its body, and up to the switch
     ("Net-(SW4-A)", [("C8", "1"), (U5X - 7.8, I_Y + 22.3), (104.05, I_Y + 22.3), ("SW4", "1")], W_SIG),
@@ -449,7 +449,7 @@ TEXTS = [
     (44.0, 44.4, "LOOP", 0.9, 0.18, "center", 0),
     (44.0, 45.75, "3 = closed loop", 0.8, 0.15, "center", 0), (44.0, 47.05, "1 = open loop", 0.8, 0.15, "center", 0),
     # the gain trimmers
-    (116.0, 56.2, "P GAIN", 0.8, 0.15, "center", 0),
+    (116.0, 56.3, "P GAIN", 0.8, 0.15, "center", 0),           # below RV2's body (BOCHEN: 4.85 mm past its pins' middle)
     (90.6, 75.9, "D", 0.8, 0.15, "right", 0), (90.6, 77.1, "GAIN", 0.8, 0.15, "right", 0),
     (RV4X, 106.0, "I GAIN", 0.8, 0.15, "center", 0),
     (U5X + 7.2 - 7.5 + 11.2, FBI + 0.7, "film", 0.8, 0.15, "left", 0),        # under C8's value
@@ -501,7 +501,7 @@ FIELD_AT.update({
     "R12": ((0.0, -3.05), (0.0, -1.75)), "R13": ((0.0, -3.05), (0.0, -1.75)),
     "C3": (None, (0.0, -1.75)), "C4": (None, (0.0, -1.75)),
     "RV1": (None, (-3.5, 4.1)),
-    "RV2": ((-4.3, -1.8), (-4.3, -0.5)), "RV3": ((-3.9, -1.2), (-3.9, 0.0)), "RV4": ((-4.3, 0.0), (-4.3, 1.3)),
+    "RV2": ((-4.3, -1.8), (-4.3, -0.5)), "RV3": ((-3.9, -1.2), (-3.9, 0.0)), "RV4": ((-4.3, 0.5), (-4.3, 1.8)),
     "F1": (None, (0.0, 2.7)),
     "R8": ((0.0, 1.75), (0.0, 3.05)), "R10": ((0.0, 1.75), (0.0, 3.05)), "R14": ((0.0, 1.75), (0.0, 3.05)),
     "C7": ((0.0, -3.05), (0.0, -1.75)), "C8": ((11.2, -2.1), (11.2, -0.7)),

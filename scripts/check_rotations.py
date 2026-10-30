@@ -7,7 +7,8 @@ their origin lands, with parts.JLC_ROTATION.
 
 AMOD-and-RFMOD's check_rotations.py (CLAUDE_PCB.md section 23), for one board and for a table that carries the datum
 beside the turn, and then the upload itself: JLCPCB's drawing put where motorpid_cpl_jlcpcb_upload.csv says,
-against our pads on the board.  A part whose pads are all one number, or two of a two-terminal part with no polarity, is skipped; a
+against our pads on the board, and then the body JLCPCB's preview draws (the 3D model's outline in its component
+record), placed the same way, against our courtyard and whatever else it lands on.  A part whose pads are all one number, or two of a two-terminal part with no polarity, is skipped; a
 fit whose best two turns are close is "ambiguous" and printed for a look.  It needs the network the first time (the
 cache, scripts/easyeda_cache.json, is gitignored), so ./make.py does not run it: run it whenever a part is added.
 """
@@ -33,6 +34,12 @@ RENUMBERED = {"C2297", "C41416668", "C474882"}
 # from the pads' centre, must lean the same way on the board
 FACING = {"C41416668": "the barrel", "C474882": "the wire openings (the body is 3.7 mm deep on their side, 4.0 behind)"}
 TOL = 0.3          # mm, a pad centre of theirs from ours in the upload
+# parts whose datum is set by JLCPCB's 3D body (what their preview draws and their machine places), not by their land
+# pattern's pads: (why, the tolerance for the signal pads in the upload)
+BODY_DATUM = {
+    "C431540": ("the body's posts on Shouhan's post line; JLCPCB's land pattern puts the terminals 0.3 mm further out "
+                "than Shouhan's (rev A's preview, 2026-10-29)", 0.35),
+}
 # mechanical pads (numbered once on neither side: tabs, shells, posts) that JLCPCB draws elsewhere; the signal pads
 # place the part, and these are listed, not failed
 MECH = {
@@ -165,7 +172,9 @@ def main():
         flag = "ok" if deg == best else ("known" if code in KNOWN else "DIFFERS")
         amb = " ambiguous (%.2f vs %.2f mm)" % (e0, e1) if e1 - e0 < 0.15 else ""
         dat = ""
-        if math.hypot(datum[0] - have[0], datum[1] - have[1]) > 0.15:
+        if code in BODY_DATUM:
+            dat = "; datum from the body: " + BODY_DATUM[code][0]
+        elif math.hypot(datum[0] - have[0], datum[1] - have[1]) > 0.15:
             dat = "; their origin at (%.3f, %.3f) in ours, table (%.3f, %.3f)" % (datum[0], datum[1], have[0], have[1])
             if not amb and flag == "ok":
                 flag = "DATUM"
@@ -178,7 +187,88 @@ def main():
     for b in bad:
         print(b)
     off = upload(fps, codes)
+    off += bodies(codes)
     return 1 if bad or off else 0
+
+
+def _boxes():
+    """{ref: courtyard box on the board, y down}, and the front silkscreen's texts [(text, x, y)]."""
+    root = parse_file(os.path.join(ROOT, "hardware", STEM + ".kicad_pcb"))
+    boxes, texts = {}, []
+    for fp in root.kids("footprint"):
+        ref = next((pr.atom(1) for pr in fp.kids("property") if pr.atom(0) == "Reference"), None)
+        at = fp.first("at")
+        X, Y, R = float(at.atom(0)), float(at.atom(1)), float(at.atom(2) or 0)
+        pts = []
+        for g in fp.kids():
+            if g.tag in ("fp_line", "fp_rect") and g.first("layer").atom(0) == "F.CrtYd":
+                for k in ("start", "end"):
+                    q = turn((float(g.first(k).atom(0)), float(g.first(k).atom(1))), R)
+                    pts.append((X + q[0], Y + q[1]))
+        if pts:
+            boxes[ref] = (min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts))
+    for t in root.kids("gr_text"):
+        if t.first("layer").atom(0) == "F.SilkS":
+            at = t.first("at")
+            texts.append((t.atom(0), float(at.atom(0)), float(at.atom(1))))
+    return boxes, texts
+
+
+# bodies that reach past our courtyard on purpose: printed, not failed
+OVERHANG = {
+    "C41416668": "the BNC's barrel, off the board's edge",
+    "C474882": "",
+}
+
+
+def bodies(codes):
+    """JLCPCB's drawing of each part's body (the 3D model's outline their preview shows) where the upload CPL puts
+    it, against our courtyard: how far it reaches past each side, and any other part's courtyard or silk text it
+    lands on.  The preview is where a body drawn in the wrong place shows; the pads cannot show it (the 3362P's
+    body sits 1.3 mm toward pins 1 and 3 from the middle of its pins, which our first footprint had not drawn)."""
+    ox, oy = aux_origin()
+    boxes, texts = _boxes()
+    off, done = [], set()
+    print("\nThe bodies, JLCPCB's 3D outline where the CPL puts it, against our courtyard (mm past it: left, top, "
+          "right, bottom on the board):")
+    with open(os.path.join(ROOT, "out", STEM, STEM + "_cpl_jlcpcb_upload.csv")) as fh:
+        rows = list(csv.DictReader(fh))
+    for row in rows:
+        ref = row["Designator"]
+        code = codes.get(ref)
+        if not code or ref not in boxes:
+            continue
+        try:
+            mb = easyeda.model_outline(code)
+        except Exception as e:
+            print("  ?     %-5s %-10s cannot fetch its component record: %s" % (ref, code, e))
+            continue
+        if not mb:
+            continue
+        xc, yc, rot = float(row["Mid X"]), float(row["Mid Y"]), float(row["Rotation"])
+        c, s = math.cos(math.radians(rot)), math.sin(math.radians(rot))
+        pts = [(xc + x * c + y * s, yc + x * s - y * c) for x in (mb[0], mb[2]) for y in (mb[1], mb[3])]
+        b = (min(p[0] for p in pts) + ox, oy - max(p[1] for p in pts), max(p[0] for p in pts) + ox, oy - min(p[1] for p in pts))
+        cy = boxes[ref]
+        past = (cy[0] - b[0], cy[1] - b[1], b[2] - cy[2], b[3] - cy[3])
+        hits = [o for o, ob in boxes.items() if o != ref and ob[0] < b[2] - 0.1 and ob[2] > b[0] + 0.1
+                and ob[1] < b[3] - 0.1 and ob[3] > b[1] + 0.1]
+        covered = [t for t, x, y in texts if b[0] < x < b[2] and b[1] < y < b[3]]
+        worst = max(past)
+        if (code, round(worst, 1)) in done and not hits and not covered:
+            continue
+        done.add((code, round(worst, 1)))
+        flag = "ok" if worst <= 0.5 else ("known" if code in OVERHANG else "PAST")
+        if hits:
+            flag = "HITS"
+        print("  %-5s %-5s %-10s %+.2f %+.2f %+.2f %+.2f%s%s%s" % (
+            flag, ref, code, *past, ("  on " + ", ".join(hits)) if hits else "",
+            ("  over silk " + ", ".join(repr(t[:16]) for t in covered)) if covered else "",
+            ("  (" + OVERHANG[code] + ")") if flag == "known" and OVERHANG[code] else ""))
+        if flag in ("PAST", "HITS"):
+            off.append("  %s (%s): JLCPCB's body reaches %.2f mm past our courtyard%s" % (
+                ref, code, worst, (" onto " + ", ".join(hits)) if hits else ""))
+    return off
 
 
 def upload(fps, codes):
@@ -236,12 +326,13 @@ def upload(fps, codes):
         w = worst.setdefault(code, [0.0, 0.0, 0.0, [], fpid])
         w[0], w[1], w[2] = max(w[0], d), max(w[1], dm), max(w[2], dh)
         w[3].append(ref)
-        if d > TOL:
+        tol = BODY_DATUM.get(code, (None, TOL))[1]
+        if d > tol:
             off.append("  %s (%s): a pad of ours %.2f mm from theirs" % (ref, code, d))
     print("\nThe upload, JLCPCB's drawing where the CPL puts it (worst signal pad, mechanical pad, unplated hole):")
     for code, (d, dm, dh, refs, fpid) in sorted(worst.items(), key=lambda kv: -kv[1][0]):
         print("  %-5s %-10s %-46s pads %.2f  mech %.2f  holes %.2f mm  (%d: %s)%s" % (
-            "OFF" if d > TOL else "ok", code, fpid[:46], d, dm, dh, len(refs), " ".join(refs[:5]) + (" ..." if len(refs) > 5 else ""),
+            "OFF" if d > BODY_DATUM.get(code, (None, TOL))[1] else "ok", code, fpid[:46], d, dm, dh, len(refs), " ".join(refs[:5]) + (" ..." if len(refs) > 5 else ""),
             ("\n" + " " * 19 + MECH[code]) if dm > TOL and code in MECH else ("  MECHANICAL PADS UNEXPLAINED" if dm > TOL else "")))
         if dm > TOL and code not in MECH:
             off.append("  %s: a mechanical pad %.2f mm from theirs, not in MECH" % (code, dm))

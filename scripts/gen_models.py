@@ -93,11 +93,13 @@ def bnc():
 
 
 def trimpot():
-    """Bourns 3362P: 6.6 mm square, 4.9 mm tall, screw on top, centred."""
+    """BOCHEN 3362P: 6.9 x 7.1 mm, 4.8 mm tall, screw on top.  The body's middle
+    is 1.30 mm from the pins' middle toward pins 1 and 3 (y_fp = +1.30, so
+    y_model = -1.30), the screw 3.2 mm from the edge beside pin 2 (y_fp = +0.95)."""
     s = HEAD
-    s += box(0, 0, 2.45, 6.6, 6.6, 4.9, BLUE)
-    s += prism_z(0, 0, 4.9, 5.3, 1.7, (0.85, 0.85, 0.88))
-    s += box(0, 0, 5.35, 2.4, 0.6, 0.2, (0.25, 0.25, 0.28))
+    s += box(0, -1.30, 2.4, 6.9, 7.1, 4.8, BLUE)
+    s += prism_z(0, -0.95, 4.8, 5.2, 1.7, (0.85, 0.85, 0.88))
+    s += box(0, -0.95, 5.25, 2.4, 0.6, 0.2, (0.25, 0.25, 0.28))
     return "Potentiometer_3362P.wrl", s
 
 
@@ -119,11 +121,12 @@ def kf301(n):
 
 
 def slide_switch():
-    """Shouhan MSK12C02: 8.0 x 3.8 mm body, 1.5 mm tall, pins toward -y in the
-    footprint; a 1.6 mm travel knob standing up near the middle."""
+    """Shouhan MSK12C02: 6.6 x 2.7 mm body, 1.4 mm tall, pins toward -y in the
+    footprint; the knob, 1.3 mm wide, sticks out 1.45 mm from the +y edge
+    (y_model -1.35 to -2.8) and slides +-0.8 mm about the middle."""
     s = HEAD
-    s += box(0, 0, 0.75, 8.0, 3.8, 1.5, (0.15, 0.15, 0.15))       # the body
-    s += box(0.75, 0.0, 2.1, 1.6, 1.3, 1.2, (0.92, 0.92, 0.92))   # the slider (centred on pin 2's x)
+    s += box(0, 0, 0.7, 6.6, 2.7, 1.4, (0.15, 0.15, 0.15))        # the body
+    s += box(0.8, -2.075, 0.7, 1.3, 1.45, 0.9, (0.92, 0.92, 0.92))   # the knob, at the 1 end of its travel
     return "SW_MSK12C02.wrl", s
 
 

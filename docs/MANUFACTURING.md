@@ -127,12 +127,12 @@ angles already applied, per LCSC code, from `scripts/parts.py`:
 | J4, J5, J6 | C474882 | 180 deg | none | predicted: KF301-3P: pins along x at -5/0/+5 in both drawings; EasyEDA draws the wire-entry arrows on +y, the body 3.7 mm that way and 4.0 the other; ours face -y (the board edge): the pin row is symmetric, so +180 turns only the body (the op-amp board's review round 1) |
 | U1, U2, U3, U4, U5, U6, U7 | C9405 | 180 deg | none | predicted: SOT-23-5: their pad 1 at (+1.3,+0.95), KiCad's at (-1.14,-0.95); +180 was read on 59 SOT-23-5 placements on the GPSDO board |
 | J1, J2, J3 | C41416668 | 90 deg | none | read: BNC-KYWE-295-W4-N: Lorenz board rev A/B preview, built and working |
-| RV2, RV3, RV4 | C118945 | 0 deg | none | predicted: 3362P: their pads 1/3 at y=+1.27 and 2 at y=-1.27, as drawn here |
+| RV2, RV3, RV4 | C118945 | 0 deg | none | predicted: 3362P: their pads 1/3 at y=+1.27 and 2 at y=-1.27, as drawn here; their 3D body 1.30 mm toward pins 1 and 3, as BOCHEN's drawing (rev A's preview, 2026-10-29: our first outline was centred on the pins) |
 | F1 | C18198330 | 0 deg | none | predicted: 1812 fuse: two pads along x, not polarised |
 | LED1, LED2 | C2297 | 0 deg | none | read: KT-0805G on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1 |
 | C8 | C242107 | 0 deg | none | predicted: ECWF2W105JA: two leads on 15 mm along x, origin the body's middle in both drawings (easyeda CAP-TH_L18.1-W9.3-P15.00-D0.8); not polarised |
 | R21, R22 | C3000711 | 0 deg | none | predicted: 2512: pads along x, not polarised |
-| SW1, SW2, SW3, SW4, SW5 | C431540 | 0 deg | (+0.00, +0.25) mm | predicted: MSK12C02: pins along x in both drawings, pin 1 at -x; their origin 0.25 mm from ours toward the terminals (check_rotations.py; their terminals are 2.25 mm from the posts, Shouhan's land pattern 1.95) |
+| SW1, SW2, SW3, SW4, SW5 | C431540 | 0 deg | (+0.00, +0.55) mm | predicted: MSK12C02: pins along x in both drawings, pin 1 at -x; their origin 0.55 mm from ours toward the terminals, so their posts (and their 3D body) sit on ours.  Their land pattern's terminals are 2.25 mm from the posts against Shouhan's 1.95, and a datum of 0.25 that fitted them left the body 0.3 mm short in rev A's preview (Jason nudged all five, 2026-10-29) |
 | C11, C12 | C46550402 | 0 deg | none | predicted: SMD electrolytic: pads along x, pad 1 (+) at -x in both drawings |
 | TP1, TP2, TP3, TP4, TP5, TP6, TP7, TP8, TP9, TP10, TP11, TP12, TP13, TP100, TP101, TP102, TP103 | C5199800 | 0 deg | none | predicted: RH-5019 test loop: one 4.0 x 2.2 pad, as drawn here; the loop lies along x |
 | LED3, LED4 | C84256 | 0 deg | none | read: NCD0805R1 on KiCad's LED_0805: GPiBridge rev A preview, cathode at pad 1 |

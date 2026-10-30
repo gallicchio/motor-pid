@@ -159,8 +159,11 @@ def msk12c02():
     laid on ours by the terminals (check_rotations.py), its posts fall 0.3 mm
     further from the terminals than Shouhan's (CLAUDE_PCB.md, "Locating posts")
     and its shell pads 0.25-0.35 mm off ours.  The holes here are 0.9 x 1.45 mm
-    slots centred at y = +0.275, so either drawing's posts drop in.  Pin 2 is the
-    common; the knob slides along x, toward the terminal it connects.
+    slots centred at y = +0.275, so either drawing's posts drop in.  JLCPCB
+    places the part by its 3D body, whose posts are at their holes: the CPL's
+    datum (0.55 mm) puts those on ours.  Pin 2 is the common; the knob sticks
+    out 1.45 mm from the long edge opposite the terminals (+y) and slides along
+    x, +-0.8 mm about the middle, toward the terminal it connects.
     """
     name = "SW_SPDT_Shouhan_MSK12C02"
     f = fp_header(name,
@@ -174,12 +177,13 @@ def msk12c02():
         f.add(smd_pad("SH", x, y, 1.05, 0.7, f"{name}/sh{i}"))
     for i, x in enumerate((-1.5, 1.5)):
         f.add(npth_slot(x, 0.275, 0.9, 1.45, f"{name}/post{i}"))
-    # body 6.6 x 2.7 (the actuator stands off the -y edge)
+    # body 6.6 x 2.7; the knob stands off the +y edge, to y = 1.35 + 1.45 = 2.8
     rect_lines(f, -3.3, -1.35, 3.3, 1.35, "F.Fab", FAB_W, f"{name}/fab")
     f.add(line(-3.45, -0.4, -3.45, 0.4, "F.SilkS", SILK_W, f"{name}/silk/l"),
           line(3.45, -0.4, 3.45, 0.4, "F.SilkS", SILK_W, f"{name}/silk/r"),
           line(-1.6, 1.6, 1.6, 1.6, "F.SilkS", SILK_W, f"{name}/silk/b"))
-    rect_lines(f, -4.45, -2.85, 4.45, 1.7, "F.CrtYd", CRT_W, f"{name}/crt")
+    rect_lines(f, -1.45, 1.35, 1.45, 2.8, "F.Fab", FAB_W, f"{name}/fab/knob")      # its travel
+    rect_lines(f, -4.45, -2.85, 4.45, 3.05, "F.CrtYd", CRT_W, f"{name}/crt")
     text_fab(f, "2=C", 0, 0.6, f"{name}/fabtxt", size=0.6)
     model(f, "${KIPRJMOD}/lib/motorpid.3dshapes/SW_MSK12C02.wrl")
     return name, f
@@ -189,11 +193,16 @@ def msk12c02():
 def trimpot():
     """Bourns 3362P, 1/4 inch square single-turn cermet trimmer, top adjust.
 
-    Bourns 3362 data sheet: 6.60 x 6.99 mm body, 4.88 mm tall, screw on top;
-    terminals 1 and 3 on a 5.08 mm pitch with the wiper (2) 2.54 mm forward
-    of their row; pins 0.46 mm, so 0.9 mm holes.  JLCPCB's land pattern
-    (easyeda C118945) draws the same three pads at 5.08/2.54 mm, 1.8/0.9,
-    exactly these.  The anchor is the middle of the body.
+    BOCHEN's drawing of the part we buy (datasheets/3362P-1-105_C118945.pdf,
+    page 3): body 6.9 x 7.1 mm, 4.8 mm tall, screw on top 3.2 mm from the edge
+    beside pin 2; terminals 1 and 3 on a 5.0 mm pitch with the wiper (2) 2.5 mm
+    from their row and 1.0 mm from the body's edge, the 1-3 row 3.6 mm from the
+    other edge; pins 0.5 mm, so 0.9 mm holes.  So the body's middle is 1.30 mm
+    from the pins' middle, toward pins 1 and 3: JLCPCB's 3D outline (easyeda
+    C118945's component record, -2.25 to +4.85 mm) agrees, and its land pattern
+    draws the same three pads at 5.08/2.54 mm, 1.8/0.9, exactly these.  The
+    anchor is the pins' middle, as JLCPCB's.  rev A's first build centred the
+    body on the pins' middle (JLCPCB's preview showed it, 2026-10-29).
     Pad 1 is square: it says which end is terminal 1 on the board.
     """
     name = "Potentiometer_Bourns_3362P_Vertical"
@@ -206,12 +215,12 @@ def trimpot():
                                ("2", 0.0, -1.27, "circle"),
                                ("3", 2.54, 1.27, "circle")):
         f.add(tht_pad(num, x, y, 0.9, 1.6, f"{name}/p{num}", shape=shape))
-    bw, bl = 6.60 / 2, 6.99 / 2
-    rect_lines(f, -bw, -bl, bw, bl, "F.Fab", FAB_W, f"{name}/fab")
-    f.add(circle(0, 0, 1.6, "F.Fab", FAB_W, f"{name}/screw"))
-    rect_lines(f, -bw - 0.3, -bl - 0.3, bw + 0.3, bl + 0.3, "F.SilkS", SILK_W, f"{name}/silk")
-    f.add(line(-bw - 0.3, bl - 1.0, -bw + 0.9, bl + 0.3, "F.SilkS", SILK_W, f"{name}/silk/p1"))
-    rect_lines(f, -bw - 0.35, -bl - 0.35, bw + 0.35, bl + 0.35, "F.CrtYd", CRT_W, f"{name}/crt")
+    bw, y0, y1 = 6.90 / 2, -2.25, 4.85          # the body: pin 2's edge at y0, the far edge at y1
+    rect_lines(f, -bw, y0, bw, y1, "F.Fab", FAB_W, f"{name}/fab")
+    f.add(circle(0, y0 + 3.2, 1.6, "F.Fab", FAB_W, f"{name}/screw"))
+    rect_lines(f, -bw - 0.3, y0 - 0.3, bw + 0.3, y1 + 0.3, "F.SilkS", SILK_W, f"{name}/silk")
+    f.add(line(-bw - 0.3, y1 - 1.0, -bw + 0.9, y1 + 0.3, "F.SilkS", SILK_W, f"{name}/silk/p1"))
+    rect_lines(f, -bw - 0.35, y0 - 0.35, bw + 0.35, y1 + 0.35, "F.CrtYd", CRT_W, f"{name}/crt")
     text_fab(f, "1", -2.54, 2.6, f"{name}/fab/p1", size=0.7)
     model(f, "${KIPRJMOD}/lib/motorpid.3dshapes/Potentiometer_3362P.wrl", scale=MM_SCALE)
     return name, f
