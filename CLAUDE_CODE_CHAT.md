@@ -721,3 +721,33 @@ the body where the upload puts it against our courtyard.
   and the 3D model now show it.
 - **Build:** ERC 0, 258 checks, DRC 0, thermal 120/122 °C, all fab checks, 31/31 claims;
   check_rotations.py passes (fit, upload, bodies).
+
+## Prompt 19
+
+*Given in a Claude Code cloud session working on `gallicchio/earth-nmr-pcb`, whose Response 1 had found
+this; the whole prompt:*
+
+> I want an audio jack for a standard 3.5mm headphones. Find one with a known pinout on JLCPCB. Also, fix the small issue in motor-pid if you can confirm your improvement.
+
+## Response 16
+
+*2026-11-01 PST (04:55-05:10 UTC 2026-11-02).  The slide switches' 3D model, 2.54 times too big.*
+
+- **Confirmed.**  `scripts/gen_models.py` draws `SW_MSK12C02.wrl` in millimetres (its docstring: KiCad
+  reads a VRML unit as 2.54 mm, so every footprint carries 1/2.54).  The body is 6.6 x 2.7 x 1.4 mm in
+  the file, and every other model's `model()` call in `scripts/gen_footprints.py` passes
+  `scale=MM_SCALE`; the MSK12C02's did not, so its footprint and the board's five switches had
+  `(scale (xyz 1 1 1))` and rendered 16.8 x 6.9 x 3.6 mm, covering their own labels (TARGET SOURCE,
+  LOOP).  The earth-nmr board, which copied the footprint, showed the same.
+- **Fixed.**  The one call now passes `scale=MM_SCALE`.  What it changes: the footprint, the board's
+  five model scales (0.393701), and the top and tilted renders.  Nothing on copper, silkscreen or
+  the fab files moves; JLCPCB's preview draws its own model, so the order is unaffected.
+
+  ![before and after](docs/history/r16-switch-model-scale.png)
+
+- **Build.**  `./make.py` ran in this container through ERC 0, 258 circuit checks, DRC 0 and the
+  thermal check (120/122 °C, as before), then stopped at the assembly drawing's fit: Ghostscript or
+  KiCad here (10.0.8; the committed files are 10.0.7's) lays the page out differently: the unchanged
+  HEAD fails the same way in this container, so it has nothing to do with the model.  So only the files the fix changes are committed; the gerbers, PDFs
+  and simulation plots this container regenerated (KiCad's version string in every header, other
+  plotting libraries) were put back.  The bottom render is unchanged (the switches are on the top).
