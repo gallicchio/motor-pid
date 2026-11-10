@@ -1,4 +1,4 @@
-# PID Motor Control Loop — Lab 10L on one board
+# PID Motor Control Loop PCB
 
 [![The assembled board on the bench, its fader following a function generator (click for the video)](docs/images/driven_function_generator.gif)](docs/video/driven_function_generator.mp4)
 
