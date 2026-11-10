@@ -1,5 +1,7 @@
 # PID Motor Control Loop — Lab 10L on one board
 
+[![The assembled board on the bench, its fader following a function generator (click for the video)](docs/images/driven_function_generator.gif)](docs/video/driven_function_generator.mp4)
+
 The motor-position feedback loop of *Learning the Art of Electronics* (Hayes &
 Horowitz), Lab 10L, as a 170 x 120 mm printed circuit board whose silkscreen *is*
 the schematic.  A motorized slide fader (the lab's Bourns PSM01-082A-103B2, or
